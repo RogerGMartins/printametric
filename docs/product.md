@@ -49,7 +49,7 @@ evidence that geometry or an exported file is valid.
 
 - More patterns and outlines; evaluate slicer-specific 3MF project integration.
 - A second tool and shared editor controls when needed. The initial website
-  already includes a simple tool catalogue.
+  opens directly into the first tool; add a catalogue when it becomes useful.
 - Monetization with privacy and layout considered.
 
 ## Decisions still needed

@@ -1,260 +1,305 @@
 # Website definition
 
-Status: proposed definition, awaiting owner approval; no application implemented.
-Feature: `website-definition`. Date: 2026-10-29.
+Status: revised draft after guided discovery; detailed layout awaits review.
+No application behaviour is implemented or verified by this document.
 
-## Problem and outcome
+This revision incorporates [editor capability findings](../editor-capability-findings.md).
+Confirmed owner choices remain separate from the proposed kit scope below.
 
-Visitors need to understand what Printametric does, find its first tool, and
-understand the path from customization to a printable download. The repository
-currently defines the technology and product direction, but not the website's
-page responsibilities or experience.
+## Goal and confirmed direction
 
-This milestone defines that experience. The smallest subsequent runnable slice
-is Home → Tools → Wall-art page, with useful Guide/About content and an honest
-editor placeholder. Actual generation follows in the roadmap's later milestones.
-Approval of this document is not evidence that those journeys work in a browser.
+Make model customization easy without CAD skills. The audience includes technical
+makers who understand parametric models and newcomers who want to adjust a useful
+design. Keep the entry point simple and the allowed choices clear.
 
-## Evidence and requirement provenance
+Owner decisions from guided discovery:
 
-- **Confirmed project requirements:** `../product.md` requires a self-hosted
-  browser-tool site, wall art first, a simple catalogue, local design files, and
-  eventual STEP/binary STL/standard 3MF downloads. `../architecture.md` selects
-  client-side React/TypeScript/Vite, plain CSS/native controls, independent CAD
-  geometry, and explicit on-demand export. `../mvp-roadmap.md` puts website
-  definition before foundation, generator, editor, print preparation, and launch.
-- **Verified repository state:** inspected root `AGENTS.md`, the above documents,
-  `../development.md`, `.opencode/agents/specifier.md`, `package.json`,
-  `scripts/run-check.mjs`, and `tests/scaffold.test.mjs`. The package declares
-  development tooling, not application dependencies; current checks cover the
-  scaffold and tooling typecheck/tests. No existing feature specs or application
-  implementation were found in the inspected repository tree.
-- **External reference claims:** none adopted. No reference website was supplied
-  or tested. No competitor behavior, screenshots, assets, or branding are evidence
-  for this definition.
-- **Proposed defaults:** audience, copy, routes, layout, and visual choices below
-  are our design choices, not previously approved requirements or shipped behavior.
+- Open directly into the tool. A separate homepage and catalogue are not needed
+  for one generator. More model types can live within the tool or a later catalogue.
+- Start with a valid default design and offer a few presets inside the tool.
+- Keep the model prominent. Use a clean, visually interesting interface with
+  restrained colours. The parameter form and its usability are the main focus.
+- Use progressive disclosure: show common settings first and reveal advanced
+  options when needed.
+- Make plate size available from the start. Use dimensions rather than printer
+  presets. Provide one margin with optional per-edge adjustments.
+- Support assembled, exploded, and build-plate views, with component inspection
+  such as viewing the base separately where the generator has those parts.
+- Provide light and dark themes.
+- Save the design automatically and restore it on return.
+- Prioritize desktop and tablet. Phone use is low priority.
 
-## Audience and primary flow (proposed defaults)
+The original five-page, catalogue-first proposal is superseded. This definition
+sets the final MVP experience; foundation work alone does not provide a generator.
 
-Primary audience: personal-use makers who have access to an FDM printer and a
-slicer, but should not need CAD expertise. Secondary audience: people evaluating
-the tools or running the site locally. English only initially.
+## Workspace and navigation
 
-1. Open Home; read a short explanation of configurable printable models and see
-   wall art as the first tool. Primary link: **Explore tools**.
-2. Open Tools; find one Wall art entry, its purpose, and its availability.
-3. Open the Wall-art page. In the foundation slice, see **Editor coming soon**,
-   a description of the planned workflow, and a Guide link—not fake controls.
-4. Once the editor milestone passes its own acceptance checks, this same page
-   provides parameters → preview → local save/load → explicit format/download.
-5. Guide explains the applicable workflow and limitations; About explains the
-   project and personal-use source-available status. Users can return to Tools
-   from either page without browser-history dependence.
+Proposed route: `/` opens the wall-art workspace. A small header provides the
+Printametric identity, theme selection, Help, and About. Help/About can be panels
+or pages; the foundation spec will choose a keyboard-accessible implementation.
+Avoid a large marketing introduction or a separate mandatory setup flow.
 
-No sign-in, payment, upload to a service, or printer connection is part of this
-journey. Future functionality must be labelled as planned until implemented.
-
-## Scope and site contract (C-1)
-
-Proposed route paths identify pages; they do not mandate a router dependency.
-Foundation must choose a routing mechanism that supports direct links and refresh.
-
-| Page / proposed path | Responsibility | Required action/content |
-| --- | --- | --- |
-| Home `/` | Explain the product, emphasize wall art | Brief value statement, Explore tools link, short customize/preview/download explanation labelled as planned while unavailable |
-| Tools `/tools` | Simple catalogue, not a marketplace | One Wall art entry with visible Coming soon status and View tool link |
-| Wall art `/tools/wall-art` | Stable destination for the first tool | Description, availability, Guide link; later the editor occupies this page |
-| Guide `/guide` | Explain use without promising printer compatibility | Current availability; planned parameters/preview/local JSON/download workflow; millimeter units; slicer review and printer-fit caveat |
-| About `/about` | Explain purpose and rights accurately | Self-hosted/personal-use direction; source-available, not OSI open source; link to the repository LICENSE without paraphrasing new permissions |
-| Unknown route | Recover from broken links | Page not found message and Home/Tools links; no automatic redirect hiding the error |
-
-Shared shell: text Printametric home link, Home/Tools/Guide/About navigation,
-skip-to-main link, one main region, one page-level heading, and footer with About,
-Guide, source/license links. Identify the current navigation destination; on
-Wall art mark Tools as its section. Use descriptive page titles.
-
-Do not add search, filtering, categories, a CMS, an empty second tool, account
-menus, ad slots, testimonials, invented print results, or a plugin registry.
-One catalogue entry needs none of these. No deployment configuration or hosting
-provider selection belongs to this milestone.
-
-## Visual and responsive direction (C-2, proposed default)
-
-Use an original, restrained workshop/tool aesthetic: light neutral background,
-dark text, one accessible accent, system fonts, plain CSS, and native controls.
-Prioritize readable descriptions and clear actions over decorative 3D. Do not
-require a logo asset, remote fonts, stock imagery, or an animated hero. A future
-illustration must be original and labelled illustrative if not a generated model.
-
-Desktop wireframe:
+Use three workspace views: **Design**, **Print layout**, and **Assembly**. These
+are views of one saved design, not mandatory sequential steps. Design opens first.
+Switching views preserves parameters, accepted geometry, and local-save state.
+View navigation is separate from the camera and component-visibility controls.
 
 ```text
-[Printametric]                    [Home Tools Guide About]
-[Skip link when focused]
-[Page heading + concise explanation]
-[Home: primary action / short workflow]
-[Tools: Wall art entry + availability + View tool]
-[Footer: Guide / About / source and license]
-
-Future Wall-art editor main region:
-[Heading + status]
-[Parameters and errors] [Preview + view controls + accepted-design status]
-[Local Save / Load]     [Format selector / Download + export status]
+Printametric                             Help · About · Theme
+Design | Print layout | Assembly
+─────────────────────────────────────────────────────────────
+Design controls                  Assembled | Exploded | Frame
+                                 ┌───────────────────────────┐
+Preset choices                   │                           │
+                                 │     Large live preview    │
+Size                             │                           │
+  Common controls                │                 Parts ▾   │
+  ▸ Advanced options             └───────────────────────────┘
+Surface and direction            Dimensions · Parts · Plates
+  Common controls                Plate size · Edit settings
+  ▸ Advanced options
+Palette / Mounting
+  Common controls + advanced options
+Build plate
+  Width / depth / margin
+  ▸ Per-edge margins
+─────────────────────────────────────────────────────────────
+Saved on this browser     Save file · Load · Start fresh · Download
 ```
 
-Narrow-screen wireframe: header and navigation wrap into visible rows (no
-hamburger required); content becomes one column. Future editor order is heading,
-status, parameters/errors, preview/view controls, save/load, format/download.
-The DOM and keyboard order follow that reading order. Avoid fixed overlays and
-sticky actions that can obscure errors or focused controls. Parameter sections
-may later collapse only with keyboard-operable labelled controls.
+The desktop layout keeps the form and preview visible together. The exact control
+groups depend on the generator contract. This wireframe is a proposal, not a
+request to invent parameters. Tablet layouts must preserve a useful preview while
+editing. Narrow screens may stack sections; essential controls and errors must
+remain accessible without clipped content. A phone-specific workflow is not required.
 
-Proposed layout test boundaries: 320 CSS px width, 390 CSS px width, and
-1280 × 800 desktop; also 200% browser zoom on desktop. These are usability cases,
-not performance benchmarks. At these sizes there must be no page-level horizontal
-scroll or clipped navigation, text, error messages, or actions. Text contrast
-must meet WCAG AA; focus indicators remain visible. All essential actions use
-links/buttons/labelled controls, not pointer-only interactions or a canvas.
+Print layout shows colour groups, frame sections, plate placement, and fit.
+Assembly shows a numbered overview, component lookup, and paper-sheet preview.
+Keep the plate settings and current part/plate summary reachable from Design.
+Only expose supported capabilities; foundation placeholders must not suggest that
+geometry, maps, or downloads already work.
 
-On client-side page changes, update the title and move focus to the new main
-heading; preserve native browser Back/Forward behavior. No-JavaScript users must
-receive an explanation rather than a blank screen. The foundation placeholder
-does not depend on WebGL.
+## Form experience
 
-## Input, state, and output contracts
+- Show useful common controls first. Place advanced options within their relevant
+  sections, rather than putting unrelated settings in one large advanced panel.
+- Use labelled numeric fields with units for precise entry. Add sliders where
+  they help exploration. Keep the displayed values synchronized.
+- Show dependent controls only when applicable. The generator spec must define
+  whether inactive values are retained and when they become effective again.
+- Provide short inline explanations; longer help can be expanded. Do not rely
+  on hover alone.
+- Make errors visible even when the affected section is collapsed. Provide a
+  keyboard path to the field. Preserve unfinished text separately from valid values.
+- Refresh the preview after valid edits, with visible pending/failure states.
+- Give collapsed sections a short summary of their active settings.
+- Separate panel size/outline, piece layout/form, surface/direction, palette, and
+  mounting. The first generator may expose only a subset. Do not add arbitrary
+  geometry options merely to fill the layout.
+- Numeric fields and sliders share one validated range, value, and unit display.
+  Both require an accessible name. Render each unit once.
+- If generation adjusts a requested shape to meet a supported constraint, report
+  the adjustment and identify affected parts. Never silently repair an export or
+  present the requested value as the resulting dimension.
+- Provide undo/redo for accepted design edits. Define history limits and preset,
+  reset, and import recovery in the editor spec; camera changes are separate.
+- Proposed reset behaviour: presets and Start fresh reset design choices but
+  preserve plate settings and theme. Offer a way to recover the previous design
+  after a destructive replacement; define that interaction in the editor spec.
 
-### Website parameters (C-3)
+## Plate settings and preview
 
-There are no user-editable generator parameters or saved designs in this feature.
-Do not invent dimensions or print tolerances to populate a mock editor.
+Plate width and depth use millimeters. One edge margin applies to all sides until
+the user chooses per-edge controls: left, right, front, and back. Show the reserved
+edges in the plate view and place parts only inside the usable area.
 
-| Input/value | Type | Default / permitted values | Invalid/boundary behavior |
-| --- | --- | --- | --- |
-| Page location | URL pathname | `/`; the five exact paths in C-1 | Normalize a single trailing slash; unknown paths show Not found; query values never become model parameters |
-| Query/fragment | URL strings | Empty; no supported design serialization | Ignore for application state; never parse as JSON, execute, or render as HTML |
-| Tool ID | Static string literal | `wall-art` only | Unknown tool routes show Not found, not a fabricated catalogue entry |
-| Availability | Static literal | `coming-soon` in foundation; `available` only after editor acceptance | Coming-soon entries link to the description, not a disabled/dead control |
-| Catalogue text | Repository-authored plain text | Nonempty title, summary, status, destination | Render as text; a missing destination or duplicate ID fails the implementation test/build gate |
+Define the usable width as width minus left and right margins, and usable depth
+as depth minus front and back margins. Reject margins that leave no usable area.
+The print-preparation spec owns numerical limits, defaults, build-height checks,
+part spacing, rotation rules, and arrangement budgets. Margin is not a generated
+brim; spacing between parts is a separate quantity.
 
-Cross-field rule: `wall-art` maps only to `/tools/wall-art`; catalogue status and
-page status must agree. No availability toggle is exposed to visitors. This is a
-fixed entry, not a requirement for a configurable metadata framework.
+Custom corner exclusions and printer profiles are deferred proposals, not MVP
+requirements. Do not silently treat a corner exclusion as a full-edge reservation.
 
-Outputs are navigable pages and explanatory content only. No model file, part,
-design JSON, geometry generation, export serializer, CAD worker, or download is
-produced. No persistent user state, cookies, telemetry, external media, or design
-network requests are needed. Ignore unsupported file drops; provide no import
-target or file picker. Do not intercept unrelated native browser behavior.
+The default preview is assembled. Exploded view separates components for
+inspection. Parts controls can isolate or hide available component groups.
+Provide frame-only inspection when the mounting system is available. Use neutral
+inspection lighting as well as presentation lighting, so shading does not hide
+part boundaries. A visible part ID must be available without relying on colour.
+These changes affect display only, never printable geometry or export selection.
+Build-plate view shows actual print placement. Keep a compact plate/part summary
+available while designing. Show pending or unavailable counts when arrangement
+is not current; do not present a stale count as valid or imply optimal packing.
 
-### Future editor boundary (C-4; inherited requirements, not this milestone's implementation)
+Plate settings are part of the same workspace, not a mandatory later Prepare
+step. Implementation can remain staged, but final MVP integration must satisfy
+this interaction model.
 
-- Valid parameter edits refresh canonical geometry and its preview, not files.
-  Export starts only on explicit action for one selected format, capturing the
-  accepted generation and format. Pending/invalid/stale designs cannot export.
-- Distinguish initial loading, generating/pending, valid, invalid draft,
-  generation failed, exporting, export failed, and WebGL unavailable. Errors are
-  visible and accessible; unavailable functionality is not presented as working.
-- Failed JSON imports—including malformed, oversized, unknown-version, nonfinite,
-  out-of-range, and over-budget inputs—must preserve the previous valid parameters,
-  accepted geometry, and preview. Draft/error state is separate from accepted state.
-  Parsing/validation precedes expensive generation; no silent coercion or migration.
-- Printable units are millimeters. STL coordinates retain that scale; STEP/3MF
-  specify units. Standard 3MF is not a slicer project or sliced toolpath. Do not
-  describe export as proof of printability or printer fit.
-- The future wall-art spec must define axes/origin, every parameter's
-  type/default/range and cross-field constraints, explicit seed and schema/generator
-  versions, determinism tolerance, budgets/timeouts, minimum thickness/clearance,
-  tessellation tolerance, errors, and canonical solid/mesh/part outputs. The print
-  preparation spec must distinguish assembly coordinates from individual print
-  orientations/transforms and define plate-fit rules.
+## Colour groups and mounting
 
-Those values are deliberately unresolved here: this is not a generator. No
-generation worst case or export-scale success can be certified by this document.
-Future parameter and geometry contracts block generator work, not website foundation.
+Colour is a design parameter as well as a preview material. Each part has a colour
+group ID, readable label, and swatch. The generator spec selects the initial colour
+assignment rule and palette limits. Rich gradients, random assignment, and manual
+painting are not all required by this definition.
+
+Print layout groups decorative parts by colour and identifies frame parts
+separately. Show current counts per group and the overall plate count. Changing a
+palette or arrangement invalidates related summaries and documents until refreshed.
+Do not claim minimum plate usage. Weight estimates, if added, must state their
+material/volume assumptions and must not be presented as sliced consumption.
+
+Proposed MVP mounting scope is a printed frame divided into build-plate-sized
+sections, with a frame-only view and a 2D section map. The wall-art spec must settle
+the decorative-part attachment, section joints, clearance, orientation, mounting
+holes, and hardware assumptions before implementation. Include a small fit-test
+model and physical verification before claiming mounting performance.
+
+An alternative board-and-paper-template mounting method remains a scope decision.
+Do not assume that the same attachment geometry works for both methods.
+
+## Assembly kit and documents
+
+Proposed MVP kit scope extends the existing assembly guidance to include:
+
+- An overview with part IDs, colour labels, orientation, and frame-section IDs.
+- A full-scale placement map.
+- A tiled paper version with A4/Letter choice, printable margins, overlap,
+  alignment marks, sheet row/column IDs, and a measurable scale-check mark.
+- A print checklist listing files, colour groups, plates, and quantities.
+- The editable versioned design and a manifest linking the kit contents.
+
+Paper instructions must specify 100% scale. Colour labels and IDs must remain
+readable in monochrome. Paper margins are separate from build-plate margins.
+Exact document formats and page limits belong in the print-preparation spec.
+
+All outputs use one captured design revision. A stable part ID links geometry,
+colour group, plate placement, and map location. The generator spec defines when
+topology changes require new IDs; the UI must not mix an old map with a new kit.
+Selecting a part in Assembly should locate it on the map and its print plate,
+with an equivalent keyboard-accessible part list.
+
+Download offers the selected model format and, once the kit scope is approved,
+explicit kit/document choices. Show contents before generation, progress, failures,
+and cancellation where supported. Individual-part or plate re-export is a proposed
+follow-up, not implied by hiding parts in the preview.
+
+## Automatic local saving
+
+Restore the last valid design on the same browser, without an account. Proposed
+implementation contract:
+
+- Persist versioned parameters and explicit seed, not meshes or WASM objects.
+  Persist plate preferences and theme separately from design reset behaviour.
+- Save accepted valid designs; incomplete edits and failed generation must not
+  replace the last recoverable valid design.
+- Validate restored data as strictly as imported files: versions, finite values,
+  ranges, file/data size, and generation budgets before geometry work.
+- If stored data is corrupt or unsupported, explain the failure and allow a valid
+  default. Do not silently overwrite the stored design during failed restoration.
+- If storage is unavailable or full, keep editing usable, show that automatic
+  saving failed, and offer manual JSON save. Never show Saved after a failed write.
+- Make the scope clear: saved on this browser, not cloud backup. Browser data
+  removal can remove the saved design. Manual JSON save/load remains available.
+- The editor spec defines storage mechanism, save timing, tab conflicts, and
+  recovery/reset details with testable outcomes.
+
+## Themes and accessibility
+
+Provide light and dark themes with shared colour tokens. Proposed default: follow
+the system preference until the user selects a theme, then remember that choice.
+Check text, controls, focus rings, errors, and preview contrast in both themes.
+Do not use colour alone to identify state or parts.
+
+Use visible labels, keyboard-operable controls, logical focus order, and visible
+focus. Collapsible sections expose their expanded state. Retain usable content
+at zoom and narrow widths even though phones are not the primary target.
+
+## Geometry and export boundaries
+
+Follow `../architecture.md`: validated deterministic CAD solids supply preview
+and STEP/STL/3MF exports. Only explicit Download starts file serialization for the
+selected format, using the accepted generation captured at click time. Pending,
+invalid, or stale results cannot export. Failed imports preserve the prior design.
+Exploded offsets, hidden parts, grids, and themes are display-only state.
+
+For a kit, capture the geometry generation, palette, arrangement, and document
+settings together. Serialize only explicitly selected outputs. Interactive map
+previews may refresh during editing, but PDF, archive, and model file creation
+must wait for a download action. Retain the captured revision until completion or
+explicit cancellation; later edits must not retarget that job.
+
+Generator parameters, mounting, budgets, tolerances, part identities, and saved
+versions belong in `wall-art.md`. Print layouts, splitting decisions, and plate
+export semantics belong in `print-preparation.md`. Standard 3MF remains required;
+slicer-specific multi-plate project metadata is not implied by this UI definition.
 
 ## Acceptance criteria
 
-IDs remain stable. Definition review checks this specification; browser and code
-checks below become obligations for foundation implementation, not claims of
-current completion. C-4 implementation checks belong to later feature specs.
+IDs retain their original numbering but their content now reflects guided discovery.
+These are future implementation checks, not evidence of a working application.
 
-| ID | Observable outcome | Verification method |
+| ID | Required outcome | Verification |
 | --- | --- | --- |
-| AC-1 | Audience, Home emphasis, five-page map, phased availability, and exclusions are explicitly approved or amended by the owner | Record owner approval in the implementation handoff; do not infer it from file creation |
-| AC-2 | A new visitor can explain the product and follow Home → Tools → Wall art → Guide, with no account and no dead-end action | Browser journey on desktop; inspect copy and link targets against C-1 |
-| AC-3 | Each C-1 page opens directly, survives refresh, and works with Back/Forward; unknown routes show recovery links | Browser route table tests, including `/tools/no-such-tool`, trailing slash, and query/fragment cases from C-3 |
-| AC-4 | One catalogue entry and its destination consistently say Coming soon; no working-editor or download claim is made | Text/assertion test and screenshot review of Home, Tools, Wall art, Guide |
-| AC-5 | Every navigation/action is keyboard reachable with visible focus; skip link works; route focus/title identify the destination | Keyboard-only journey using Tab/Shift+Tab/Enter, accessibility-tree inspection, and Back/Forward check |
-| AC-6 | Navigation, content, footer, and placeholder remain readable and operable at all C-2 widths and zoom; no horizontal overflow | Browser viewport/zoom checks and reviewed desktop/narrow screenshots; contrast check |
-| AC-7 | Unknown or hostile URL values cannot inject content or create model state; missing/duplicate catalogue metadata is caught | Negative tests for unknown tool, HTML-like encoded query text, and invalid static-entry fixtures against C-3 |
-| AC-8 | Foundation pages work without WebGL and make no geometry/export calls, downloads, or tracking requests; JS disabled shows a useful explanation | Browser network/download observation, WebGL-disabled and JS-disabled runs; inspect application dependency boundary |
-| AC-9 | About/footer accurately identify source-available personal use and link to the actual license; no copied assets or unproven print claims appear | Content/link review against repository LICENSE and original asset inventory |
-| AC-10 | Future editor wireframes identify parameter, preview, local-file and explicit-export regions in desktop/narrow reading order; no geometry values are invented | Definition/frontend review against C-2 and C-4; later editor spec owns interactive acceptance |
-| AC-11 | Foundation implementation builds and its navigation/invalid-route regression checks run through the shared gate | Run `npm run check` after foundation adds app typecheck/build and browser checks; record actual output |
+| AC-1 | The implementation spec follows the confirmed tool-first direction and distinguishes remaining proposals | Owner review of revised definition and detailed layout |
+| AC-2 | A first visit opens a valid default design; presets are available inside the tool | Browser first-visit and preset journeys |
+| AC-3 | Workspace and Help/About navigation have no dead ends; routes, if used, support direct entry, refresh, history, and unknown-route recovery | Navigation checks for the selected route scheme |
+| AC-4 | Common settings are easy to find; advanced and dependent controls reveal correctly without concealing errors | Normal and invalid form journeys |
+| AC-5 | All essential actions work with a keyboard, with labels and visible focus | Keyboard-only editing, disclosure, view, save/load, and download checks |
+| AC-6 | Form and preview are usable on desktop/tablet; narrow screens and zoom do not clip essential controls; both themes remain readable | Reviewed screenshots at proposed 1280×800, 768×1024, 390×844 and desktop 200% zoom; contrast checks |
+| AC-7 | Imports and restored data cannot bypass validation or discard a previous valid design on failure | Malformed, oversized, unsupported-version, nonfinite, range, and budget tests |
+| AC-8 | Automatic saving restores the last valid design and reports storage failures honestly | Reload, storage denial/quota failure, corrupt storage, and reset/recovery checks |
+| AC-9 | Help/About describe local saving, available exports, and personal-use source-available terms accurately | Content and license-link review |
+| AC-10 | Assembled/exploded/parts views do not alter exports; plate settings and current arrangement determine the displayed fit/count | View-switch, asymmetric-margin, fit, stale-result, and export checks |
+| AC-11 | Applicable build, regression, and browser checks run through the shared gate | `npm run check` plus recorded screenshot/export evidence |
+| AC-12 | Workspace views preserve the design; component selection links the part list, map, and plate | Keyboard view-switch and part-lookup journeys |
+| AC-13 | Colour labels, IDs, group quantities, and arrangements agree for the accepted revision | Palette-change, regrouping, pending-state, and manifest checks |
+| AC-14 | If printed-frame scope is approved, section map and frame-only view match generated section IDs and plate fit | Section/geometry checks, fit-test export, and separate physical-fit evidence |
+| AC-15 | If document scope is approved, overview and tiled maps preserve scale, orientation, part IDs, and sheet registration | Independent document inspection, page-boundary cases, scale measurements, and monochrome review |
+| AC-16 | A kit uses one captured revision; edits create no files; failed/cancelled generation cannot present a partial kit as complete | Export-call instrumentation, edit-during-download, cancellation, and failure tests |
+| AC-17 | Undo/redo and reset recovery restore valid accepted parameters; sliders and numeric fields share constraints | History, preset/reset, boundary-input, and accessible-name checks |
 
-## Edge cases and test plan
+## Implementation sequence
 
-- Normal: review all five pages and the primary flow; ensure Guide is useful while
-  the editor is unavailable. Validate internal and source/license links.
-- Boundary: longest visible navigation/content at 320 px and 200% zoom; refresh a
-  nested URL; repeated Back/Forward; unavailable WebGL; disabled JavaScript.
-- Invalid: unknown paths/tool IDs, unsupported query data, HTML-like text,
-  duplicate/missing catalogue data. No generated design exists to overwrite in
-  foundation; C-4 supplies the later invalid-import preservation requirement.
-- Use one route-table regression check plus a browser smoke journey where
-  practical; avoid building a test framework solely for static metadata. QA records
-  browser/OS/version, viewports, results per AC, and screenshot paths. Keep generated
-  evidence in `artifacts/` unless intentionally committing small fixtures.
-- No numerical latency or memory target is claimed for this definition. Foundation
-  should record build size and representative page-load behavior before proposing
-  budgets with named hardware/browser/network conditions and rationale. CAD
-  initialization, peak memory, worst-case generation, and export round trips are
-  later milestone checks, not waived requirements.
-- Existing scaffold checks cannot prove these UI criteria. No browser, geometry,
-  export, slicer, or physical-print verification has occurred as part of writing
-  this specification.
+1. Review this revised definition and resolve layout proposals in the foundation
+   spec. Build the workspace shell, form patterns, themes, and supporting content.
+2. Implement generator validation, geometry, presets, and exports against the
+   wall-art spec. Do not present shell placeholders as working generation.
+3. Connect the editor, local restoration, manual files, and preview controls.
+4. Integrate plate configuration, colour grouping, and arrangement into the same
+   workspace. Implement the approved frame and assembly-document scope with its
+   own contracts and checks.
+5. Verify the acceptance criteria at the milestone that supplies each capability.
 
-## Assumptions and unresolved decisions
+The roadmap remains staged by implementation dependency, not separate user steps.
+No application code or runtime UX verification is part of this definition update.
 
-**Reasonable defaults, not blockers:** English; maker-first audience; Home emphasizes
-wall art; five pages; light/system-font styling; always-visible wrapping navigation;
-one coming-soon entry; no backend, analytics, remote assets, or user persistence.
-Foundation may use native navigation or a small routing solution without changing
-C-1's observable behavior. Final copy and accent color can be chosen in UI design.
+## Research and remaining decisions
 
-**Approval gate:** Does the owner approve C-1/C-2 and the coming-soon foundation
-journey as the website baseline? This is the only definition completion blocker;
-the proposed defaults make further exploration possible without inventing approval.
+Source inspection of the owner's experimental `C:\develop\vase-builder` project
+informed the proposal: `src/index.template.html` and `src/ux.js` contain starters,
+grouped disclosures, numeric controls, and contextual help; `src/app.js` shows fit
+and plate summaries and component views. `src/core.js:249–258` uses brim padding,
+part gaps, and a conservative full-width reduction for its reserved corner.
+This was source inspection, not browser verification or reused implementation.
 
-**Deferred, not foundation blockers:** mounting, parameter ranges/tolerances,
-generation budgets, plate arrangement/splitting, host/domain, monetization, and
-commercial legal review remain with their respective roadmap milestones. Do not
-silently resolve these through marketing copy or placeholder controls.
+- [OrcaSlicer printable space](https://www.orcaslicer.com/wiki/printer_settings/basic%20information/printer_basic_information_printable_space.html)
+  distinguishes bed size and polygon exclusions. Per-edge margins are our simpler
+  initial product choice, not a claim of equivalent exclusion support.
+- [Progressive disclosure](https://www.nngroup.com/articles/progressive-disclosure/)
+  supports revealing less-used options separately from the common path.
 
-## Implementation sequence and handoffs
+Remaining proposals: precise layout and accent colours, Help/About presentation,
+system-theme default, reset/recovery interaction, and persistence details. These
+can be resolved in foundation/editor specs. Geometry ranges and packing/export
+contracts must be resolved before their respective implementations.
 
-1. Owner reviews AC-1 and approves/amends C-1/C-2. Frontend performs the UI design
-   pass in this spec if requested, preserving contract/acceptance IDs.
-2. Build creates the website-foundation spec from C-1–C-3, then installs only the
-   dependencies needed for that runnable slice using the root lockfile. No CAD or
-   rendering dependency is needed to draw a coming-soon page.
-3. Implement shared shell, pages, route recovery, responsive styles, and honest
-   availability; add application build/typecheck and regression coverage to the
-   existing gate. Do not implement a fake editor or preempt later geometry contracts.
-4. Verify AC-2–AC-9 and AC-11; review AC-10 before the editor design starts. Report
-   failures/unverified cases rather than treating placeholder navigation as MVP done.
+Before marking this definition complete, approve or amend the proposed printed
+frame and document-kit scope. Decide whether board/template mounting is included.
+The proposed frame and document acceptance criteria apply only if that scope is
+approved; record exclusions explicitly rather than silently skipping those checks.
 
-Handoff ownership (assign only when the caller requests implementation/delegation):
-
-- **Frontend:** C-1–C-3 and C-4 layout/state boundaries; AC-2–AC-10. Own page/shell
-  UI and accessible navigation. Return screenshots, keyboard/narrow-screen evidence,
-  files changed, and any requested contract amendments.
-- **Geometry:** no implementation assignment for this milestone. C-4 is the future
-  boundary; supply the missing generator contracts in `wall-art.md` before generator
-  work. Do not turn AC-10 into a mesh or export acceptance claim.
-- **QA:** AC-2–AC-11 verification against the same contracts; separate spec review
-  from browser evidence. Include normal/boundary/invalid cases and environment.
-- **Build/caller:** owns approval tracking, dependency/shared-contract changes,
-  integration and AC-11. Handoffs list acceptance IDs, changed files, contract
-  changes, commands/results/artifact paths, blockers, and unverified behavior.
+Advanced outline imports, multiple grid/shape families, spatial influence editing,
+image-driven patterns, room-photo previews, cloud projects, and slicer-specific
+project handoff remain outside the initial commitment. Their observed availability
+does not establish our requirements or provide an implementation contract.
