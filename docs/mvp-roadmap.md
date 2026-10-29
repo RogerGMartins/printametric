@@ -15,12 +15,15 @@ and remaining gaps in the spec or implementation handoff.
 
 Planned spec: `docs/specs/website-definition.md`
 
-- [ ] Agree on the audience, primary user journey, and homepage emphasis.
-- [ ] Agree on the site map and page responsibilities. Starting proposal: Home,
-  Tools, Wall-art editor, Guide, and About.
+- [x] Agree on the audience and primary journey: simple customization without CAD,
+  opening directly into the tool with a default design and presets.
+- [ ] Finalize workspace navigation and Help/About presentation; no separate
+  homepage or catalogue is needed for the first tool.
 - [ ] Define the visual direction and shared navigation, header, and footer.
 - [ ] Define desktop/mobile wireframes and the overall editor layout.
 - [ ] Record agreed MVP boundaries and acceptance criteria.
+- [ ] Resolve the revised definition's proposed mounting-frame and document-kit
+  scope, including whether board/template mounting is included.
 
 Done when the website structure and experience are agreed and ready to build.
 
@@ -30,7 +33,7 @@ Planned spec: `docs/specs/website-foundation.md`
 
 - [ ] Set up the application with the selected stack and existing root lockfile.
 - [ ] Implement responsive styling, shared layout, navigation, and routing.
-- [ ] Build the homepage, simple tool catalogue, and agreed supporting pages.
+- [ ] Build the tool-first workspace shell, light/dark themes, and supporting content.
 - [ ] Build the wall-art page layout for subsequent editor integration.
 - [ ] Verify keyboard navigation and mobile layouts, review screenshots, and
   include application build checks in `npm run check`.
@@ -62,6 +65,10 @@ Planned spec: `docs/specs/wall-art-editor.md`
 - [ ] Implement worker-backed generation, stale-result handling, and visible
   loading, pending, validation, and failure states.
 - [ ] Add local JSON save/load; failed imports preserve the previous valid design.
+- [ ] Add automatic local saving/restoration with visible storage failures and recovery.
+- [ ] Add progressive disclosure and assembled/exploded/component preview controls.
+- [ ] Connect Design, Print layout, and Assembly views with consistent part IDs,
+  form summaries, and undo/reset recovery.
 - [ ] Add explicit format selection and export from the accepted design captured
   at click time; parameter edits must not serialize export files.
 - [ ] Verify keyboard/mobile editing, preview, save/load, and actual downloads.
@@ -74,8 +81,13 @@ Planned spec: `docs/specs/print-preparation.md`
 
 - [ ] Define plate width/depth, build-height limits, margins, and fit rules.
 - [ ] Implement plate configuration, plate preview, and oversized-part feedback.
+  Keep size and margins available from the start of editing, with current plate
+  counts in the workspace. Support a shared margin and per-edge overrides.
 - [ ] Define and implement supported multi-piece layouts, stable numbering,
   colour grouping, and assembly guidance, with multiple plates where needed.
+- [ ] Specify and implement the approved mounting sections and assembly documents;
+  candidates include full-scale/tiled maps, a print checklist, and kit manifest.
+  Keep all selected outputs tied to one design revision.
 - [ ] Distinguish assembly positions from print positions; verify exported
   placement, dimensions, and plate fit.
 - [ ] Decide whether oversized panels are rejected or split; splitting requires

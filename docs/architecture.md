@@ -128,8 +128,8 @@ Use one application and one package/lockfile. Create these modules as needed:
 - `tests/`: headless geometry tests and browser journeys.
 
 These are boundaries, not a request to create empty folders or a plugin framework.
-Follow the website-first [MVP roadmap](mvp-roadmap.md), including a simple tool
-catalogue. The first generator is wall art.
+Follow the website-first [MVP roadmap](mvp-roadmap.md). Open directly into the
+wall-art workspace; add a catalogue when more tools justify it.
 React state is sufficient initially; a global state library needs a concrete use.
 
 ## Responsiveness and printability
