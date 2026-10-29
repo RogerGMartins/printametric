@@ -14,8 +14,12 @@ the existing Node 24.6 installation, which emits that warning during install.
 
 ## Current stack
 
-Node.js 24, npm, TypeScript for OpenCode tools, Node's built-in test
-runner, and YAML parsing for configuration checks. The web stack is undecided.
+Installed tooling: Node.js 24, npm, TypeScript for OpenCode tools, Node's built-in
+test runner, and YAML parsing for configuration checks. The selected application
+stack is React + TypeScript + Vite, with Three.js/React Three Fiber for preview and
+Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
+See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
+Application dependencies will be installed with the first working slice.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
@@ -23,18 +27,68 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 
 ## Lifecycle
 
-1. Specify: use /spec to write docs/specs/<feature>.md with inputs, constraints,
-   acceptance criteria, test strategy, and exclusions. Use /spec wall-art for
-   the first slice. Record product assumptions explicitly.
-2. Implement: use /implement with the spec path. Finish a runnable slice before
-   adding abstractions. Update docs when decisions change.
-3. Verify: npm run check is the shared local/CI gate. Add application build and
-   geometry/browser tests to that gate as those components are introduced.
-4. Review: use /review; prioritize reproducible bugs over stylistic preferences.
-5. Ship: use /ship for readiness. Commit, push, PR creation, releases, and actual
-   deployment still require an explicit request.
+| Stage | Entry point / owner | Required output |
+| --- | --- | --- |
+| Specify | `/spec wall-art` -> specifier | `docs/specs/wall-art.md`: bounded parameter and mesh contracts, acceptance IDs, exclusions, test plan |
+| Design UI | `/design docs/specs/wall-art.md` -> frontend | UI section in that same spec: layout, controls, keyboard/mobile behavior, states |
+| Implement | `/implement docs/specs/wall-art.md` -> build | Working vertical slice with geometry, editor, export, and regression checks |
+| Verify | `/verify docs/specs/wall-art.md` -> qa | Per-acceptance-ID pass/fail/unverified evidence, browser/mesh checks where relevant |
+| Review | `/review <diff or PR scope>` -> reviewer | Reproducible correctness findings; read-only |
+| Deliver | `/ship <scope>` -> build | Readiness, actual checks, and remaining gaps; publish only when requested |
+
+Use these stages for meaningful features; small fixes need only relevant steps.
+Do not make a separate spec, ceremony, or agent call for every edit. `/design`
+is for UI changes; a geometry-only fix does not need a UI design pass.
+
+Resolve blocking contract decisions before implementation. Build starts with
+validation and a small headless geometry/export path, then connects the editor.
+`npm run check` remains the shared local/CI gate; extend it with app build and
+geometry/browser tests as those components are introduced. QA verifies the
+implementation; reviewer independently inspects the diff. Build fixes failures
+and reruns the affected checks. Neither AI review replaces CI.
+
+### Delegation and handoffs
+
+Invoking a specialist command requests that specialist, not a multi-agent fan-out.
+For parallel work, explicitly request delegation from build, for example:
+`/implement docs/specs/wall-art.md; delegate frontend and geometry after agreeing
+the shared contract`. Build remains responsible for the integrated result.
+
+Each assignment states the spec path, acceptance IDs, input/output contracts,
+owned file paths, required checks, and dependencies on other work. Build owns
+package manifests, lockfiles, and shared-contract edits during parallel work.
+Geometry owns validation/generation/export; frontend owns the editor/preview;
+QA owns requested test additions. Assign test paths explicitly to avoid overlap.
+Start dependent work only after its contract is stable; a stub is not evidence
+that integration works. Specialists return changes and blockers to build without
+launching nested agents or overwriting another scope.
+
+Handoff format: acceptance IDs covered; files changed; contract changes requested;
+commands/results and artifact paths; blockers and unverified behavior. Verification
+may be summarized in the task/PR; no separate report file is required by default.
 
 ## Available tools
+
+### Agent responsibilities
+
+- Built-in `plan`: explore requirements and technical options without editing.
+- Built-in `build`: own implementation, shared contracts/dependencies, integration,
+  fixes, and delivery; perform routine work directly.
+- `specifier`: write feature contracts and testable acceptance criteria; edit only
+  `docs/specs/`, not application code.
+- `frontend`: editor UX, visual design, accessible controls, and browser behavior.
+- `geometry`: deterministic generation, collision/printability checks, and export.
+- `qa`: verify against acceptance criteria; add regression tests only when requested.
+  `/verify` itself is verification-only and does not modify tests or application code.
+- `reviewer`: independent, read-only correctness review.
+
+Commands provide repeatable task prompts to these roles. `/spec` now invokes a
+specifier with a limited document-editing scope; plan remains read-only. `/implement`
+uses build rather than duplicating it with a renamed implementation agent.
+Use specialists directly or delegate only when requested. Skills supply reusable
+procedures; tools execute concrete operations.
+
+### Local checks
 
 project_check runs the same Node entry point as npm run check, without a shell, with
 a two-minute timeout. Run npm ci first. CI uses no model API keys or MCP servers.
@@ -63,3 +117,40 @@ Keep the first generator client-side where practical. Avoid a hosted-service
 dependency for basic design/export. Add deployment configuration for the actual
 target once chosen; do not assume a particular cloud provider. The official
 host may monetize under the owner's retained rights in LICENSE.
+
+## Codex pull request reviews
+
+Use the official ChatGPT/Codex GitHub integration. It runs independently of
+OpenCode's local reviewer and the deterministic GitHub Actions CI checks.
+No OpenAI API key or custom Actions workflow is required for this route.
+
+Account setup (not enabled by adding these files):
+
+1. Sign in to ChatGPT/Codex and connect GitHub. Grant the integration access to
+   RogerGMartins/printametric; select only this repository if that is the intended scope.
+2. Open https://chatgpt.com/settings/code-review, select this repository, and
+   enable Automatic review under Review code. Check personal Automatic review
+   preferences and the Review trigger setting as well.
+3. Confirm the account's review availability and usage limits before enabling
+   automatic runs. This uses Codex account entitlement, not GitHub CI minutes alone.
+4. On a representative PR, comment `@codex review`. Confirm a reaction and a
+   completed review from the Codex connector. A configured toggle alone does not
+   verify end-to-end operation.
+
+Codex reads applicable `AGENTS.md` files, including the root Code Review Rules.
+Those rules must be published with the repository changes to be available on
+GitHub. Keep CI as a separate gate; AI reviews are advisory and can miss issues.
+
+Setup verified on 2026-10-29 by reloading the repository's Codex settings:
+
+- Repository connected; automatic code review enabled for all PRs, on every push.
+- Exhaustive review off to avoid repeated review passes.
+- Automatic security review enabled for all PRs whenever code review runs.
+- Security reporting thresholds: High for automatic reviews, Medium for manual.
+
+The repository-specific settings override personal review preferences. Settings
+verification alone is not an end-to-end test: confirm a completed Codex review on
+a representative PR and record its result there. Codex can use the review rules
+once the branch containing AGENTS.md is published on GitHub.
+
+Official documentation: https://developers.openai.com/codex/integrations/github

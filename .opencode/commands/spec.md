@@ -1,11 +1,13 @@
 ---
 description: Write a small, testable feature specification before implementation.
-agent: build
+agent: specifier
+subtask: true
 ---
 
 Specify this feature: $ARGUMENTS
 
-Read AGENTS.md, docs/product.md, and docs/development.md. Inspect existing code.
+Read AGENTS.md, docs/product.md, docs/development.md, and docs/architecture.md.
+Inspect existing code and follow the specifier's contract and acceptance format.
 Write docs/specs/<feature>.md with problem, user flow, scope, parameter contracts,
 acceptance criteria, edge cases, test plan, and unresolved decisions. Distinguish
 verified reference behavior from proposals. Ask only blocking questions; mark
