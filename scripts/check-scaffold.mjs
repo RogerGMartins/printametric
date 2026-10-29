@@ -19,7 +19,7 @@ export async function check(root = process.cwd()) {
   const config = JSON.parse(await read('opencode.json'));
   assert.equal(config.$schema, 'https://opencode.ai/config.json');
   for (const path of config.instructions ?? []) await read(path);
-  for (const path of ['AGENTS.md', 'LICENSE', 'README.md', 'docs/product.md', 'docs/development.md']) {
+  for (const path of ['AGENTS.md', 'LICENSE', 'README.md', 'docs/product.md', 'docs/development.md', 'docs/architecture.md']) {
     assert((await read(path)).trim(), `${path}: empty document`);
   }
   const agents = new Set(['build', 'plan']);

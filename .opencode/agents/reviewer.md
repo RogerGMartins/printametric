@@ -6,7 +6,9 @@ permission:
   bash: ask
 ---
 
-Review without changing files. Read the diff, applicable spec, and nearby code.
+Review without changing files. Read the diff, applicable spec, docs/architecture.md,
+and nearby code. Check the actual implementation against acceptance criteria;
+do not treat a specialist's handoff or a passing test as proof of correctness.
 Prioritize correctness, unsafe inputs, memory bounds, deterministic output,
 preview/export agreement, accessibility, secret exposure, and regression gaps.
 For each finding give severity, file/line, a concrete failure scenario, and the
