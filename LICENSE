@@ -1,0 +1,53 @@
+Printametric Personal Use License 1.0
+
+Copyright (c) 2026 RogerGMartins. All rights reserved.
+
+1. Permission. The copyright holder grants individual natural persons a
+non-exclusive, worldwide, royalty-free license to view, download, run, and
+privately modify this software and its accompanying first-party documentation
+(the Software) solely for their own personal, private, noncommercial use.
+Private self-hosting for that individual's own use is permitted.
+
+2. Restrictions. No permission is granted to use the Software for or on behalf
+of any company or other organization, or for any commercial, professional,
+business, revenue-generating, or paid activity. You may not use the Software
+or its modifications as a starting point for an organizational or commercial
+product or service. You may not sell, sublicense, redistribute, or publicly
+host the Software or modified versions, except through contributions submitted
+to the copyright holder's official project. Advertising-supported hosting,
+paid access, and selling models generated using the Software are not permitted
+under this license. Separate written permission is required for these uses.
+
+3. Notices. Retain this license and all copyright notices in permitted copies
+and modifications. No rights to project names, trademarks, or branding are
+granted. Third-party components remain governed by their respective licenses.
+
+4. Generated models. This license does not claim ownership of independently
+created input or generated model files. However, the permission to use this
+Software to generate models is limited to the personal, private,
+noncommercial purposes described above.
+
+5. Contributions. By intentionally submitting a contribution for inclusion
+in the official project, you retain your copyright and grant the project
+copyright holder a perpetual, worldwide, non-exclusive, royalty-free,
+irrevocable license to use, reproduce, modify, distribute, sublicense, and
+commercialize your contribution under any terms. Only submit contributions
+you have the right to license this way. This clause does not apply to code
+merely published elsewhere or to third-party dependencies.
+
+6. Reserved rights. All rights not expressly granted are reserved. These
+restrictions apply to licensees, not to the copyright holder's own work.
+The copyright holder may offer separate licenses and operate commercial,
+advertising-supported, or paid hosted services.
+
+7. Termination. These permissions terminate automatically if you violate this
+license. On termination, cease using and delete your copies of the Software.
+
+8. Disclaimer. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NONINFRINGEMENT. TO THE EXTENT PERMITTED BY LAW, THE AUTHORS
+AND COPYRIGHT HOLDERS ARE NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
+
+This is a custom source-available license, not an OSI-approved open-source
+license. For additional permissions, contact the repository owner.
