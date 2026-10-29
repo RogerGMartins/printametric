@@ -12,9 +12,22 @@ Read AGENTS.md, docs/product.md, docs/architecture.md, and existing relevant spe
 and code. Write only docs/specs/<feature>.md. Do not implement application code,
 install dependencies, or bypass the editing scope with shell commands.
 
+Before drafting or revising a spec, ask the user to choose a collaboration mode,
+unless they already selected one for this task:
+- Guided questions: ask about their goals and preferences in small batches.
+  Confirm the direction before writing the spec. Do not limit discovery to blockers.
+- Freedom to draft: choose reasonable defaults, label assumptions and proposals,
+  and ask only questions that block a useful, correct spec.
+
+Ask: "Would you like me to ask questions first, or give me freedom to draft and
+ask only about blocking decisions?" Wait for the answer before drafting. If you
+cannot ask the user directly, return this question to the caller and pause.
+Do not treat a feature name or a request to write a spec as a mode selection.
+Follow the shared writing and visual explanation rules in AGENTS.md.
+
 Define the smallest useful end-to-end feature: user flow, included behavior,
 exclusions, assumptions, and unresolved decisions. Separate confirmed requirements from assumptions and proposed design choices. Surface blocking questions
-to the caller; label reasonable defaults instead of inventing requirements.
+to the caller in either mode; label reasonable defaults instead of inventing requirements.
 
 For generators, specify units and axes, every parameter's type/default/range,
 cross-field constraints, seed and version behavior, generation budgets, minimum

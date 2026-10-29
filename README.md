@@ -43,6 +43,7 @@ Specialists can be addressed directly without creating a command for each role.
 
 ## Project documents
 
+- [MVP roadmap and checklist](docs/mvp-roadmap.md)
 - [Product direction](docs/product.md)
 - [Application stack and architecture](docs/architecture.md)
 - [Development workflow and tooling](docs/development.md)
