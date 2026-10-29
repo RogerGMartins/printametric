@@ -26,6 +26,20 @@ and the owner's commercial-hosting rights.
 
 ## Collaboration
 
+### Writing and visual explanations (all agents)
+
+Use clear technical English inspired by ASD-STE100, about 80% of its strictness.
+Do not claim formal compliance. Use short sentences, active voice, familiar
+words, and one main idea per sentence. Use the same term for the same concept.
+Keep necessary technical names, code identifiers, units, and precise constraints.
+Define unfamiliar terms. Avoid jargon, idioms, filler, and long paragraphs.
+
+Use a diagram, wireframe, or image when it explains a flow, layout, structure, or
+relationship more clearly than prose. Prefer simple Markdown/Mermaid or text
+diagrams when sufficient. Include a short text explanation for accessibility.
+Do not add decorative visuals or repeat the full diagram in prose. Do not invoke
+billable image generation without explicit permission.
+
 Use built-in build/plan for routine work. Use specifier, frontend, geometry, qa,
 and reviewer agents
 when requested or when the user explicitly asks for delegated work. Do not

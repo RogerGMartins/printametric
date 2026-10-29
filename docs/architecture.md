@@ -29,8 +29,8 @@ development tooling and must not enter the browser bundle.
 
 STEP changes the earlier mesh-only decision: the canonical model must retain
 boundary-representation (B-rep) solids, not just triangles. Replicad is the
-recommended high-level API over OpenCascade.js, subject to the browser/export
-feasibility check below. A mesh-to-STEP conversion is not an equivalent substitute.
+recommended high-level API over OpenCascade.js. Verify exports during generator
+implementation as described below. Mesh-to-STEP conversion is not equivalent.
 
 ## Data flow and boundaries
 
@@ -128,7 +128,8 @@ Use one application and one package/lockfile. Create these modules as needed:
 - `tests/`: headless geometry tests and browser journeys.
 
 These are boundaries, not a request to create empty folders or a plugin framework.
-Start with the wall-art generator. Add a simple catalogue when a second tool exists.
+Follow the website-first [MVP roadmap](mvp-roadmap.md), including a simple tool
+catalogue. The first generator is wall art.
 React state is sufficient initially; a global state library needs a concrete use.
 
 ## Responsiveness and printability
@@ -153,16 +154,18 @@ Re-import STEP in a CAD reader to verify solids, dimensions, and curved surfaces
 check STL and 3MF dimensions, components, and transforms in a mesh reader/slicer.
 Physical printing is separate from these checks.
 
-## Export feasibility check before the editor
+## Export verification during implementation
 
-Build one small rounded or cylindrical solid and a two-part example using the
-pinned Replicad/OpenCascade WASM build. Prove browser initialization, preview
-tessellation, and exports in all three formats. Round-trip and independently
+Prior project experience establishes browser CAD/export feasibility; a separate
+prototype is not required. During generator implementation, test a small curved
+solid and a two-part example using the pinned Replicad/OpenCascade WASM build.
+Check browser initialization, preview tessellation, and all three exports.
+Round-trip and independently
 inspect them: STEP must retain curved CAD faces rather than a shell of triangle
 faces; STL/3MF must meet the stated approximation tolerance and preserve size.
 Check multi-part placement and 3MF package validity in a target slicer. Record
 download size, initialization time, memory, and any required hosting headers.
-This is an implementation gate, not completed evidence or an optional format.
+These are implementation acceptance checks, not completed evidence or optional formats.
 
 OpenSCAD can run headlessly in a browser through its WASM port and produce STL
 and other mesh formats, including 3MF where built in. Its documented native
