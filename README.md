@@ -7,7 +7,9 @@ The first generator will create modular wall art.
 
 ## Develop
 
-Install Node.js 24 and OpenCode, then run from the repository root:
+Install a current Node.js 26 release (26.12.1 or newer) and OpenCode, then run
+from the repository root. `.node-version` selects major 26 for CI and compatible
+version managers; `package.json` records the minimum supported version.
 
 ```sh
 npm ci

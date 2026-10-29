@@ -8,13 +8,12 @@ There is no compatible SDK upgrade reported by npm audit; its proposed fix is
 an old SDK downgrade. Do not use audit fix --force blindly. Track an upstream
 SDK release with corrected dependencies. These packages support development
 tools; there is no deployed application or application dependency bundle yet.
-The SDK's transitive ini package requires Node 24.15 or newer within Node 24;
-use current Node 24 LTS to avoid engine warnings. Local checks also passed on
-the existing Node 24.6 installation, which emits that warning during install.
+Node 26.12.1 or newer within 26.x is the supported development runtime. It also
+satisfies the SDK's transitive ini engine requirement without the previous warning.
 
 ## Current stack
 
-Installed tooling: Node.js 24, npm, TypeScript for OpenCode tools, Node's built-in
+Installed tooling: Node.js 26, npm, TypeScript for OpenCode tools, Node's built-in
 test runner, and YAML parsing for configuration checks. The selected application
 stack is React + TypeScript + Vite, with Three.js/React Three Fiber for preview and
 Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
@@ -24,6 +23,12 @@ Keep one root npm lockfile; run installs from the root. The root dev dependencie
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
 machine-managed files are ignored so startup cannot invalidate the npm lockfile.
+
+`.node-version` selects Node 26 for CI and compatible version managers, while
+`package.json` requires at least 26.12.1 and restricts the major to 26. Keep
+`@types/node` on major 26 alongside the runtime. After changing your local Node
+installation, reopen terminals/OpenCode and confirm `node --version`, then run
+`npm ci` and `npm run check`. Updating type declarations alone does not install Node.
 
 ## Lifecycle
 
