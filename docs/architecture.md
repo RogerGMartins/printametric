@@ -24,7 +24,8 @@ declare the architecture. Pick compatible stable versions and commit the root
 npm lockfile. React, react-dom, and React Three Fiber must have compatible majors
 (the documented React 19 pairing is Fiber 9). Check current peer dependencies
 when installing rather than independently choosing each package's latest version.
-Use current Node 24 LTS for development and CI. The existing OpenCode SDK is
+Use current Node 26 (at least 26.12.1) for development and CI, matching the Node 26
+types. `.node-version` selects the runtime major. The existing OpenCode SDK is
 development tooling and must not enter the browser bundle.
 
 STEP changes the earlier mesh-only decision: the canonical model must retain
