@@ -3,9 +3,14 @@
 A planned self-hosted website with browser-based parametric 3D model generators.
 The first generator will create modular wall art.
 
-**Status:** T1 runnable shell and T2 state/browser adapters implemented. The app
-opens Design with an honest empty state. Connecting navigation and preferences to
-the workspace, styling, and dialogs remain later tasks.
+**Status:** T1–T3 implemented: a responsive workspace with Design, Print layout,
+and Assembly navigation, display settings, and System/Light/Dark themes. Only the
+theme persists across reloads. Preview and summaries show honest unavailable states.
+Help/About dialogs are T4; model generation and downloads come later.
+
+The app currently uses the original T3 styling and theme dropdown. The
+[Quiet studio compact redesign](docs/specs/website-foundation.md#ui-design) is a
+proposal awaiting visual approval and implementation; its mockups remain local.
 
 ## Develop
 
