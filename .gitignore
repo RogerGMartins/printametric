@@ -16,4 +16,18 @@ Thumbs.db
 .opencode/bun.lockb
 .opencode/package.json
 .opencode/package-lock.json
-artifacts/
+artifacts/*
+# Retain the reviewable design study; generated HTML and screenshots stay local.
+!artifacts/impeccable-trial/
+artifacts/impeccable-trial/*
+!artifacts/impeccable-trial/build-previews.mjs
+!artifacts/impeccable-trial/gridline-layout.mjs
+!artifacts/impeccable-trial/gridline-layout.css
+!artifacts/impeccable-trial/index.html
+!artifacts/impeccable-trial/preview.js
+!artifacts/impeccable-trial/content.js
+!artifacts/impeccable-trial/verify-gridline.cjs
+!artifacts/impeccable-trial/README.md
+# Impeccable's downloaded engine and local decision-server state.
+.opencode/skills/impeccable/scripts/bin/
+.impeccable/

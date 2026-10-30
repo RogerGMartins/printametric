@@ -87,6 +87,38 @@ page and base URL. They were run through the available browser tooling against d
 and served production output; `npm run check` does not run them yet. T5 adds that
 runner and CI browser setup. Screenshots/evidence belong in ignored `artifacts/`.
 
+## Impeccable design tooling
+
+Impeccable is installed project-locally in `.opencode/skills/impeccable/` with an
+OpenCode command at `.opencode/commands/impeccable.md`. The skill reports 4.8.0;
+the downloaded engine reports v0.1.18. The command uses the current `skill` tool's
+`id` argument and retains project approval gates. Automatic hooks are not enabled.
+The upstream Apache license and third-party notices accompany the skill; the
+application's root LICENSE is unchanged.
+
+The installation used
+`npm exec --yes --package=impeccable -- impeccable install --providers=opencode --scope=project --no-hooks --yes`.
+The launcher can download its engine on first use. Downloaded binaries under
+`scripts/bin/` and `.impeccable/` runtime state are ignored. This does not add an
+application dependency. Review installer updates before replacing the local
+command adaptation or license notices.
+
+The design-trial sources are retained under `artifacts/impeccable-trial/`; generated
+HTML, screenshots, and detector output stay ignored. Run
+`node artifacts/impeccable-trial/build-previews.mjs`, then start Vite and open
+`/artifacts/impeccable-trial/index.html` to compare Contour, Gallery, Gridline, and
+a conventional editor. The wrapper adds prototype interactions to script-free
+sketches. It uses prototype-specific Help and the full LICENSE, follows system theme by
+default, and does not save preferences. These are visual studies, not application
+acceptance evidence. The user selected Gridline for refinement: the revised study
+fills the window below the header and has one collapsed bottom settings panel. Add
+`?direction=gridline&standalone=1` to the trial URL to hide the comparison bar.
+The selected layout is a visual study; its application implementation plan still
+requires review. Reproduction and browser-check instructions are in the
+[trial README](../artifacts/impeccable-trial/README.md).
+`docs/product.md` remains the product source of truth; no accepted
+visual system has been recorded in DESIGN.md.
+
 ## Lifecycle
 
 | Stage | Entry point / owner | Required output |
