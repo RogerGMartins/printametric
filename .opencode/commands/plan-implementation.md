@@ -16,6 +16,10 @@ with dependencies, affected files, acceptance IDs, and concrete completion check
 Include enough technical detail to resolve major implementation choices without
 prescribing every line of code. Record proposed shared architecture changes in
 docs/architecture.md, clearly marked as proposals pending this plan's approval.
+Assign code to the shell, a named tool, or shared code using the architecture's
+dependency direction. Prefer the simplest readable solution. Include needed
+comments, technical documentation, and reproducible debugging steps in task checks;
+justify new abstractions or dependencies by a current requirement.
 
 Resolve the spec's documentation impacts against current shared docs. Include
 required documentation updates in the task list with paths and completion checks.

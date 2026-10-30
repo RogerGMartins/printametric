@@ -10,6 +10,22 @@ and the owner's commercial-hosting rights.
 ## Engineering
 
 - Prefer the smallest working vertical slice and installed dependencies.
+- Apply KISS (keep it simple): favor direct, readable code, clear names, small
+  focused functions, and explicit data flow. Add abstractions or dependencies only
+  for a current need; avoid speculative frameworks and premature optimization.
+- Separate the application shell (`src/app/`), each tool (`src/tools/<tool>/`),
+  and tool-independent code (`src/shared/`). Follow the dependency rules in
+  docs/architecture.md; keep tool-specific behavior with its tool.
+- Comment module purpose and non-obvious behavior, constraints, units, and reasons
+  for decisions. Explain public contracts where types alone are insufficient.
+  Keep comments current; do not narrate obvious statements or leave dead code.
+- Make failures easy to reproduce and diagnose: explicit error paths, useful
+  context, testable logic, and documented debugging steps. Keep debug fixtures out
+  of production and never log secrets or full user designs by default.
+- Maintain concise technical documentation with code changes: architecture and
+  data flow in docs/architecture.md, setup/test/debug steps in docs/development.md,
+  and tool-specific contracts beside their feature documentation. Use diagrams
+  when they clarify behavior; link to the source of truth instead of duplicating it.
 - Follow docs/architecture.md: TypeScript, React, Vite, and Three.js/React Three
   Fiber. Keep printable geometry independent of the UI and renderer.
 - Keep geometry deterministic and independent of UI state. Use millimeters,

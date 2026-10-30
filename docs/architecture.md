@@ -122,10 +122,30 @@ across supported runtimes. Introduce migrations only when a version actually cha
 
 Use one application and one package/lockfile. Create these modules as needed:
 
-- `src/geometry/`: validation, CAD generators, worker lifecycle, tessellation, solid/mesh checks.
-- `src/export/`: STEP/STL/3MF adapters and serialization checks.
-- `src/editor/`: React forms and preview components; no printable algorithms.
+- `src/app/`: application startup coordination, navigation, theme, and Help/About.
+- `src/tools/<tool>/`: each tool's UI, parameters, validation, and generator.
+  For example, future wall-art code uses `src/tools/wall-art/geometry/` and
+  `src/tools/wall-art/editor/`; printable algorithms never depend on React.
+- `src/shared/`: tool-independent workspace UI and types; later, reusable geometry
+  infrastructure and format writers under `shared/geometry/` and `shared/export/`.
+  Shared exporters consume canonical contracts, not a particular tool's parameters.
 - `tests/`: headless geometry tests and browser journeys.
+
+Dependencies flow from `app` to `tools` and `shared`, and from `tools` to `shared`.
+Shared code imports neither `app` nor a tool; tools do not import each other.
+App composes tools with shared components through explicit props and contracts.
+Keep tool-specific code local; move it to shared only when it has a clear common
+responsibility. Avoid generic `utils` dumping grounds, tool registries, plugin
+systems, and layers that only forward calls. Create folders when they contain code.
+
+```text
+app (shell and composition)
+ ├── tools/wall-art (tool-specific content, later editor and generator)
+ └── shared (common workspace UI and types, later CAD/export infrastructure)
+tools/wall-art ──> shared
+```
+
+The shell connects each tool to common capabilities; shared code stays independent.
 
 These are boundaries, not a request to create empty folders or a plugin framework.
 Follow the website-first [MVP roadmap](mvp-roadmap.md). Open directly into the
@@ -154,13 +174,62 @@ and send user actions back; they do not read storage or interpret routes.
 | `src/app/navigation.ts` | Pure hash resolution plus isolated history/event adapter |
 | `src/app/theme.ts` | Validated theme persistence, effective scheme, and isolated storage/OS adapter |
 | `src/app/content.ts`, `SupportDialog.tsx` | View copy, Help/About, and same-site license access |
-| `src/editor/Workspace.tsx`, `WorkspaceDisplay.tsx` | Empty preview, capability summaries, and labelled display settings |
+| `src/tools/wall-art/content.ts` | Wall-art availability copy and empty-state descriptions; no generator yet |
+| `src/shared/workspace/Workspace.tsx`, `WorkspaceDisplay.tsx` | Common workspace layout, empty preview, summaries, and labelled display settings; receive tool content through props |
+| `src/shared/workspace/types.ts` | Pure display preference and workspace content contracts; no app/tool imports |
 | `src/styles.css` | Shared tokens, themes, responsive layout, and visible focus |
 
 Use React state and native browser APIs for this slice. Test pure logic with Node
 and integrated behavior with Playwright. The foundation has no geometry/export
-modules; later editor work adds the independent layers above. See the
+implementation; later tool work adds the independent layers above. See the
 [foundation plan](plans/website-foundation.md) for tasks, dependencies, and checks.
+
+#### Code practices for the foundation (proposed)
+
+- **Dependency direction:** `App` composes adapters and UI. UI receives typed props
+  and callbacks; shared UI uses shared types, not app state types or browser adapters. Adapters
+  may use pure validation, but never import UI. Pure modules have no browser globals
+  or import-time side effects. Use relative imports and explicit module exports.
+- **React:** use function components and Hooks. Keep shared accepted state in App;
+  keep element refs and local focus behavior with their component. Derive labels
+  and the effective theme from existing values rather than storing duplicate state.
+  Use typed actions and pure transitions for related state/error updates. Keep App
+  as the composition layer; extract focused hooks when subscription logic grows.
+- **Effects:** rendering and state transitions stay pure. User actions trigger
+  writes; Effects synchronize browser systems and clean up listeners. Dialog DOM
+  operations belong to the dialog component. Enable root `StrictMode`; initialization
+  and setup/cleanup must tolerate its development checks without duplicate history,
+  storage writes, subscriptions, or focus changes. Read initial browser preferences
+  through a bootstrap adapter outside rendering and pass the snapshot to App.
+- **TypeScript:** enable `strict`, `noUncheckedIndexedAccess`, and
+  `exactOptionalPropertyTypes` for application code. Use literal unions for allowed
+  values and tagged success/error results. Validate `unknown` at external boundaries;
+  do not replace checks with `any`, unchecked casts, or non-null assertions. Use
+  type-only imports and erasable syntax for modules run directly by Node tests.
+- **Vite:** use the official React plugin and separate browser and Node/tooling
+  TypeScript configurations. Run application typechecking as well as `vite build`:
+  Vite transpilation alone does not check types. Browser code must not import the
+  OpenCode SDK, Node APIs, or test fixtures. Treat client environment values as public.
+- **Components and CSS:** split by responsibility, not arbitrary line counts.
+  Keep display settings controlled by accepted state. Use semantic HTML, native
+  keyboard behavior, shared CSS tokens, and scoped class names. Extract shared
+  controls when actual reuse appears; measure before adding memoization.
+- **Verification:** Node tests cover pure transitions and adapter failure paths;
+  Playwright covers user-visible behavior, real focus, and production output.
+  Also exercise the development build with StrictMode enabled. Typechecking and
+  tests enforce concrete contracts; review checks dependency direction and Hooks usage.
+- **Readability and diagnosis:** follow the KISS rules in AGENTS.md. Document module
+  purpose and explain non-obvious transitions, browser workarounds, and cleanup.
+  Use descriptive function names and explicit error results so breakpoints and
+  failure reports lead to the responsible operation. Keep technical explanations
+  here and runnable debugging instructions in docs/development.md; add a focused
+  tool document only when its contracts need more detail than the feature spec.
+
+Guidance: [React state](https://react.dev/learn/choosing-the-state-structure),
+[Effects](https://react.dev/learn/you-might-not-need-an-effect),
+[StrictMode](https://react.dev/reference/react/StrictMode),
+[TypeScript options](https://www.typescriptlang.org/tsconfig/), and
+[Vite TypeScript](https://vite.dev/guide/features#typescript).
 
 ## Responsiveness and printability
 
