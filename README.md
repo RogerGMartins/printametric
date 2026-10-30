@@ -3,8 +3,9 @@
 A planned self-hosted website with browser-based parametric 3D model generators.
 The first generator will create modular wall art.
 
-**Status:** T1 runnable shell implemented. The app opens Design with an honest
-empty state. Workspace styling, navigation, preferences, and dialogs are later tasks.
+**Status:** T1 runnable shell and T2 state/browser adapters implemented. The app
+opens Design with an honest empty state. Connecting navigation and preferences to
+the workspace, styling, and dialogs remain later tasks.
 
 ## Develop
 
@@ -30,8 +31,8 @@ Use `npm run typecheck:app` for browser types or `npm run typecheck` for Node/to
 types. See [development notes](docs/development.md#application-checks-and-debugging).
 
 For the agent workflow, install OpenCode and run `opencode` from this directory.
-Quit and restart OpenCode after changing its configuration, agents, commands,
-skills, or tools. Models and credentials come from your own OpenCode setup.
+OpenCode reloads command files automatically. Models and credentials come from
+your own OpenCode setup.
 
 ## OpenCode workflow
 
@@ -44,6 +45,13 @@ skills, or tools. Models and credentials come from your own OpenCode setup.
 | `/verify <spec path>` | QA checks acceptance criteria and reports evidence and gaps |
 | `/review <scope>` | Review correctness, geometry, accessibility, and tests |
 | `/ship <scope>` | Check release readiness; publish only when explicitly requested |
+| `/pr [files or task; title/body guidance]` | Check, commit, push, and open a PR for the selected changes |
+
+Use `/pr` after reviewing a completed task. For example:
+`/pr T2; title: Add foundation state and browser adapters`.
+You can supply explicit file paths and description notes instead. With no arguments,
+it uses the completed task in the conversation. Invocation authorizes the commit,
+push, and PR for that scope; `/ship` remains the broader readiness command.
 
 Specialists: `@specifier` for feature contracts, `@frontend` for editor design and
 implementation, `@geometry` for parametric geometry, `@qa` for verification and
@@ -81,7 +89,8 @@ their implementation tasks.
 GitHub Actions runs `npm ci` and `npm run check` on Linux and Windows for pushes
 and pull requests. Checks validate the scaffold's local conventions, parse YAML,
 typecheck the OpenCode tool, Vite configuration, and app, build production output,
-and run the scaffold tests. Automated browser journeys are planned for T5.
+and run scaffold plus foundation state/adapter tests. Automated browser journeys
+are planned for T5.
 Dependabot checks npm dependencies and GitHub Actions weekly.
 
 For ChatGPT-connected PR reviews, use the official Codex GitHub integration.

@@ -1,10 +1,10 @@
 # Website foundation — implementation plan
 
-Status: T1 implemented and verified; stopped for user review and a PR opportunity.
+Status: T1 merged; T2 implemented and verified; stopped for user review and a PR opportunity.
 User approval recorded on 2026-10-30: start implementation, one task at a time,
 with a review and separate pull-request opportunity after each task. Stop after
 each task's checks; wait for the user's request before publishing or starting
-the next task. T2 has not started.
+the next task. The user explicitly requested T2 on 2026-10-30; stop again after T2.
 Scope/acceptance: [spec](../specs/website-foundation.md).
 Module boundaries: [architecture](../architecture.md#website-foundation).
 Build owns integration and performs these tasks directly unless delegation is requested.
@@ -105,3 +105,29 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 - AC-15 is partial; the other full acceptance criteria remain unverified. Second
   browser/theme/layout journeys belong to later tasks. Remote CI has not run.
   No commit, push, PR, or T2 work at this checkpoint.
+
+## T2 checkpoint — 2026-10-30
+
+- Added pure defaults, field validation, and state/error transitions; shared display
+  and content types; injectable hash/history and theme storage/media adapters.
+  Bootstrap and subscriptions stay explicit, without import-time browser access.
+  App integration, visible settings, heading focus, and styling remain T3.
+- Regression coverage includes every P1 value/type boundary, independent error
+  clearing, collapsed-error retention, hash recovery, history writes/cleanup,
+  missing/invalid/16- and 17-character/oversized storage, denied access, retained
+  state/bytes, retry recovery, OS fallback, and subscription cleanup/remounts.
+- Windows, Node 24.22.2: `npm run check` passed (both typechecks, production build,
+  scaffold checks, 18 tests: 16 foundation plus 2 existing). The focused foundation
+  suite and storage-only command in development docs passed. `git diff --check`
+  passed. No dependencies or existing UI entry points changed.
+- Chromium 156.0.8078.76, isolated dev-page contexts: actual Back/Forward, active-link
+  history counts, invalid-hash replacement, notice recovery, and unsubscribe passed.
+  Actual localStorage preservation/reload and OS Light-to-Dark emulation/root scheme
+  application/cleanup passed; an unrelated storage sentinel remained unchanged.
+  These direct adapter checks produced no page errors and added no runtime fixture.
+- AC-2/3/6/7/8 **logic verified**; complete UI acceptance remains pending. AC-15
+  includes these regressions automatically through the existing Node test discovery;
+  browser-suite integration remains T5. No new screenshot needed: UI is unchanged.
+  README reports T2 status; architecture/development docs describe contracts and checks;
+  roadmap items requiring the full UI remain unchecked. No product/spec change.
+- Stop here: T3 has not started. No commit, push, PR, or remote CI for T2 yet.

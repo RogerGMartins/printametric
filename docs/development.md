@@ -20,7 +20,9 @@ the official React plugin 6.1.2. The planned geometry stack uses Three.js/React
 Three Fiber for preview and
 Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
-Only the runnable shell is implemented; geometry dependencies are not installed.
+The runnable shell and independent T2 state/browser adapters are implemented.
+Connecting the adapters and workspace controls is T3; geometry dependencies are
+not installed.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
@@ -34,8 +36,8 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 - `npm run build` checks app types and creates static output in `dist/`.
   `npm run preview` serves that output locally; rebuild after source changes.
 - `npm run check` runs scaffold validation, both typechecks, the production build,
-  and existing Node tests. CI uses this same gate on Linux and Windows. Browser
-  test installation and automated journeys will be added in T5.
+  and Node tests, including T2 state/adapter regressions. CI uses this same gate on
+  Linux and Windows. Browser test installation and automated journeys arrive in T5.
 - To debug startup, open the dev URL and the browser's Sources panel, find
   `src/main.tsx` or `src/app/App.tsx`, set a breakpoint, and reload. Check the
   browser console and Vite terminal for failures. StrictMode can render twice
@@ -44,7 +46,17 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 T1's only keyboard action is `Skip to workspace`: press Tab, then Enter, and
 confirm focus moves to the main content. Disable JavaScript and reload to check
 the visible startup requirement. The full workspace/error-state journeys arrive
-with later tasks; T1 does not implement preference validation or storage.
+with later tasks. T2's validation and adapters are not yet connected to the page.
+
+For T2 logic checks with Node 24, run
+`node --test tests/foundation-state.test.mjs`. To isolate storage failures, run
+`node --test --test-name-pattern="theme storage" tests/foundation-state.test.mjs`.
+The tests import erasable TypeScript directly; this does not typecheck it, so keep
+running the shared gate. Storage doubles reproduce denied property/method access,
+corrupt values, failed writes, and retries without changing browser data. Inspect
+the failing assertion and its stack location to compare accepted state, returned
+notice, and retained bytes. Navigation/media doubles also expose history writes
+and subscription counts. No debug controls are added to the application.
 
 ## Lifecycle
 
@@ -58,10 +70,18 @@ with later tasks; T1 does not implement preference validation or storage.
 | Verify | `/verify docs/specs/wall-art.md` -> qa | Per-acceptance-ID pass/fail/unverified evidence, browser/mesh checks where relevant |
 | Review | `/review <diff or PR scope>` -> reviewer | Reproducible correctness findings; read-only |
 | Deliver | `/ship <scope>` -> build | Readiness, actual checks, and remaining gaps; publish only when requested |
+| Open PR | `/pr [files or task; title/body guidance]` -> build | Verify selected changes, commit on a feature branch, push, and return the PR URL |
 
 Use these stages for meaningful features; small fixes need only relevant steps.
 Do not make a separate spec, ceremony, or agent call for every edit. `/design`
 is for UI changes; a geometry-only fix does not need a UI design pass.
+
+After a task review, `/pr` authorizes commit, push, and PR creation for the selected
+scope. Arguments can name files or the completed task and suggest a title/body;
+without arguments, use the completed task in the conversation. Preserve unrelated
+changes and review the exact staged diff. Reuse a matching open PR when applicable.
+Report local checks and actual CI status separately. This does not authorize merge,
+deployment, or the next task. `/ship` remains the general delivery-readiness command.
 
 Keep each decision in one place: the spec states required behavior and acceptance;
 `docs/architecture.md` owns shared module/data-flow decisions; the implementation

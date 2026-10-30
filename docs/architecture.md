@@ -156,8 +156,9 @@ React state is sufficient initially; a global state library needs a concrete use
 
 These boundaries were approved for task-by-task implementation on 2026-10-30.
 T1 implements `src/main.tsx` and a minimal `src/app/App.tsx`, with separate browser
-and Node/tooling typechecks. The remaining modules and responsibilities below are
-planned; create them only in their implementation tasks.
+and Node/tooling typechecks. T2 adds state, navigation/theme adapters, and shared
+workspace types, tested independently of React. T3 connects them to App. The other
+modules below remain planned; create them only in their implementation tasks.
 
 ```text
 hash / history ── navigation adapter ──┐
@@ -184,6 +185,28 @@ Use React state and native browser APIs for this slice. Test pure logic with Nod
 and integrated behavior with Playwright. The foundation has no geometry/export
 implementation; later tool work adds the independent layers above. See the
 [foundation plan](plans/website-foundation.md) for tasks, dependencies, and checks.
+
+T2 integration contracts:
+- `createFoundationState` returns fresh defaults. `transitionFoundation` validates
+  unknown preference values and updates field errors without browser effects.
+  Navigation and storage notices have separate lifetimes; successful field updates
+  clear only that field's error. Display types stay in `shared/workspace/types.ts`.
+- `createNavigationAdapter(window)` has no construction effects. Bootstrap calls
+  `read(true)` once; subscribe to hash changes after mounting and apply `navigate`
+  results directly after ordinary link activation. `pushState` emits no event;
+  hash-changing Back/Forward emits `hashchange`, so no duplicate `popstate` listener
+  is needed. Updates carry heading-focus/dialog-close intent; T3 owns DOM handling.
+  Prevent the skip link's default hash change when connecting routing, and focus
+  main directly: `#workspace` is not a view route.
+- Bootstrap calls `readThemePreference(() => window.localStorage)` once outside
+  rendering. An explicit selection first passes the state boundary and applies in
+  memory, then calls `writeThemePreference`; its result updates the storage notice.
+  Never persist from an Effect or revert the selected theme after a write failure.
+- `readSystemScheme` falls back to Light. Mount `subscribeSystemScheme` for System
+  with a bound `query => window.matchMedia(query)` and run its cleanup on preference
+  change/unmount. It immediately reports the current OS scheme to cover changes
+  since bootstrap. Derive the effective scheme and use `applyColorScheme` for the
+  root `data-theme` and native-control `color-scheme`; CSS tokens arrive in T3.
 
 #### Code practices for the foundation
 
