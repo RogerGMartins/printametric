@@ -24,6 +24,9 @@ the spec path, acceptance IDs, owned files, shared contracts, and expected check
 Parallelize only independent scopes; avoid concurrent edits to the same files.
 Keep package/lockfile and shared-contract changes with the integrating agent.
 Otherwise perform the work directly using the documented responsibilities.
+Apply the KISS, code ownership, comments, and debugging rules in AGENTS.md. Keep
+tool-specific behavior local and shared modules independent of tools and the shell.
+Document non-obvious behavior and verify the debugging steps added with the feature.
 
 Load matching skills, then implement the smallest complete slice satisfying
 acceptance criteria. Add meaningful regression coverage and complete the plan's

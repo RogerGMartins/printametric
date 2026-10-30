@@ -11,9 +11,17 @@ Build owns integration and performs these tasks directly unless delegation is re
 - One client-side React/TypeScript app, Vite, plain CSS, native controls/dialogs.
   Install compatible stable runtime/build packages and Playwright at implementation;
   retain one root lockfile and keep the OpenCode SDK outside the browser graph.
+- Follow the proposed [code practices](../architecture.md#code-practices-for-the-foundation-proposed):
+  one-way module dependencies, strict application types, pure state transitions,
+  controlled settings, and cleaned-up browser effects. Bootstrap reads initial
+  browser preferences once before rendering App; root StrictMode remains enabled.
 - App owns session state. Pure TypeScript functions validate preference updates and
   resolve hashes; browser adapters own history, storage, and system-theme effects.
   React state is sufficient; no routing or global-state library is needed for three views.
+- Separate `app/` shell coordination, `tools/wall-art/` tool content, and
+  `shared/workspace/` common UI/types. App passes tool content to shared UI; shared
+  code imports neither tools nor app. Add future tool algorithms inside their tool.
+  Keep this a direct composition, with no tool registry or plugin framework.
 - Preference updates accept `unknown` at their validation boundary. Return either
   an accepted typed value or a field error; an invalid update cannot replace valid state.
   Keep field errors separate from navigation and storage notices, with spec-defined
@@ -36,9 +44,9 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 
 | Task | Depends on | Work and files | Done when |
 | --- | --- | --- | --- |
-| T1 — Runnable shell | — | Add `index.html`, `src/main.tsx`, `src/app/App.tsx`, `vite.config.ts`, and `tsconfig.app.json`; update root package/lockfile. Add dev/build/preview/app-typecheck scripts while retaining tooling typechecks. | Dev and served static build open the shell; browser entry graph excludes development tooling. AC-1 groundwork. |
-| T2 — State and adapters | T1 | Add `src/app/state.ts`, `navigation.ts`, `theme.ts`, and `tests/foundation-state.test.mjs`. Implement P1 validation, N1 hash resolution, and injectable P2 storage/system adapters. | Tests cover allowed/invalid values, missing/corrupt/denied storage, retained state/bytes, and recovery. AC-2/3/6/7/8 logic. |
-| T3 — Workspace and navigation | T2 | Connect App to adapters; add `src/editor/Workspace.tsx`, `WorkspaceDisplay.tsx`, `src/app/content.ts`, and `src/styles.css`. Build header, links, notices, three empty views, summaries, native settings, and responsive theme tokens. | Navigation/history/focus, retained session settings, reload defaults, and responsive order work in browser journeys. AC-2–9/11/12. |
+| T1 — Runnable shell | — | Add `index.html`, `src/main.tsx`, `src/app/App.tsx`, `vite.config.ts`, and `tsconfig.app.json`; update root package/lockfile. Use the official React plugin, root StrictMode, and strict browser types separate from Node/tooling types. Add dev/build/preview/app-typecheck scripts while retaining tooling typechecks. | Dev and served static build open the shell; app typecheck passes; browser entry graph excludes development tooling. AC-1 groundwork. |
+| T2 — State and adapters | T1 | Add `src/app/state.ts`, `navigation.ts`, `theme.ts`, `src/shared/workspace/types.ts`, and `tests/foundation-state.test.mjs`. Implement P1 validation, N1 hash resolution, and injectable P2 storage/system adapters. | Tests cover allowed/invalid values, missing/corrupt/denied storage, retained state/bytes, and recovery. AC-2/3/6/7/8 logic. |
+| T3 — Workspace and navigation | T2 | Connect App to adapters; add `src/shared/workspace/Workspace.tsx` and `WorkspaceDisplay.tsx`, `src/tools/wall-art/content.ts`, `src/app/content.ts`, and `src/styles.css`. App passes tool content to common UI. Build header, links, notices, three empty views, summaries, native settings, and responsive theme tokens. | Navigation/history/focus, retained session settings, reload defaults, and responsive order work in browser journeys. Shared modules have no app/tool imports. AC-2–9/11/12. |
 | T4 — Support dialogs | T3 | Add `src/app/SupportDialog.tsx`; connect Help/About, exact content, and unchanged LICENSE as bundled text. Implement dialog focus, close restoration, and navigation while open. | Keyboard-only Help/About and full-license access work at narrow widths and zoom. AC-9/10/14. |
 | T5 — Regression integration | T3, T4 | Add `playwright.config.ts`, `tests/browser/foundation.spec.ts`, and a non-production fixture under `tests/fixtures/`. Add scripts to run unit tests explicitly without Node discovering Playwright files; extend `scripts/run-check.mjs` and the existing CI workflow with app checks and browser installation. | Shared gate retains existing checks and runs the build, unit regressions, and production browser suite. Dev-only fixture also exercises collapsed-error recovery. AC-1–3/5–10/12–15. |
 | T6 — Visual and compatibility check | T5 | Review screenshots/contrast and focus at spec sizes, 959/960 px, and 200% zoom in both themes. Smoke-test a second browser engine. Inspect production network/dependencies and download/storage sentinels. Put evidence in `artifacts/`. | `npm run check` passes; AC-1–15 have pass/fail/unverified evidence, environment details, and remaining gaps in the handoff. |
@@ -46,7 +54,9 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 ## Integration checks
 
 - Documentation tasks: T1 updates `README.md` with verified dev/build commands;
-  T5 updates `docs/development.md` with application/browser checks and setup. T6
+  T5 updates `docs/development.md` with application/browser checks, setup, and
+  verified debugging steps: browser source breakpoints, targeted test execution,
+  Playwright failure evidence, and storage-error reproduction using the fixture. T6
   reconciles `docs/architecture.md` with implemented boundaries and updates
   `docs/mvp-roadmap.md` from acceptance evidence. Check that each documented command
   works and that pending features remain marked pending before handoff.
@@ -56,6 +66,14 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 - Simulate storage exceptions before app initialization, system scheme changes,
   malformed hashes, history during dialogs, and keyboard-only operation. Verify
   actual focus and visible error recovery, not just component presence.
+- In T2/T3, use typed actions and pure transitions to keep state/error changes
+  together; keep browser writes outside those transitions. In T5, exercise the
+  StrictMode development build for duplicate history/writes and listener cleanup.
+  Review module imports and Hooks usage against the architecture before T6 closes.
+- Each task documents module purpose and non-obvious behavior in comments. T6
+  reviews readable names, direct control flow, useful error context, and current
+  technical docs/diagrams; remove unnecessary abstraction rather than explaining it
+  with more prose. No production debug UI or logging of full user designs.
 - Inspect current CI before editing it. Install the browser used by the gate
   explicitly; keep model API keys and MCP services out of checks. Browser tests
   must leave existing scaffold/tooling tests running and fail the gate on regressions.
