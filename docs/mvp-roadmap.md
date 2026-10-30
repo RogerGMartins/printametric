@@ -31,7 +31,8 @@ Done when the website structure and experience are agreed and ready to build.
 
 Planned spec: `docs/specs/website-foundation.md`
 
-- [ ] Set up the application with the selected stack and existing root lockfile.
+- [x] Set up the application with the selected stack and existing root lockfile.
+  Verified in the [T1 checkpoint](plans/website-foundation.md#t1-checkpoint--2026-10-30).
 - [ ] Implement responsive styling, shared layout, navigation, and routing.
 - [ ] Build the tool-first workspace shell, light/dark themes, and supporting content.
 - [ ] Build the wall-art page layout for subsequent editor integration.

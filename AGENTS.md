@@ -71,6 +71,12 @@ files, verification evidence, and blockers. Only build edits shared dependency
 manifests during parallel work. Do not reset another agent's or the user's work.
 Only commit, push, create PRs, or deploy when explicitly requested.
 
+When a user request matches an available command, invoke that command with the
+requested scope; do not require the user to type it or merely read its prompt as
+a substitute. Use the command's configured agent and preserve approval gates and
+task boundaries. If command invocation is unavailable, explain the limitation
+before using a fallback. Do not invoke the same command again from its own run.
+
 ## Code Review Rules
 
 - Flag changes that allow imported parameters to bypass finite-number, range,
