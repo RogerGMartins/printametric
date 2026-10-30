@@ -3,14 +3,15 @@
 A planned self-hosted website with browser-based parametric 3D model generators.
 The first generator will create modular wall art.
 
-**Status:** T1–T3 implemented: a responsive workspace with Design, Print layout,
+**Status:** T1–T4 implemented: a responsive workspace with Design, Print layout,
 and Assembly navigation, display settings, and System/Light/Dark themes. Only the
 theme persists across reloads. Preview and summaries show honest unavailable states.
-Help/About dialogs are T4; model generation and downloads come later.
+Help/About dialogs include keyboard support and the full license. Model generation
+and downloads come later.
 
-The app currently uses the original T3 styling and theme dropdown. The
-[Quiet studio compact redesign](docs/specs/website-foundation.md#ui-design) is a
-proposal awaiting visual approval and implementation; its mockups remain local.
+The app currently uses the original T3 styling and theme dropdown. The selected
+[Gridline visual study](artifacts/impeccable-trial/README.md) is a separate prototype.
+Application implementation requires a reviewed technical plan.
 
 ## Develop
 

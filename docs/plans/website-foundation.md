@@ -1,14 +1,18 @@
 # Website foundation — implementation plan
 
-Status: T1 and T2 merged; original T3 behavior implemented and verified.
-The proposed Quiet studio compact redesign awaits visual approval and a bounded
-implementation-plan update. Earlier T3 checks below cover the original UI, not
-the revised visual/theme-control criteria. Publishing these changes does not
-approve the redesign or T4. Mockups and screenshots remain local ignored artifacts.
+Status: T1–T3 merged; T4 implemented and checked, preparing its requested PR.
+True 200% browser zoom and cross-browser/screen-reader checks remain unverified.
+The selected Gridline visual study supersedes the earlier Quiet studio proposal;
+application implementation still requires a reviewed implementation-plan update.
+Earlier T3 checks below cover the original UI, not the revised visual/theme-control
+criteria. Publishing T4 does not implement the redesign. Trial source is retained
+under `artifacts/impeccable-trial/`; generated mockups and screenshots remain ignored.
 User approval recorded on 2026-10-30: start implementation, one task at a time,
 with a review and separate pull-request opportunity after each task. Stop after
 each task's checks; wait for the user's request before publishing or starting
-the next task. The user explicitly requested T3 on 2026-10-30; stop again after T3.
+the next task. The user explicitly requested T4 on 2026-10-30; implement support
+dialogs in the current UI, then stop for review. The user has now requested its
+separate PR. Gridline application implementation and T5 remain pending.
 Scope/acceptance: [spec](../specs/website-foundation.md).
 Module boundaries: [architecture](../architecture.md#website-foundation).
 Build owns integration and performs these tasks directly unless delegation is requested.
@@ -54,7 +58,7 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 | T1 — Runnable shell | — | Add `index.html`, `src/main.tsx`, `src/app/App.tsx`, `vite.config.ts`, and `tsconfig.app.json`; update root package/lockfile. Use the official React plugin, root StrictMode, and strict browser types separate from Node/tooling types. Add dev/build/preview/app-typecheck scripts while retaining tooling typechecks. | Dev and served static build open the shell; app typecheck passes; browser entry graph excludes development tooling. AC-1 groundwork. |
 | T2 — State and adapters | T1 | Add `src/app/state.ts`, `navigation.ts`, `theme.ts`, `src/shared/workspace/types.ts`, and `tests/foundation-state.test.mjs`. Implement P1 validation, N1 hash resolution, and injectable P2 storage/system adapters. | Tests cover allowed/invalid values, missing/corrupt/denied storage, retained state/bytes, and recovery. AC-2/3/6/7/8 logic. |
 | T3 — Workspace and navigation | T2 | Connect App to adapters through one-time bootstrap; add shared Workspace/WorkspaceDisplay, tool/app content, and CSS. Build header, links, notices, empty views, summaries, settings, and responsive themes. Add bootstrap regressions, reusable browser journeys, and the error fixture needed to verify recovery. | Navigation/history/focus, retained session settings, reload defaults, and responsive order work in browser journeys. Shared modules have no app/tool imports. AC-2–9/11/12. |
-| T4 — Support dialogs | T3 | Add `src/app/SupportDialog.tsx`; connect Help/About, exact content, and unchanged LICENSE as bundled text. Implement dialog focus, close restoration, and navigation while open. | Keyboard-only Help/About and full-license access work at narrow widths and zoom. AC-9/10/14. |
+| T4 — Support dialogs | T3 | Add `src/app/SupportDialog.tsx`; connect Help/About, exact content, and unchanged LICENSE as bundled text. Implement dialog focus, close restoration, and navigation while open. Add reusable `tests/browser/support-journey.mjs` for T5's runner. | Keyboard-only Help/About and full-license access work at narrow widths and zoom. AC-9/10/14. |
 | T5 — Regression integration | T3, T4 | Add `playwright.config.ts` and `tests/browser/foundation.spec.ts`; reuse the T3 journey helpers/error fixture. Add scripts to run unit tests explicitly without Node discovering Playwright files; extend `scripts/run-check.mjs` and the existing CI workflow with app checks and browser installation. | Shared gate retains existing checks and runs the build, unit regressions, and production browser suite. Dev-only fixture also exercises collapsed-error recovery. AC-1–3/5–10/12–15. |
 | T6 — Visual and compatibility check | T5 | Review screenshots/contrast and focus at spec sizes, 959/960 px, and 200% zoom in both themes. Smoke-test a second browser engine. Inspect production network/dependencies and download/storage sentinels. Put evidence in `artifacts/`. | `npm run check` passes; AC-1–15 have pass/fail/unverified evidence, environment details, and remaining gaps in the handoff. |
 
@@ -167,6 +171,45 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
   remain T4. Verified documented source breakpoints and storage-failure reproduction.
 - Updated README, architecture, development debugging instructions, and roadmap.
   Stop for user review/PR: no T4, commit, push, PR, deployment, or remote CI yet.
+
+## T4 checkpoint — 2026-10-30
+
+- Added Help/About actions and one native SupportDialog with heading focus, inert
+  background, explicit Tab wrapping, Escape/Close restoration, and navigation
+  dismissal. The full unchanged LICENSE is bundled as text inside About's disclosure.
+  Help describes current behavior, unavailable features, storage, and planned formats.
+  Current styling/theme select remain; no compact redesign or dependencies added.
+- Regression helper `tests/browser/support-journey.mjs` passed on dev and served
+  production, both themes, including 320 px production. It compares the full license
+  string, tests keyboard opening/scrolling/closing, both tab directions, backdrop
+  handling, opener restoration, Back/Forward, and malformed-route heading focus.
+  Fixed a reproduced Shift+Tab escape after clicking the backdrop and covered it.
+- Existing workspace journeys passed on dev/production; the dev rejected-update
+  fixture still passes. OS changes while a dialog is open preserve focus. Denied
+  storage notices survive opening/closing; dialogs cause zero storage writes and
+  no downloads. An unrelated storage sentinel stays unchanged. Reload closes dialogs.
+  Production requests contain only HTML/JS/CSS, with no separate license request.
+- Windows, Node 24.22.2, Chromium 156.0.8078.76. `npm run check` passed scaffold
+  validation, both typechecks, production build, and 21 Node tests. The new browser
+  helper was run separately through browser tooling; T5 still owns CI integration.
+  Browser checks had no page errors. `git diff --check` passed.
+- Reviewed both-theme dialog, license, and keyboard-focus screenshots at desktop,
+  tablet, and 320 px. Both dialogs fit 1280×800, 768×1024, 320×800, and 640×400 with
+  12 px minimum margins and no horizontal overflow. Local evidence:
+  `artifacts/t4-{light,dark}-{help,about}-{1280,768,320,640,keyboard}.png` (keyboard
+  captures use Dark). Automated Ctrl+plus left the viewport/scale unchanged, so
+  true 200% browser zoom is unverified; 640×400 tests only demonstrate reflow.
+- AC-14 passed. AC-9/10 dialog behavior passed in Chromium; full zoom, second-engine,
+  and screen-reader evidence remains pending. AC-15 stays partial until T5. These
+  checks do not establish proposed redesign acceptance. README, architecture,
+  development/debugging docs, and roadmap now describe the implemented support UI.
+- The original checkpoint stopped for user review. The user subsequently requested
+  a separate T4 PR after merging the Gridline study in #13. Reverification on that
+  merged base passed `npm run check` (21 tests, both typechecks, build) and the
+  support journey on dev and served production, Light/Dark, at 1280×800 and 320×800.
+  No browser page errors occurred. Reviewed fresh `artifacts/t4-pr-*.png` captures.
+  The same true-zoom, second-engine, and screen-reader limitations remain. T5,
+  Gridline application implementation, merge, and deployment are outside this PR.
 
 ## Impeccable visual trial — 2026-10-30
 
