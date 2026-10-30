@@ -34,6 +34,8 @@ Planned spec: `docs/specs/website-foundation.md`
 - [x] Set up the application with the selected stack and existing root lockfile.
   Verified in the [T1 checkpoint](plans/website-foundation.md#t1-checkpoint--2026-10-30).
 - [ ] Implement responsive styling, shared layout, navigation, and routing.
+  T2 state and adapter logic is verified; UI integration remains in T3. See the
+  [T2 checkpoint](plans/website-foundation.md#t2-checkpoint--2026-10-30).
 - [ ] Build the tool-first workspace shell, light/dark themes, and supporting content.
 - [ ] Build the wall-art page layout for subsequent editor integration.
 - [ ] Verify keyboard navigation and mobile layouts, review screenshots, and
