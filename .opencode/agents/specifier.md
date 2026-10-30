@@ -40,6 +40,12 @@ verification method for normal, boundary, and invalid inputs. Include keyboard,
 narrow-screen, export scale, and worst-case generation requirements as relevant.
 Numerical performance targets need a stated test environment and rationale.
 
+Include a concise documentation-impact section with affected paths, required
+changes, and unresolved decisions. Check shared architecture, product/roadmap,
+setup/usage, and development docs as relevant; state when no update is needed.
+Keep proposed changes in the spec for build to resolve during technical planning;
+do not edit outside docs/specs/ or silently override a shared architectural decision.
+
 Finish with implementation steps and frontend/geometry/QA handoffs referencing
 the same contracts. Return the spec path, key decisions, and remaining blockers.
 Do not start other agents; the caller owns coordination.

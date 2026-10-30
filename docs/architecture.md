@@ -132,6 +132,36 @@ Follow the website-first [MVP roadmap](mvp-roadmap.md). Open directly into the
 wall-art workspace; add a catalogue when more tools justify it.
 React state is sufficient initially; a global state library needs a concrete use.
 
+### Website foundation
+
+These proposed boundaries await review with the foundation implementation plan.
+They are planned modules, not existing code; create them only with their approved
+implementation tasks.
+
+```text
+hash / history ── navigation adapter ──┐
+storage / OS ──── theme adapter ───────┼── App state ── workspace / dialogs
+user settings ─── pure validation ────┘
+```
+
+App coordinates accepted UI state and browser effects. Components render that state
+and send user actions back; they do not read storage or interpret routes.
+
+| Module | Responsibility |
+| --- | --- |
+| `src/main.tsx`, `src/app/App.tsx` | Bootstrap, session state, browser subscriptions, navigation/dialog focus coordination |
+| `src/app/state.ts` | UI preference types/defaults and pure validation; no React or browser globals |
+| `src/app/navigation.ts` | Pure hash resolution plus isolated history/event adapter |
+| `src/app/theme.ts` | Validated theme persistence, effective scheme, and isolated storage/OS adapter |
+| `src/app/content.ts`, `SupportDialog.tsx` | View copy, Help/About, and same-site license access |
+| `src/editor/Workspace.tsx`, `WorkspaceDisplay.tsx` | Empty preview, capability summaries, and labelled display settings |
+| `src/styles.css` | Shared tokens, themes, responsive layout, and visible focus |
+
+Use React state and native browser APIs for this slice. Test pure logic with Node
+and integrated behavior with Playwright. The foundation has no geometry/export
+modules; later editor work adds the independent layers above. See the
+[foundation plan](plans/website-foundation.md) for tasks, dependencies, and checks.
+
 ## Responsiveness and printability
 
 Bound file size, CAD operation/part count, triangle count, and parameter

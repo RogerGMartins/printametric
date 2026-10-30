@@ -31,7 +31,9 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 | --- | --- | --- |
 | Specify | `/spec wall-art` -> specifier | `docs/specs/wall-art.md`: bounded parameter and mesh contracts, acceptance IDs, exclusions, test plan |
 | Design UI | `/design docs/specs/wall-art.md` -> frontend | UI section in that same spec: layout, controls, keyboard/mobile behavior, states |
-| Implement | `/implement docs/specs/wall-art.md` -> build | Working vertical slice with geometry, editor, export, and regression checks |
+| Plan implementation | `/plan-implementation docs/specs/wall-art.md` -> build | `docs/plans/<feature>.md`: technical decisions, ordered tasks, dependencies, files, and checks; stop for user review |
+| Approve plan | User reviews the plan and requests changes or implementation | Explicit approval of the current plan before coding |
+| Implement | `/implement docs/specs/wall-art.md` -> build | Execute the approved plan as a verified vertical slice |
 | Verify | `/verify docs/specs/wall-art.md` -> qa | Per-acceptance-ID pass/fail/unverified evidence, browser/mesh checks where relevant |
 | Review | `/review <diff or PR scope>` -> reviewer | Reproducible correctness findings; read-only |
 | Deliver | `/ship <scope>` -> build | Readiness, actual checks, and remaining gaps; publish only when requested |
@@ -39,6 +41,27 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 Use these stages for meaningful features; small fixes need only relevant steps.
 Do not make a separate spec, ceremony, or agent call for every edit. `/design`
 is for UI changes; a geometry-only fix does not need a UI design pass.
+
+Keep each decision in one place: the spec states required behavior and acceptance;
+`docs/architecture.md` owns shared module/data-flow decisions; the implementation
+plan explains the technical work. Use concise task tables with dependencies, files,
+contracts, and completion checks. Link to requirements instead of repeating them.
+`/plan-implementation` writes the plan and stops with a short review summary. The
+user reviews `docs/plans/<feature>.md` and approves it or requests changes. Planning
+never continues into coding in the same invocation. A later explicit request to
+implement the presented plan counts as approval; a plan file alone does not.
+`/implement` requires that approval and stops if the plan or approval is missing.
+Keep the plan current; material scope, architecture, or contract changes require
+renewed review. Small fixes can use a reviewed inline plan. Read-only plan mode
+can explore options; build records the document. Neither phase authorizes delegation.
+
+Documentation follows the same handoff: the spec lists affected document paths,
+required changes, and unresolved decisions; the technical plan assigns updates to
+tasks. Build drafts shared architecture proposals during planning and applies the
+approved decisions and verified setup/usage/status updates during implementation.
+Check architecture, product/roadmap, README, and development docs as relevant; avoid
+duplicating them in the spec. Record no change when none is needed. A milestone is
+not complete while required documentation updates are unresolved.
 
 Resolve blocking contract decisions before implementation. Build starts with
 validation and a small headless geometry/export path, then connects the editor.
@@ -83,8 +106,9 @@ may be summarized in the task/PR; no separate report file is required by default
 - `reviewer`: independent, read-only correctness review.
 
 Commands provide repeatable task prompts to these roles. `/spec` now invokes a
-specifier with a limited document-editing scope; plan remains read-only. `/implement`
-uses build rather than duplicating it with a renamed implementation agent.
+specifier with a limited document-editing scope; built-in plan remains read-only.
+`/plan-implementation` uses build with a documentation-only task and a mandatory
+review stop. `/implement` uses build to execute the user-approved plan.
 Use specialists directly or delegate only when requested. Skills supply reusable
 procedures; tools execute concrete operations.
 
