@@ -167,3 +167,63 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
   remain T4. Verified documented source breakpoints and storage-failure reproduction.
 - Updated README, architecture, development debugging instructions, and roadmap.
   Stop for user review/PR: no T4, commit, push, PR, deployment, or remote CI yet.
+
+## Impeccable visual trial — 2026-10-30
+
+- User authorized installation and immediate visual exploration, and asked the
+  assistant to choose references. Installed tooling is documented in
+  [development.md](../development.md#impeccable-design-tooling).
+- Local studies under `artifacts/impeccable-trial/`: Contour uses a slate shell
+  and left inspector; Gallery uses warm neutral surfaces and a right inspector;
+  Gridline uses cobalt navigation and a full-width preview above a settings dock.
+  A conventional editor provides a comparison. Gridline was selected in the
+  subsequent refinement below, superseding the earlier Quiet studio proposal.
+- The interactive wrapper passed Chromium checks for all four studies in both
+  themes at 1440, 768, and 320 px: no horizontal overflow or outer-page scrollbar.
+  At 320 px, keyboard theme toggle/System reset, view changes, retained background,
+  tips, modal focus/escape/restoration, and exact license content passed. No page
+  errors occurred. Screenshots: `artifacts/impeccable-trial/final-*.png`.
+- Reviewed desktop, narrow, and dark screenshots. Corrected Contour navigation
+  contrast, phone action wrapping, and nested wrapper scrolling. Static Impeccable
+  scans of all four generated HTML sketches returned no findings after replacing
+  a tinted shadow. This is not a complete accessibility or browser acceptance audit.
+- Node 24.22.2 `npm run check` passed scaffold validation, both typechecks, build,
+  and all 21 tests. The first run exceeded the tool's two-minute limit; the retry
+  completed successfully. `git diff --check` passed. Engine binaries, runtime
+  state, and generated trial artifacts are ignored. Application dependencies are unchanged.
+- T4 source remains preserved. Application redesign requires visual selection and
+  implementation-plan review. Prototype preferences are not persisted; prototype
+  navigation is not the application's history adapter. T5 remains pending.
+
+### Gridline refinement
+
+- User selected Gridline and requested collapsible bottom menus and a preview
+  spanning the whole window below the header. The revised local study combines
+  view navigation with the header and removes the canvas frame and page gutters.
+- The initial revision used four native disclosures along the bottom, expanding
+  over the canvas without resizing it. On phones, one menu opened at a time.
+  Model availability and dimension/part/plate summaries remain in Wall-art settings;
+  the foundation notice is in Display settings. No generation/export is implied.
+- The initial `verify-gridline.cjs` checked canvas bounds,
+  keyboard expand/collapse, retained background on navigation, one open phone
+  panel, and Help focus restoration. Passed in Chromium at 1440×900, 768×1024,
+  320×800, and 640×400, both themes. Reviewed `gridline-revised-*.png` captures.
+- Static detector reports two padding warnings from inherited workspace/navigation
+  border rules. The rendered selected layout overrides those borders; the canvas
+  is intentionally edge-to-edge. These are not treated as accessibility evidence.
+- The user then requested one collapse control for the whole bottom panel and
+  removal of an empty right column. The final study uses one native Workspace
+  settings disclosure. Its responsive content grid fills available tracks and
+  removes inherited explicit column placement when view-specific groups hide.
+- The final browser regression passed in both themes at widths 320, 640, 768, 960,
+  1440, 1920, and 2560 px, including a 400 px-high window. It checks the canvas and
+  iframe right edges, one collapse control, no empty settings column across all
+  three views, retained background selection, and Help focus restoration. Reviewed
+  `gridline-final-*.png` screenshots. The full reported white strip was not
+  reproduced before the change; final right-edge coverage is verified.
+- Retain the prototype source and regression function for the requested PR;
+  generated HTML and screenshots stay ignored. Prototype Help/About no longer
+  depends on uncommitted T4 source, so this work can be reviewed separately.
+- This records the selected visual direction, not approval to replace the
+  application. T4 source and its review boundary remain preserved. The user
+  explicitly authorized a PR for this completed design-trial work.
