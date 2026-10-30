@@ -24,7 +24,8 @@ skills, or tools. Models and credentials come from your own OpenCode setup.
 | --- | --- |
 | `/spec <feature>` | Specifier writes bounded contracts and acceptance criteria |
 | `/design <spec path>` | Frontend defines layout, accessible controls, and UI states |
-| `/implement <spec path or task>` | Implement and verify a vertical slice |
+| `/plan-implementation <spec path>` | Write the technical task plan; stop for your review and approval |
+| `/implement <spec path or task>` | Execute the approved plan and verify the working slice |
 | `/verify <spec path>` | QA checks acceptance criteria and reports evidence and gaps |
 | `/review <scope>` | Review correctness, geometry, accessibility, and tests |
 | `/ship <scope>` | Check release readiness; publish only when explicitly requested |
@@ -40,6 +41,9 @@ Commands are workflow entry points; agents are the roles executing them.
 `build` is the implementation/integration agent; `plan` is for read-only exploration
 and planning. `/spec`, `/design`, `/verify`, and `/review` invoke their specialists.
 Specialists can be addressed directly without creating a command for each role.
+
+Review the technical plan in `docs/plans/<feature>.md` after `/plan-implementation`.
+Request changes or approve it and run `/implement`. Planning does not start coding.
 
 ## Project documents
 

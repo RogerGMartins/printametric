@@ -44,8 +44,10 @@ Use built-in build/plan for routine work. Use specifier, frontend, geometry, qa,
 and reviewer agents
 when requested or when the user explicitly asks for delegated work. Do not
 spawn agents automatically. Load skills only when their descriptions match.
-Use /spec, /design (UI changes), /implement, /verify, /review, and /ship for the
-development lifecycle. Invoking a specialist command explicitly requests that
+Use /spec, /design (UI changes), /plan-implementation, /implement, /verify, /review,
+and /ship for the development lifecycle. Planning writes the technical plan and
+stops for user review; implementation requires approval of that plan. Invoking a
+specialist command explicitly requests that
 agent for its task; it does not authorize a nested fan-out of other agents.
 When delegation is requested, build owns integration and assigns disjoint file
 scopes against the same spec. Handoffs include acceptance IDs, contracts, changed
