@@ -7,6 +7,8 @@ const require = createRequire(import.meta.url);
 for (const args of [
   ['scripts/check-scaffold.mjs'],
   [join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--noEmit'],
+  [join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--project', 'tsconfig.app.json'],
+  [join(dirname(require.resolve('vite/package.json')), 'bin/vite.js'), 'build'],
   ['--test'],
 ]) {
   const result = spawnSync(process.execPath, args, { stdio: 'inherit' });

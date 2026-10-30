@@ -1,7 +1,10 @@
 # Website foundation — implementation plan
 
-Status: awaiting user review; no application code or runtime verification yet.
-Review this plan before requesting implementation. Approval is not yet recorded.
+Status: T1 implemented and verified; stopped for user review and a PR opportunity.
+User approval recorded on 2026-10-30: start implementation, one task at a time,
+with a review and separate pull-request opportunity after each task. Stop after
+each task's checks; wait for the user's request before publishing or starting
+the next task. T2 has not started.
 Scope/acceptance: [spec](../specs/website-foundation.md).
 Module boundaries: [architecture](../architecture.md#website-foundation).
 Build owns integration and performs these tasks directly unless delegation is requested.
@@ -11,7 +14,7 @@ Build owns integration and performs these tasks directly unless delegation is re
 - One client-side React/TypeScript app, Vite, plain CSS, native controls/dialogs.
   Install compatible stable runtime/build packages and Playwright at implementation;
   retain one root lockfile and keep the OpenCode SDK outside the browser graph.
-- Follow the proposed [code practices](../architecture.md#code-practices-for-the-foundation-proposed):
+- Follow the [code practices](../architecture.md#code-practices-for-the-foundation):
   one-way module dependencies, strict application types, pure state transitions,
   controlled settings, and cleaned-up browser effects. Bootstrap reads initial
   browser preferences once before rendering App; root StrictMode remains enabled.
@@ -80,3 +83,25 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 - After T6, report implemented ACs, changed files, commands/results, evidence paths,
   and limitations. No application work or acceptance is complete merely because
   this plan exists.
+
+## T1 checkpoint — 2026-10-30
+
+- Installed React/React DOM 19.3.1, Vite 8.3.5, React plugin 6.1.2, and React
+  types 19.3.0 using the root lockfile. Added the minimal Design shell, StrictMode,
+  separate app/tooling typechecks, and dev/build/preview scripts.
+- Added app typechecking/build to the shared gate now so the T1 PR receives CI
+  coverage. T5 still owns automated browser integration. Updated README, development
+  setup/debug steps, architecture status, and the roadmap's setup item.
+- Windows; Node 24.22.2 (default machine Node is 26); Chromium 156.0.8078.76.
+  Clean `npm ci`, `npm run build`, and `npm run check` passed: scaffold validation,
+  both typechecks, production build, and 2 existing tests. `git diff --check` passed.
+- AC-1: dev and served production `/` open Design. Inspected the actual production
+  module graph: app, React/React DOM/scheduler, and bundler helpers only; no SDK.
+  Keyboard skip-to-main and the JavaScript-disabled notice passed. Dev source maps
+  and a startup breakpoint worked; StrictMode rendered twice as expected.
+- Reviewed plain-shell screenshots at 1280×800 and 320×800, with visible native
+  focus and no horizontal overflow: `artifacts/t1-{5173,4173}-{desktop,narrow}.png`.
+  Final browser run had no console/page errors. The designed styling is T3 work.
+- AC-15 is partial; the other full acceptance criteria remain unverified. Second
+  browser/theme/layout journeys belong to later tasks. Remote CI has not run.
+  No commit, push, PR, or T2 work at this checkpoint.

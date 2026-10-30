@@ -3,18 +3,33 @@
 A planned self-hosted website with browser-based parametric 3D model generators.
 The first generator will create modular wall art.
 
-**Status:** development scaffolding only; the web application is not implemented yet.
+**Status:** T1 runnable shell implemented. The app opens Design with an honest
+empty state. Workspace styling, navigation, preferences, and dialogs are later tasks.
 
 ## Develop
 
-Install Node.js 24 and OpenCode, then run from the repository root:
+Install current Node.js 24 LTS, then run from the repository root:
 
 ```sh
 npm ci
-npm run check
-opencode
+npm run dev
 ```
 
+Open the local URL printed by Vite (normally `http://localhost:5173`). To check
+the app and serve its production output:
+
+```sh
+npm run check
+npm run build
+npm run preview
+```
+
+Preview normally uses `http://localhost:4173` and is for local verification,
+not production hosting. `npm run build` typechecks the app and creates `dist/`.
+Use `npm run typecheck:app` for browser types or `npm run typecheck` for Node/tooling
+types. See [development notes](docs/development.md#application-checks-and-debugging).
+
+For the agent workflow, install OpenCode and run `opencode` from this directory.
 Quit and restart OpenCode after changing its configuration, agents, commands,
 skills, or tools. Models and credentials come from your own OpenCode setup.
 
@@ -58,13 +73,15 @@ Selected application stack: **React + TypeScript + Vite**, **Three.js + React
 Three Fiber**, plain CSS, and **Replicad/OpenCascade.js WASM** for CAD geometry.
 Required exports: **STEP, STL, and 3MF**, derived from the same CAD model.
 Start client-side with versioned JSON design files and static self-hosting.
-The web application and its dependencies will be added with the first feature.
+React and Vite are installed; geometry and rendering dependencies arrive with
+their implementation tasks.
 
 ## CI and deployment
 
 GitHub Actions runs `npm ci` and `npm run check` on Linux and Windows for pushes
 and pull requests. Checks validate the scaffold's local conventions, parse YAML,
-typecheck the OpenCode tool, and run its tests. They do not yet test a website.
+typecheck the OpenCode tool, Vite configuration, and app, build production output,
+and run the scaffold tests. Automated browser journeys are planned for T5.
 Dependabot checks npm dependencies and GitHub Actions weekly.
 
 For ChatGPT-connected PR reviews, use the official Codex GitHub integration.

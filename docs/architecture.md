@@ -154,9 +154,10 @@ React state is sufficient initially; a global state library needs a concrete use
 
 ### Website foundation
 
-These proposed boundaries await review with the foundation implementation plan.
-They are planned modules, not existing code; create them only with their approved
-implementation tasks.
+These boundaries were approved for task-by-task implementation on 2026-10-30.
+T1 implements `src/main.tsx` and a minimal `src/app/App.tsx`, with separate browser
+and Node/tooling typechecks. The remaining modules and responsibilities below are
+planned; create them only in their implementation tasks.
 
 ```text
 hash / history ── navigation adapter ──┐
@@ -184,7 +185,7 @@ and integrated behavior with Playwright. The foundation has no geometry/export
 implementation; later tool work adds the independent layers above. See the
 [foundation plan](plans/website-foundation.md) for tasks, dependencies, and checks.
 
-#### Code practices for the foundation (proposed)
+#### Code practices for the foundation
 
 - **Dependency direction:** `App` composes adapters and UI. UI receives typed props
   and callbacks; shared UI uses shared types, not app state types or browser adapters. Adapters

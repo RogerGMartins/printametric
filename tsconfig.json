@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": [".opencode/tools/**/*.ts"]
+  "include": [".opencode/tools/**/*.ts", "vite.config.ts"]
 }

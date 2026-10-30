@@ -7,23 +7,44 @@ through its Zod and Effect/TOML dependencies (resource-exhaustion advisories).
 There is no compatible SDK upgrade reported by npm audit; its proposed fix is
 an old SDK downgrade. Do not use audit fix --force blindly. Track an upstream
 SDK release with corrected dependencies. These packages support development
-tools; there is no deployed application or application dependency bundle yet.
+tools; they are excluded from the application bundle. There is no deployed app.
 The SDK's transitive ini package requires Node 24.15 or newer within Node 24;
 use current Node 24 LTS to avoid engine warnings. Local checks also passed on
 the existing Node 24.6 installation, which emits that warning during install.
 
 ## Current stack
 
-Installed tooling: Node.js 24, npm, TypeScript for OpenCode tools, Node's built-in
-test runner, and YAML parsing for configuration checks. The selected application
-stack is React + TypeScript + Vite, with Three.js/React Three Fiber for preview and
+Installed tooling: Node.js 24, npm, TypeScript, Node's built-in test runner, and
+YAML parsing for configuration checks. T1 installs React 19.3.1, Vite 8.3.5, and
+the official React plugin 6.1.2. The planned geometry stack uses Three.js/React
+Three Fiber for preview and
 Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
-Application dependencies will be installed with the first working slice.
+Only the runnable shell is implemented; geometry dependencies are not installed.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
 machine-managed files are ignored so startup cannot invalidate the npm lockfile.
+
+### Application checks and debugging
+
+- `npm run dev` starts Vite with source maps and React StrictMode checks.
+- `npm run typecheck:app` checks browser code using `tsconfig.app.json`.
+  `npm run typecheck` checks Node-only tools and `vite.config.ts` using `tsconfig.json`.
+- `npm run build` checks app types and creates static output in `dist/`.
+  `npm run preview` serves that output locally; rebuild after source changes.
+- `npm run check` runs scaffold validation, both typechecks, the production build,
+  and existing Node tests. CI uses this same gate on Linux and Windows. Browser
+  test installation and automated journeys will be added in T5.
+- To debug startup, open the dev URL and the browser's Sources panel, find
+  `src/main.tsx` or `src/app/App.tsx`, set a breakpoint, and reload. Check the
+  browser console and Vite terminal for failures. StrictMode can render twice
+  in development. Production output does not contain source maps or debug fixtures.
+
+T1's only keyboard action is `Skip to workspace`: press Tab, then Enter, and
+confirm focus moves to the main content. Disable JavaScript and reload to check
+the visible startup requirement. The full workspace/error-state journeys arrive
+with later tasks; T1 does not implement preference validation or storage.
 
 ## Lifecycle
 
