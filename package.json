@@ -19,7 +19,7 @@
     "typecheck:app": "tsc --project tsconfig.app.json"
   },
   "devDependencies": {
-    "@opencode-ai/plugin": "1.19.0",
+    "@opencode-ai/plugin": "1.19.4",
     "@playwright/test": "1.64.1",
     "@types/node": "^24.0.0",
     "@types/react": "19.3.0",
