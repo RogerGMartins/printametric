@@ -1,7 +1,10 @@
 # Website foundation
 
-Status: T3 visual revision 2 proposed on 2026-10-30; awaiting visual approval.
-Existing T3 behavior is retained. This revision does not approve implementation or T4.
+Status: T1–T4 behavior is implemented and merged; T5 regression integration is
+authorized. The Quiet studio UI proposal below is historical and superseded by
+the selected Gridline study. It is not the implemented visual contract. Gridline
+application work still requires a reviewed plan update; see the implementation plan
+for current approvals and evidence. T5 tests the existing T3/T4 controls and behavior.
 Technical tasks: [implementation plan](../plans/website-foundation.md).
 Product and stack: [product](../product.md), [architecture](../architecture.md),
 [roadmap](../mvp-roadmap.md), and [confirmed website direction](website-definition.md).

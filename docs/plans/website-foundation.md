@@ -1,6 +1,6 @@
 # Website foundation — implementation plan
 
-Status: T1–T3 merged; T4 implemented and checked, preparing its requested PR.
+Status: T1–T4 merged (T4 in PR #14); T5 implemented and checked, preparing its requested PR.
 True 200% browser zoom and cross-browser/screen-reader checks remain unverified.
 The selected Gridline visual study supersedes the earlier Quiet studio proposal;
 application implementation still requires a reviewed implementation-plan update.
@@ -11,8 +11,11 @@ User approval recorded on 2026-10-30: start implementation, one task at a time,
 with a review and separate pull-request opportunity after each task. Stop after
 each task's checks; wait for the user's request before publishing or starting
 the next task. The user explicitly requested T4 on 2026-10-30; implement support
-dialogs in the current UI, then stop for review. The user has now requested its
-separate PR. Gridline application implementation and T5 remain pending.
+dialogs in the current UI, then stop for review. PRs #13 and #14 are now merged.
+The user subsequently requested implementation of the next task, authorizing T5
+regression integration only. After the implementation handoff, the user requested
+a PR for T5. This authorizes its commit, push, and PR; T6 and Gridline application
+implementation remain pending.
 Scope/acceptance: [spec](../specs/website-foundation.md).
 Module boundaries: [architecture](../architecture.md#website-foundation).
 Build owns integration and performs these tasks directly unless delegation is requested.
@@ -270,3 +273,42 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 - This records the selected visual direction, not approval to replace the
   application. T4 source and its review boundary remain preserved. The user
   explicitly authorized a PR for this completed design-trial work.
+
+## T5 checkpoint — 2026-10-31
+
+- User authorized the next ordered task after merging T4. Added Playwright Test
+  1.64.1 with Chromium 156.0.8078.4, one root lockfile, and separate production/dev
+  projects. Playwright owns strict-port servers at 4273/5273 and fresh contexts;
+  no dependency on MCP or the developer's running preview. Two workers, no retries.
+- `npm run check` retains scaffold validation, both typechecks, build, and all
+  21 Node regressions, then runs 22 browser tests. Node discovery explicitly selects
+  `tests/*.test.mjs`. TypeScript checks the config/specs and their browser probes;
+  existing JavaScript helpers remain runtime-tested. CI installs Chromium and OS
+  libraries on Linux/Windows and retains failure reports/traces/screenshots.
+- Reused T3/T4 journeys for navigation/history, focus, settings/reload, malformed
+  hashes, native controls, dialog containment/restoration, and exact LICENSE text.
+  Added production storage boundary/failure/retry and system-theme checks, both-theme
+  desktop/320 px dialogs, all 24 view/theme/tips/background combinations, and
+  JavaScript-disabled startup. Browser page errors and downloads fail each test.
+- Dev checks exercise collapsed-error recovery, one bootstrap theme read, zero
+  initial storage writes, one history entry per new view, and no active-link entry.
+  Instrumented native subscriptions verify StrictMode setup/cleanup and zero remaining
+  app listeners after the fixture's test-only unmount. No application UI changes.
+- Windows, Node 24.22.2: browser installation, `npm test` (21), typecheck, and final
+  `npm run check` passed. Final browser suite: **22 passed in 29.4 s**. Both documented
+  targeted commands (`failed write`, `collapsed rejected input`) passed separately.
+  The initial run exposed a test assertion issue: Playwright's text matcher excludes
+  `noscript`. Direct DOM text plus visibility now checks the actual notice. That
+  failure correctly failed the gate and produced screenshots, a trace, and report.
+- AC-1/2/3/5/6/9/10/12/14 and existing P2 behavior now have repeatable Chromium
+  regressions; AC-15 local integration passes. Revised visual/theme-toggle criteria
+  are not implemented or accepted by these tests. AC-13 gets download sentinels,
+  storage sentinels, output-path and production-request checks; the final dependency
+  audit remains T6. True 200% zoom, second-engine and screen-reader checks remain
+  unverified. The report is `playwright-report/index.html`; failure evidence uses
+  `test-results/`. Remote Linux/Windows CI has not run for this uncommitted task.
+- Updated README, development setup/debugging, architecture test boundaries, roadmap
+  progress, and the spec's stale status banner. Product scope and geometry contracts
+  need no change. Gridline stays a separate study. The implementation stopped for
+  review; the user subsequently requested publication of this T5 scope as a PR.
+  T6 and application redesign implementation remain outside that request.

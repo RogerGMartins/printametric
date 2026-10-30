@@ -16,7 +16,8 @@ the existing Node 24.6 installation, which emits that warning during install.
 
 Installed tooling: Node.js 24, npm, TypeScript, Node's built-in test runner, and
 YAML parsing for configuration checks. T1 installs React 19.3.1, Vite 8.3.5, and
-the official React plugin 6.1.2. The planned geometry stack uses Three.js/React
+the official React plugin 6.1.2. T5 adds Playwright Test 1.64.1 and its pinned Chromium.
+The planned geometry stack uses Three.js/React
 Three Fiber for preview and
 Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
@@ -33,13 +34,17 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 
 - `npm run dev` starts Vite with source maps and React StrictMode checks.
 - `npm run typecheck:app` checks browser code using `tsconfig.app.json`.
-  `npm run typecheck` checks Node-only tools and `vite.config.ts` using `tsconfig.json`.
+  `npm run typecheck` checks Node-only tools, Vite/Playwright configuration, and
+  TypeScript browser tests using `tsconfig.json`. JavaScript journey helpers are
+  imported with `allowJs`; they remain runtime-tested rather than JS-typechecked.
 - `npm run build` checks app types and creates static output in `dist/`.
   `npm run preview` serves that output locally; rebuild after source changes.
 - `npm run check` runs scaffold validation, both typechecks, the production build,
-  and Node tests, including state/adapter and bootstrap regressions. CI uses this
-  same gate on Linux and Windows. Browser test installation and automated journeys
-  arrive in T5.
+  Node tests, and Playwright production/development browser regressions. CI uses
+  this same gate on Linux and Windows. First run `npm ci` and
+  `npm run test:browser:install` to install Chromium and required OS libraries.
+  Repeat browser installation after a Playwright upgrade. No MCP service or model
+  credentials are needed for these tests.
 - To debug startup, open the dev URL and the browser's Sources panel, find
   `src/main.tsx` or `src/app/App.tsx`, set a breakpoint, and reload. Check the
   browser console and Vite terminal for failures. StrictMode can render twice
@@ -85,14 +90,13 @@ Storage.prototype.setItem = originalSetItem;
 Reload also removes this temporary override. Use a separate browser profile for
 these checks so existing preferences remain untouched. T3 browser assertions are
 reusable functions in `tests/browser/workspace-journey.mjs`, accepting a Playwright
-page and base URL. They were run through the available browser tooling against dev
-and served production output; `npm run check` does not run them yet. T5 adds that
-runner and CI browser setup. Screenshots/evidence belong in ignored `artifacts/`.
+page and base URL. The Playwright production and development projects now run
+these through `npm run check`. Manual screenshots/evidence belong in ignored `artifacts/`.
 
 T4 browser assertions are in `tests/browser/support-journey.mjs`:
 `verifySupportDialogs(page, baseURL, expectedLicense, theme)` accepts the repository
 LICENSE text and an optional `light`/`dark` theme. Run against dev and served build
-with a fresh browser context; it is not yet part of `npm run check` (T5).
+with a fresh browser context; the Playwright runner does this as part of `npm run check`.
 The journey checks exact license text, modal focus, backdrop handling, keyboard
 scrolling, Close/Escape restoration, and Back/Forward/malformed-route dismissal.
 
@@ -106,6 +110,44 @@ license, use Ctrl+End to reach the bottom on Windows/Linux, then Tab to reach Cl
 The license disclosure resets on reopening. Test at 320 px and in both themes.
 True browser 200% zoom remains unverified: automated zoom shortcuts did not change
 the measured viewport. A 640×400 reflow check passed but is not a zoom result.
+
+### Browser regression runner
+
+`playwright.config.ts` owns two Chromium projects and their server processes:
+
+- `production`: serves the existing `dist/` on `127.0.0.1:4273`; runs navigation,
+  settings, both-theme desktop/320 px dialogs and exact license, storage failures,
+  live system theme, honest empty states, and the JavaScript-disabled notice.
+- `development`: serves Vite on `127.0.0.1:5273`; runs the shared journeys plus
+  collapsed-error recovery and StrictMode subscription/history/storage checks.
+  The error fixture exports test-only unmount access to check listener cleanup.
+
+Both servers use strict ports and are stopped by Playwright. Occupied test ports
+fail startup instead of silently reusing a stale server. Normal dev/preview ports
+5173/4173 remain separate. Each test receives a fresh browser context. The runner
+uses two workers, no retries, failure screenshots/traces, and an HTML report.
+CI uploads `playwright-report/` and `test-results/` on failure for seven days;
+these paths are ignored locally. A failed journey fails the shared gate.
+
+```sh
+npm test
+npm run build
+npm run test:browser
+npm run test:browser -- --project=production --grep "failed write"
+npm run test:browser -- --project=development --grep "collapsed rejected input"
+```
+
+`npm test` explicitly selects `tests/*.test.mjs`, so Node does not discover
+Playwright specs. `npm run test:browser` expects an up-to-date `dist/`; the full
+`npm run check` always rebuilds it. To step through a browser test, append `--debug`
+to a targeted command. Inspect the failed assertion and retained DOM snapshot in
+`test-results/`; open `npx playwright show-report` or use
+`npx playwright show-trace <path-to-trace.zip>` for actions, DOM, and network evidence.
+Use `DEBUG=pw:webserver` in your shell environment to diagnose server startup.
+
+The suite checks the current T3/T4 application and Theme select. It is not evidence
+for the proposed Gridline application redesign, true browser zoom, a second engine,
+or screen-reader behavior. Those remain separate review/compatibility work.
 
 ## Impeccable design tooling
 
