@@ -1,4 +1,4 @@
-// Real modal regressions for dev and served production. T5 will add the CI runner.
+// Shared real-modal regressions for development and served production.
 import assert from 'node:assert/strict';
 
 export async function verifySupportDialogs(page, baseURL, expectedLicense, theme = 'light') {

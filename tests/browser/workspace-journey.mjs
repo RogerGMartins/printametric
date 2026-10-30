@@ -1,4 +1,4 @@
-// Reusable real-page assertions. T3 runs these through browser tooling; T5 adds the CI runner.
+// Shared real-page assertions used by the production and development browser suites.
 import assert from 'node:assert/strict';
 
 export async function verifyWorkspace(page, baseURL) {

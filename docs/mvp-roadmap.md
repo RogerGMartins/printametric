@@ -44,6 +44,9 @@ Planned spec: `docs/specs/website-foundation.md`
 - [x] Build the wall-art page layout for subsequent editor integration.
 - [ ] Verify keyboard navigation and mobile layouts, review screenshots, and
   include application build checks in `npm run check`.
+  T5 integrates the build, Node tests, and Chromium production/development journeys
+  into the shared gate and CI configuration. Final visual/compatibility acceptance
+  remains pending; see the [foundation plan](plans/website-foundation.md).
 
 Done when users can understand the product and navigate to the first tool.
 

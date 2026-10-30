@@ -227,9 +227,10 @@ T3 presentation boundaries:
   change when its already-selected option is chosen. Failed writes keep memory
   and old stored bytes; successful retries clear the notice.
 - The error fixture under `tests/fixtures/` mounts the real App with rejected
-  updates. It is typechecked but has no production entry/import. Browser journey
-  helpers under `tests/browser/` currently run through browser tooling; T5 supplies
-  the repeatable Playwright runner and CI integration. No test controls enter App.
+  updates. It is typechecked but has no production entry/import. Its test-only
+  unmount export verifies effect cleanup. T5 runs the shared browser journeys
+  through Playwright against separate owned production/development servers.
+  Browser probes stay in `tests/browser/`; no test controls enter App.
 
 T4 support-dialog boundaries:
 - App owns `supportPanel` and stable Help/About opener refs. It mounts one

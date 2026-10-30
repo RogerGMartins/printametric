@@ -6,7 +6,8 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
+    "allowJs": true,
     "types": ["node"]
   },
-  "include": [".opencode/tools/**/*.ts", "vite.config.ts"]
+  "include": [".opencode/tools/**/*.ts", "vite.config.ts", "playwright.config.ts", "tests/browser/**/*.ts"]
 }
