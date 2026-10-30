@@ -155,10 +155,9 @@ React state is sufficient initially; a global state library needs a concrete use
 ### Website foundation
 
 These boundaries were approved for task-by-task implementation on 2026-10-30.
-T1 implements `src/main.tsx` and a minimal `src/app/App.tsx`, with separate browser
-and Node/tooling typechecks. T2 adds state, navigation/theme adapters, and shared
-workspace types, tested independently of React. T3 connects them to App. The other
-modules below remain planned; create them only in their implementation tasks.
+T1 supplies the entry point and separate browser/Node typechecks. T2 adds independent
+state and browser adapters. T3 connects them to the responsive workspace, display
+settings, and themes. SupportDialog and Help/About content remain T4 work.
 
 ```text
 hash / history ── navigation adapter ──┐
@@ -172,6 +171,7 @@ and send user actions back; they do not read storage or interpret routes.
 | Module | Responsibility |
 | --- | --- |
 | `src/main.tsx`, `src/app/App.tsx` | Bootstrap, session state, browser subscriptions, navigation/dialog focus coordination |
+| `src/app/bootstrap.ts` | One-time route/storage/OS snapshot before React rendering; injectable browser for tests |
 | `src/app/state.ts` | UI preference types/defaults and pure validation; no React or browser globals |
 | `src/app/navigation.ts` | Pure hash resolution plus isolated history/event adapter |
 | `src/app/theme.ts` | Validated theme persistence, effective scheme, and isolated storage/OS adapter |
@@ -186,7 +186,7 @@ and integrated behavior with Playwright. The foundation has no geometry/export
 implementation; later tool work adds the independent layers above. See the
 [foundation plan](plans/website-foundation.md) for tasks, dependencies, and checks.
 
-T2 integration contracts:
+Implemented integration contracts:
 - `createFoundationState` returns fresh defaults. `transitionFoundation` validates
   unknown preference values and updates field errors without browser effects.
   Navigation and storage notices have separate lifetimes; successful field updates
@@ -195,7 +195,9 @@ T2 integration contracts:
   `read(true)` once; subscribe to hash changes after mounting and apply `navigate`
   results directly after ordinary link activation. `pushState` emits no event;
   hash-changing Back/Forward emits `hashchange`, so no duplicate `popstate` listener
-  is needed. Updates carry heading-focus/dialog-close intent; T3 owns DOM handling.
+   is needed. Updates carry heading-focus/dialog-close intent; App handles heading
+   focus after commit, consuming a ref flag even for active-view navigation. Initial
+   entry never sets that flag. Dialog DOM handling arrives in T4.
   Prevent the skip link's default hash change when connecting routing, and focus
   main directly: `#workspace` is not a view route.
 - Bootstrap calls `readThemePreference(() => window.localStorage)` once outside
@@ -206,7 +208,28 @@ T2 integration contracts:
   with a bound `query => window.matchMedia(query)` and run its cleanup on preference
   change/unmount. It immediately reports the current OS scheme to cover changes
   since bootstrap. Derive the effective scheme and use `applyColorScheme` for the
-  root `data-theme` and native-control `color-scheme`; CSS tokens arrive in T3.
+   root `data-theme` and native-control `color-scheme` with shared CSS tokens.
+
+T3 presentation boundaries:
+- App owns a pure reducer and OS snapshot, with cleaned-up navigation/media Effects.
+  Layout Effects synchronize the root scheme, title, and requested heading focus.
+  Bootstrap applies the initial scheme before mounting. No Effect writes storage.
+- `tools/wall-art/content.ts` supplies empty-state and unavailable-section content.
+  App selects it by view; shared Workspace knows no route or tool identity. Preview
+  precedes settings in the DOM. CSS places controls left at 960 px and above, and
+  stacks preview first below 960 px, including fractional viewport widths.
+- WorkspaceDisplay owns only element refs and pending recovery focus. Its native
+  disclosure reports actual toggles, ignoring matching programmatic open events.
+  Field errors remain outside the disclosure; recovery opens it, then focuses the
+  selected radio without clearing the error. Only a valid field edit clears it.
+- Theme notices include an explicit Retry theme storage action. It submits the
+  current valid selection again, so recovery does not depend on a select emitting
+  change when its already-selected option is chosen. Failed writes keep memory
+  and old stored bytes; successful retries clear the notice.
+- The error fixture under `tests/fixtures/` mounts the real App with rejected
+  updates. It is typechecked but has no production entry/import. Browser journey
+  helpers under `tests/browser/` currently run through browser tooling; T5 supplies
+  the repeatable Playwright runner and CI integration. No test controls enter App.
 
 #### Code practices for the foundation
 

@@ -10,4 +10,11 @@ export interface WorkspaceDisplayPreferences {
 export interface WorkspaceContent {
   readonly heading: string;
   readonly description: string;
+  readonly unavailableSections: readonly {
+    readonly heading: string;
+    readonly description: string;
+  }[];
 }
+
+export type DisplayField = keyof WorkspaceDisplayPreferences;
+export type DisplayErrors = Readonly<Partial<Record<DisplayField, string>>>;

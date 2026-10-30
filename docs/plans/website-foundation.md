@@ -1,10 +1,14 @@
 # Website foundation — implementation plan
 
-Status: T1 merged; T2 implemented and verified; stopped for user review and a PR opportunity.
+Status: T1 and T2 merged; original T3 behavior implemented and verified.
+The proposed Quiet studio compact redesign awaits visual approval and a bounded
+implementation-plan update. Earlier T3 checks below cover the original UI, not
+the revised visual/theme-control criteria. Publishing these changes does not
+approve the redesign or T4. Mockups and screenshots remain local ignored artifacts.
 User approval recorded on 2026-10-30: start implementation, one task at a time,
 with a review and separate pull-request opportunity after each task. Stop after
 each task's checks; wait for the user's request before publishing or starting
-the next task. The user explicitly requested T2 on 2026-10-30; stop again after T2.
+the next task. The user explicitly requested T3 on 2026-10-30; stop again after T3.
 Scope/acceptance: [spec](../specs/website-foundation.md).
 Module boundaries: [architecture](../architecture.md#website-foundation).
 Build owns integration and performs these tasks directly unless delegation is requested.
@@ -49,9 +53,9 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
 | --- | --- | --- | --- |
 | T1 — Runnable shell | — | Add `index.html`, `src/main.tsx`, `src/app/App.tsx`, `vite.config.ts`, and `tsconfig.app.json`; update root package/lockfile. Use the official React plugin, root StrictMode, and strict browser types separate from Node/tooling types. Add dev/build/preview/app-typecheck scripts while retaining tooling typechecks. | Dev and served static build open the shell; app typecheck passes; browser entry graph excludes development tooling. AC-1 groundwork. |
 | T2 — State and adapters | T1 | Add `src/app/state.ts`, `navigation.ts`, `theme.ts`, `src/shared/workspace/types.ts`, and `tests/foundation-state.test.mjs`. Implement P1 validation, N1 hash resolution, and injectable P2 storage/system adapters. | Tests cover allowed/invalid values, missing/corrupt/denied storage, retained state/bytes, and recovery. AC-2/3/6/7/8 logic. |
-| T3 — Workspace and navigation | T2 | Connect App to adapters; add `src/shared/workspace/Workspace.tsx` and `WorkspaceDisplay.tsx`, `src/tools/wall-art/content.ts`, `src/app/content.ts`, and `src/styles.css`. App passes tool content to common UI. Build header, links, notices, three empty views, summaries, native settings, and responsive theme tokens. | Navigation/history/focus, retained session settings, reload defaults, and responsive order work in browser journeys. Shared modules have no app/tool imports. AC-2–9/11/12. |
+| T3 — Workspace and navigation | T2 | Connect App to adapters through one-time bootstrap; add shared Workspace/WorkspaceDisplay, tool/app content, and CSS. Build header, links, notices, empty views, summaries, settings, and responsive themes. Add bootstrap regressions, reusable browser journeys, and the error fixture needed to verify recovery. | Navigation/history/focus, retained session settings, reload defaults, and responsive order work in browser journeys. Shared modules have no app/tool imports. AC-2–9/11/12. |
 | T4 — Support dialogs | T3 | Add `src/app/SupportDialog.tsx`; connect Help/About, exact content, and unchanged LICENSE as bundled text. Implement dialog focus, close restoration, and navigation while open. | Keyboard-only Help/About and full-license access work at narrow widths and zoom. AC-9/10/14. |
-| T5 — Regression integration | T3, T4 | Add `playwright.config.ts`, `tests/browser/foundation.spec.ts`, and a non-production fixture under `tests/fixtures/`. Add scripts to run unit tests explicitly without Node discovering Playwright files; extend `scripts/run-check.mjs` and the existing CI workflow with app checks and browser installation. | Shared gate retains existing checks and runs the build, unit regressions, and production browser suite. Dev-only fixture also exercises collapsed-error recovery. AC-1–3/5–10/12–15. |
+| T5 — Regression integration | T3, T4 | Add `playwright.config.ts` and `tests/browser/foundation.spec.ts`; reuse the T3 journey helpers/error fixture. Add scripts to run unit tests explicitly without Node discovering Playwright files; extend `scripts/run-check.mjs` and the existing CI workflow with app checks and browser installation. | Shared gate retains existing checks and runs the build, unit regressions, and production browser suite. Dev-only fixture also exercises collapsed-error recovery. AC-1–3/5–10/12–15. |
 | T6 — Visual and compatibility check | T5 | Review screenshots/contrast and focus at spec sizes, 959/960 px, and 200% zoom in both themes. Smoke-test a second browser engine. Inspect production network/dependencies and download/storage sentinels. Put evidence in `artifacts/`. | `npm run check` passes; AC-1–15 have pass/fail/unverified evidence, environment details, and remaining gaps in the handoff. |
 
 ## Integration checks
@@ -131,3 +135,35 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
   README reports T2 status; architecture/development docs describe contracts and checks;
   roadmap items requiring the full UI remain unchecked. No product/spec change.
 - Stop here: T3 has not started. No commit, push, PR, or remote CI for T2 yet.
+
+## T3 checkpoint — 2026-10-30
+
+- Connected one-time bootstrap, pure reducer, hash/history, theme persistence/OS
+  subscriptions, and post-navigation focus. Added shared workspace/settings UI,
+  wall-art content, responsive tokens, honest empty states, and visible errors.
+  Shared modules import no app/tool code. No dependencies added.
+- Help/About remain visibly unavailable for T4. Added Retry theme storage for a
+  same-value retry. Brought the planned dev-only error fixture forward from T5
+  to verify T3 recovery; T5 still owns the Playwright runner and CI integration.
+- Windows, Node 24.22.2, Chromium 156.0.8078.76: `npm run check` passes both
+  typechecks, production build, scaffold validation, and 21 tests. The focused
+  bootstrap command passes 3 tests. Browser helper functions in
+  `tests/browser/workspace-journey.mjs` passed against dev and production; the
+  error fixture passed keyboard recovery and independent-error clearing.
+- AC-1/2/3/5/6/8/12: T3 journeys passed initial/direct/refresh navigation,
+  Back/Forward, active-link history, focus, invalid-hash recovery, retained settings,
+  reload defaults, corrupt/16/17/oversized/denied storage, and retry preservation.
+  StrictMode reads theme once and writes only on actions. All 24 view/theme/tips/
+  background combinations preserve honest content. OS switching/fallback passed.
+- AC-4/7/9/11: workspace checks pass; dialogs, true desktop 200% zoom, and final
+  cross-browser coverage remain T4/T6. Reviewed both-theme desktop/narrow/focus
+  and error screenshots, plus tablet/breakpoint layouts. No horizontal overflow
+  at 320/390/768/959/960/1280 px. Tablet basic controls and desktop preview copy are
+  above the fold. Sampled text contrast minimum is 5.29:1 Light / 6.60:1 Dark;
+  select borders exceed 4.5:1. Evidence: `artifacts/t3-{light,dark}-*.png`.
+- AC-13: production graph excludes fixtures/SDK/Node tools; requests are HTML/JS/CSS
+  only. No downloads occurred; a saved-design sentinel stayed unchanged. AC-15
+  remains partial: browser journeys are not yet part of `npm run check`. AC-10/14
+  remain T4. Verified documented source breakpoints and storage-failure reproduction.
+- Updated README, architecture, development debugging instructions, and roadmap.
+  Stop for user review/PR: no T4, commit, push, PR, deployment, or remote CI yet.

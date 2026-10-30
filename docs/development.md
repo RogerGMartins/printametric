@@ -20,9 +20,9 @@ the official React plugin 6.1.2. The planned geometry stack uses Three.js/React
 Three Fiber for preview and
 Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
-The runnable shell and independent T2 state/browser adapters are implemented.
-Connecting the adapters and workspace controls is T3; geometry dependencies are
-not installed.
+T1–T3 implement the shell, state/browser adapters, responsive workspace, navigation,
+display controls, and themes. Help/About dialogs arrive in T4; geometry dependencies
+are not installed.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
@@ -36,17 +36,20 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
 - `npm run build` checks app types and creates static output in `dist/`.
   `npm run preview` serves that output locally; rebuild after source changes.
 - `npm run check` runs scaffold validation, both typechecks, the production build,
-  and Node tests, including T2 state/adapter regressions. CI uses this same gate on
-  Linux and Windows. Browser test installation and automated journeys arrive in T5.
+  and Node tests, including state/adapter and bootstrap regressions. CI uses this
+  same gate on Linux and Windows. Browser test installation and automated journeys
+  arrive in T5.
 - To debug startup, open the dev URL and the browser's Sources panel, find
   `src/main.tsx` or `src/app/App.tsx`, set a breakpoint, and reload. Check the
   browser console and Vite terminal for failures. StrictMode can render twice
   in development. Production output does not contain source maps or debug fixtures.
 
-T1's only keyboard action is `Skip to workspace`: press Tab, then Enter, and
-confirm focus moves to the main content. Disable JavaScript and reload to check
-the visible startup requirement. The full workspace/error-state journeys arrive
-with later tasks. T2's validation and adapters are not yet connected to the page.
+On a fresh page, tab order is Skip to workspace, Theme, view links, tips, Advanced.
+Activating Skip moves focus to main without changing the hash; the next Tab then
+reaches settings. View activation and Back/Forward focus the view heading. Enter
+opens Advanced and native arrow keys change radios.
+Settings survive view changes; reload resets them except the stored theme. Help/About
+is visibly unavailable until T4. Disable JavaScript to check the startup notice.
 
 For T2 logic checks with Node 24, run
 `node --test tests/foundation-state.test.mjs`. To isolate storage failures, run
@@ -57,6 +60,32 @@ corrupt values, failed writes, and retries without changing browser data. Inspec
 the failing assertion and its stack location to compare accepted state, returned
 notice, and retained bytes. Navigation/media doubles also expose history writes
 and subscription counts. No debug controls are added to the application.
+
+T3 bootstrap checks: `node --test tests/foundation-bootstrap.test.mjs`. For UI error
+recovery, run `npm run dev` and open `/tests/fixtures/workspace-errors.html` at its
+local URL. This fixture starts with Grid retained after an invalid update, Advanced
+closed, and independent tips/theme errors. Keyboard-activate Review Preview background:
+Grid receives focus and its error remains. Choose Plain to clear only that error.
+The fixture is app-typechecked but excluded from the production entry and `dist/`.
+
+Set Sources breakpoints in `App.tsx` (`changePreference`, `applyNavigation`) and
+`state.ts` (`transitionFoundation`) to inspect accepted values and separate notices.
+For a storage write failure in an isolated dev tab, enter this in DevTools, select
+a different Theme, then restore the method and activate Retry theme storage:
+
+```js
+const originalSetItem = Storage.prototype.setItem;
+Storage.prototype.setItem = () => { throw new Error('Test storage failure'); };
+// After checking the visible warning and retained in-memory theme:
+Storage.prototype.setItem = originalSetItem;
+```
+
+Reload also removes this temporary override. Use a separate browser profile for
+these checks so existing preferences remain untouched. T3 browser assertions are
+reusable functions in `tests/browser/workspace-journey.mjs`, accepting a Playwright
+page and base URL. They were run through the available browser tooling against dev
+and served production output; `npm run check` does not run them yet. T5 adds that
+runner and CI browser setup. Screenshots/evidence belong in ignored `artifacts/`.
 
 ## Lifecycle
 
