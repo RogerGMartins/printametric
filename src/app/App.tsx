@@ -10,6 +10,7 @@ import type { PreferenceField, View } from './state';
 import { applyColorScheme, effectiveScheme, readSystemScheme, subscribeSystemScheme, THEME_NOTICES, writeThemePreference } from './theme';
 import { Workspace } from '../shared/workspace/Workspace';
 import { WALL_ART_CONTENT } from '../tools/wall-art/content';
+import { SupportDialog } from './SupportDialog';
 
 type AppProps = ReturnType<typeof bootstrapFoundation>;
 const matchMedia = (query: string) => window.matchMedia(query);
@@ -20,6 +21,8 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
   const main = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const focusHeading = useRef(false);
+  const helpButton = useRef<HTMLButtonElement>(null);
+  const aboutButton = useRef<HTMLButtonElement>(null);
   const { preferences, fieldErrors, navigationNotice, storageNotice } = state;
   const scheme = effectiveScheme(preferences.themePreference, systemScheme);
 
@@ -77,7 +80,8 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
                 <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
               </select>
             </label>
-            <span className="support-pending">Help and About are not available yet.</span>
+            <button ref={helpButton} type="button" onClick={() => changePreference('supportPanel', 'help')}>Help</button>
+            <button ref={aboutButton} type="button" onClick={() => changePreference('supportPanel', 'about')}>About</button>
           </div>
         </header>
         <nav className="workspace-navigation" aria-label="Workspace views">
@@ -99,6 +103,9 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
         </main>
         <footer className="app-footer">{FOUNDATION_FOOTER}</footer>
       </div>
+      {preferences.supportPanel !== 'none' && <SupportDialog panel={preferences.supportPanel}
+        opener={preferences.supportPanel === 'help' ? helpButton : aboutButton}
+        onDismiss={() => changePreference('supportPanel', 'none')} />}
     </>
   );
 }

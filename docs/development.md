@@ -20,9 +20,10 @@ the official React plugin 6.1.2. The planned geometry stack uses Three.js/React
 Three Fiber for preview and
 Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
-T1–T3 implement the shell, state/browser adapters, responsive workspace, navigation,
-display controls, and themes. Help/About dialogs arrive in T4; geometry dependencies
-are not installed.
+T1–T4 implement the shell, state/browser adapters, responsive workspace, navigation,
+display controls, themes, and Help/About dialogs. Geometry dependencies are not
+installed. The selected Gridline study is a prototype; its application implementation
+remains pending.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
@@ -44,12 +45,13 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
   browser console and Vite terminal for failures. StrictMode can render twice
   in development. Production output does not contain source maps or debug fixtures.
 
-On a fresh page, tab order is Skip to workspace, Theme, view links, tips, Advanced.
+On a fresh page, tab order is Skip to workspace, Theme, Help, About, view links,
+tips, Advanced.
 Activating Skip moves focus to main without changing the hash; the next Tab then
 reaches settings. View activation and Back/Forward focus the view heading. Enter
 opens Advanced and native arrow keys change radios.
-Settings survive view changes; reload resets them except the stored theme. Help/About
-is visibly unavailable until T4. Disable JavaScript to check the startup notice.
+Settings survive view changes; reload resets them except the stored theme.
+Disable JavaScript to check the startup notice.
 
 For T2 logic checks with Node 24, run
 `node --test tests/foundation-state.test.mjs`. To isolate storage failures, run
@@ -86,6 +88,24 @@ reusable functions in `tests/browser/workspace-journey.mjs`, accepting a Playwri
 page and base URL. They were run through the available browser tooling against dev
 and served production output; `npm run check` does not run them yet. T5 adds that
 runner and CI browser setup. Screenshots/evidence belong in ignored `artifacts/`.
+
+T4 browser assertions are in `tests/browser/support-journey.mjs`:
+`verifySupportDialogs(page, baseURL, expectedLicense, theme)` accepts the repository
+LICENSE text and an optional `light`/`dark` theme. Run against dev and served build
+with a fresh browser context; it is not yet part of `npm run check` (T5).
+The journey checks exact license text, modal focus, backdrop handling, keyboard
+scrolling, Close/Escape restoration, and Back/Forward/malformed-route dismissal.
+
+To diagnose dialog focus, open Help or About using Enter. In DevTools,
+`document.querySelector('dialog')?.matches(':modal')` must be true; inspect
+`document.activeElement` after Tab/Shift+Tab, Escape, and browser Back/Forward.
+Use a breakpoint in `SupportDialog.tsx` at setup/cleanup or `keepTabInside` to
+follow native DOM changes. After Close, the opener has focus and no dialog remains;
+after navigation, the new view heading has focus. In About, keyboard-open Read full
+license, use Ctrl+End to reach the bottom on Windows/Linux, then Tab to reach Close.
+The license disclosure resets on reopening. Test at 320 px and in both themes.
+True browser 200% zoom remains unverified: automated zoom shortcuts did not change
+the measured viewport. A 640×400 reflow check passed but is not a zoom result.
 
 ## Impeccable design tooling
 

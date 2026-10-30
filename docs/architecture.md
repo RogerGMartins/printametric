@@ -157,7 +157,7 @@ React state is sufficient initially; a global state library needs a concrete use
 These boundaries were approved for task-by-task implementation on 2026-10-30.
 T1 supplies the entry point and separate browser/Node typechecks. T2 adds independent
 state and browser adapters. T3 connects them to the responsive workspace, display
-settings, and themes. SupportDialog and Help/About content remain T4 work.
+settings, and themes. T4 adds SupportDialog, Help/About content, and bundled license text.
 
 ```text
 hash / history ── navigation adapter ──┐
@@ -197,7 +197,7 @@ Implemented integration contracts:
   hash-changing Back/Forward emits `hashchange`, so no duplicate `popstate` listener
    is needed. Updates carry heading-focus/dialog-close intent; App handles heading
    focus after commit, consuming a ref flag even for active-view navigation. Initial
-   entry never sets that flag. Dialog DOM handling arrives in T4.
+   entry never sets that flag. Dialog cleanup runs before App's heading-focus effect.
   Prevent the skip link's default hash change when connecting routing, and focus
   main directly: `#workspace` is not a view route.
 - Bootstrap calls `readThemePreference(() => window.localStorage)` once outside
@@ -230,6 +230,23 @@ T3 presentation boundaries:
   updates. It is typechecked but has no production entry/import. Browser journey
   helpers under `tests/browser/` currently run through browser tooling; T5 supplies
   the repeatable Playwright runner and CI integration. No test controls enter App.
+
+T4 support-dialog boundaries:
+- App owns `supportPanel` and stable Help/About opener refs. It mounts one
+  `SupportDialog` for an accepted panel. Dialog actions do not change URL/history,
+  display preferences, or storage. Reload starts with no dialog.
+- SupportDialog opens with `showModal()` in a layout effect and focuses its heading.
+  Native modal behavior makes the background inert. Tab wraps between the actual
+  button/disclosure controls, including after a backdrop click focuses the dialog.
+  Backdrop clicks do not dismiss it; Escape and Close request `supportPanel: none`.
+- Cleanup closes the native dialog and restores its opener. On navigation, cleanup
+  runs before App's layout effect focuses the new view heading. The same cleanup
+  balances StrictMode's development setup cycle without stale close-event handlers.
+- Help/About copy lives in `app/content.ts`. `LICENSE?raw` bundles the unchanged
+  repository text into About's native disclosure. Wrapped, preformatted text shares
+  the dialog's scroll container; there is no nested modal, fetch, or download.
+- Dialog styles use the current app tokens. The selected Gridline study remains a
+  separate prototype; Help documents the working Theme select rather than its toggle.
 
 #### Code practices for the foundation
 

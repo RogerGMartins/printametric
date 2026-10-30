@@ -36,7 +36,11 @@ Planned spec: `docs/specs/website-foundation.md`
 - [x] Implement responsive styling, shared layout, navigation, and routing.
   T3 browser checks cover both themes, history/focus, and 320–1280 px widths. See the
   [T3 checkpoint](plans/website-foundation.md#t3-checkpoint--2026-10-30).
-- [ ] Build the tool-first workspace shell, light/dark themes, and supporting content.
+- [x] Build the tool-first workspace shell, light/dark themes, and supporting content.
+  Help/About and full-license access are implemented; see the
+  [T4 checkpoint](plans/website-foundation.md#t4-checkpoint--2026-10-30).
+  Gridline application implementation, true zoom, and final compatibility checks
+  remain pending.
 - [x] Build the wall-art page layout for subsequent editor integration.
 - [ ] Verify keyboard navigation and mobile layouts, review screenshots, and
   include application build checks in `npm run check`.
