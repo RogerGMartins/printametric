@@ -217,6 +217,8 @@ controlled workers and a fake clock to reproduce stale completion, crash and tim
 Retry and missing-WebGL fallback without adding production debug controls.
 Its camera regression checks the rendered silhouette after each zoom/rotate action,
 two seed-only regenerations and a viewport resize, then checks a second activation.
+It also loads a smaller, flat design and checks that it stays visible at the retained
+camera scale. Far clipping includes the camera distance, target offset and model radius.
 `WallArtPreview.tsx` consumes each relative command sequence once; model and viewport
 synchronization must not apply it again.
 
