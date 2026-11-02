@@ -215,6 +215,10 @@ client mesh. Retry restores native handles before export is enabled. Tests injec
 controlled workers and a fake clock to reproduce stale completion, crash and timeout.
 `tests/browser/wall-art-core.spec.ts` demonstrates WASM-request failure, explicit
 Retry and missing-WebGL fallback without adding production debug controls.
+Its camera regression checks the rendered silhouette after each zoom/rotate action,
+two seed-only regenerations and a viewport resize, then checks a second activation.
+`WallArtPreview.tsx` consumes each relative command sequence once; model and viewport
+synchronization must not apply it again.
 
 Format breakpoints are in `src/shared/export/`. Node tests reimport curved native
 STEP through Replicad and independent occt-import-js, and STL through Three's reader.

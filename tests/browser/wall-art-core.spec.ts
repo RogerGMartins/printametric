@@ -1,8 +1,57 @@
 // Real worker, renderer and user-action exports, against both served build and StrictMode.
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { serializeDesign } from '../../src/tools/wall-art/model/design-file.ts';
 import { DEFAULT_PARAMETERS } from '../../src/tools/wall-art/model/parameters.ts';
+
+// Measure the rendered silhouette, without exposing camera internals in production.
+async function silhouette(page: Page) {
+  return page.locator('.model-canvas canvas').evaluate(async (canvas: HTMLCanvasElement) => {
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    const bitmap = await createImageBitmap(canvas);
+    const copy = new OffscreenCanvas(bitmap.width, bitmap.height), ctx = copy.getContext('2d')!;
+    ctx.drawImage(bitmap, 0, 0); bitmap.close();
+    const pixels = ctx.getImageData(0, 0, copy.width, copy.height).data;
+    let minX = copy.width, minY = copy.height, maxX = -1, maxY = -1;
+    for (let y = 0; y < copy.height; y++) for (let x = 0; x < copy.width; x++) {
+      if (pixels[(y * copy.width + x) * 4 + 3]! > 128) {
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+    }
+    return [maxX - minX + 1, maxY - minY + 1];
+  });
+}
+
+for (const action of ['Zoom in', 'Zoom out', 'Rotate left', 'Rotate right']) {
+  test(`${action} runs once per activation across generation and resize`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/'); await expect(page.getByText('Model ready.', { exact: true })).toBeVisible({ timeout: 30_000 });
+    await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+    const initial = await silhouette(page);
+    const button = page.getByRole('button', { name: action, exact: true });
+    await button.focus(); await button.press('Enter');
+    const activated = await silhouette(page);
+    expect(activated[0]).toBeGreaterThan(100);
+    expect(activated).not.toEqual(initial);
+    await page.locator('.settings-drawer > summary').click();
+    for (const seed of ['2', '3']) {
+      // Seed changes the accepted revision but deliberately preserves geometry in v1.
+      await page.getByLabel('Seed', { exact: true }).fill(seed);
+      await page.getByLabel('Seed', { exact: true }).press('Enter');
+      await expect(page.getByRole('button', { name: 'Export STL', exact: true })).toBeEnabled();
+      expect(await silhouette(page)).toEqual(activated);
+    }
+    await page.locator('.settings-drawer > summary').click();
+    await page.setViewportSize({ width: 1360, height: 800 });
+    await expect(page.locator('.model-canvas canvas')).toHaveJSProperty('width', 1360);
+    const resized = await silhouette(page);
+    for (let axis = 0; axis < 2; axis++) expect(Math.abs(resized[axis]! - activated[axis]!)).toBeLessThanOrEqual(2);
+    await button.focus(); await button.press('Enter');
+    expect(await silhouette(page)).not.toEqual(resized);
+    await page.screenshot({ path: testInfo.outputPath('camera-after-second-activation.png') });
+  });
+}
 
 test('core controls, retained revisions, JSON recovery, camera and all assembled exports', async ({ page, context }, testInfo) => {
   test.setTimeout(90_000);
