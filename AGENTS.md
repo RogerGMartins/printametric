@@ -71,6 +71,11 @@ files, verification evidence, and blockers. Only build edits shared dependency
 manifests during parallel work. Do not reset another agent's or the user's work.
 Only commit, push, create PRs, or deploy when explicitly requested.
 
+For wall-art work, follow the active decision review workflow in
+`docs/specs/wall-art.md#active-decision-review`. Ask for unresolved decisions when
+reviewing, planning or implementing the affected spec. Reuse recorded answers and
+update affected specs when the user makes a decision.
+
 When a user request matches an available command, invoke that command with the
 requested scope; do not require the user to type it or merely read its prompt as
 a substitute. Use the command's configured agent and preserve approval gates and

@@ -55,6 +55,11 @@ Done when users can understand the product and navigate to the first tool.
 
 Planned spec: `docs/specs/wall-art.md`
 
+The [core slice](specs/wall-art-core.md) now implements the fixed blade pattern,
+strict versioned JSON, shared preview/export tessellation and three assembled
+formats. Its [implementation checkpoint](plans/wall-art-core.md) tracks qualification.
+The wider checklist stays open for mounting, additional patterns and full acceptance.
+
 - [ ] Define the first panel/pattern, backing and mounting, parameter ranges,
   clearances, tolerances, and generation budgets.
 - [ ] Implement validated deterministic CAD generation with explicit seeds.
@@ -71,6 +76,10 @@ experience; correctness checks remain part of this implementation.
 ## 4. Interactive editor
 
 Planned spec: `docs/specs/wall-art-editor.md`
+
+Core provides numeric controls, camera inspection, worker recovery and explicit
+local save/load/export. This is partial editor delivery; catalogue, automatic
+storage, exploded/component views and print preparation remain later work.
 
 - [ ] Connect accessible parameter controls and interactive 3D preview.
 - [ ] Implement worker-backed generation, stale-result handling, and visible

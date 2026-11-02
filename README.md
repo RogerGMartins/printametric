@@ -1,14 +1,22 @@
 # Printametric
 
-A planned self-hosted website with browser-based parametric 3D model generators.
-The first generator will create modular wall art.
+A self-hostable website with browser-based parametric 3D model tools.
+The first generator creates a simple modular wall-art blade pattern.
 
 **Status:** One Gridline application: cobalt header, full-window preview, and a
 single collapsed Workspace settings panel. Design, Print layout, and Assembly
 navigation work, along with display settings and a sun/moon theme action. Use system
 restores OS following; only the theme preference persists across reloads.
-Help/About include keyboard support and the exact full license. Preview and summaries
-show honest unavailable states. Model generation and downloads come later.
+Design now has validated CAD generation, an interactive preview, local JSON
+save/load, and selected STEP/STL/3MF exports. Print layout and Assembly remain
+unavailable. Help/About include keyboard support, the exact license and CAD notices.
+See the [wall-art core checkpoint](docs/plans/wall-art-core.md) for verification.
+
+Open **Workspace settings** to edit the blade dimensions. Enter or leave a field
+to apply valid values. Revert discards drafts; invalid inputs retain the last valid
+model. Save design JSON before reloading: designs are not saved automatically.
+Exports contain separate parts in assembly positions, in millimeters, rather than
+packed build plates. The initial seed is saved but has no visual effect.
 
 The standalone UI studies and comparison page are retired. Open `/` on the dev or
 preview server below. See the [Gridline implementation checkpoint](docs/plans/gridline-application.md)
@@ -93,8 +101,9 @@ Selected application stack: **React + TypeScript + Vite**, **Three.js + React
 Three Fiber**, plain CSS, and **Replicad/OpenCascade.js WASM** for CAD geometry.
 Required exports: **STEP, STL, and 3MF**, derived from the same CAD model.
 Start client-side with versioned JSON design files and static self-hosting.
-React and Vite are installed; geometry and rendering dependencies arrive with
-their implementation tasks.
+These dependencies are installed and pinned in the root lockfile. The CAD WASM
+asset is served locally; no hosted geometry service is required. See
+[third-party notices and CAD source provenance](THIRD_PARTY_NOTICES.md).
 
 ## CI and deployment
 

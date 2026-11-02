@@ -17,8 +17,10 @@ and self-hosted launch. Create feature specs as each milestone starts.
 ## First generator
 
 1. One rectangular panel and one deterministic blade pattern.
-2. Controls for panel dimensions, spacing, height, thickness, angle, and seed.
-   Define supported ranges and printer-related tolerances in the feature spec.
+2. Controls for panel dimensions, spacing, height, thickness, top width ratio, and
+   seed. The [core spec](specs/wall-art-core.md) fixes the approved starter, ranges
+   and tolerances. Version 1 uses equal-height upright blades and an inert seed.
+   Angle controls belong to the later movement phase.
 3. Interactive 3D preview with clear units and parameter validation.
 4. Export STEP, binary STL, and standard 3MF from the same canonical CAD model.
    Keep CAD solids for STEP and use their controlled tessellation for preview
@@ -55,8 +57,9 @@ evidence that geometry or an exported file is valid.
 ## Decisions still needed
 
 The application stack and geometry boundaries are selected in
-[architecture.md](architecture.md). Remaining decisions: initial parameter ranges and print tolerances;
-mounting mechanism; hosting target/domain; monetization format. Accounts,
+[architecture.md](architecture.md). Core ranges and modeled minima are approved;
+physical print trials are separate. Remaining decisions: mounting mechanism;
+hosting target/domain; monetization format. Accounts,
 billing, ad networks, databases, and a plugin framework are not initial-slice
 requirements. Validate the custom license with legal counsel before commercial
 launch, especially contribution rights and generated-output restrictions.

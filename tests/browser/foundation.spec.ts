@@ -29,10 +29,11 @@ for (const theme of ['light', 'dark'] as const) {
         await page.getByRole('link', { name: view, exact: true }).click();
         await expect(page.locator('.settings-drawer')).toHaveAttribute('open', '');
         await expect(page.locator('main details')).toHaveCount(1);
-        await expect(page.locator('dd')).toHaveText(['Not available', 'Not available', 'Not available']);
+        if (view === 'Design') await expect(page.locator('dd').last()).toHaveText('Not available');
+        else await expect(page.locator('dd')).toHaveText(['Not available', 'Not available', 'Not available']);
         const grid = await page.locator('.settings-content').evaluate(element => {
           const tracks = getComputedStyle(element).gridTemplateColumns.split(' ').map(Number.parseFloat);
-          return { activeTracks: tracks.filter(value => value > 0).length, groups: element.children.length,
+          return { activeTracks: tracks.filter(value => value > 0).length, groups: [...element.children].reduce((sum, child) => sum + (getComputedStyle(child).gridColumnEnd === '-1' ? tracks.length : 1), 0),
             overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth };
         });
         expect(grid.activeTracks).toBeLessThanOrEqual(grid.groups);
@@ -84,7 +85,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/');
     await selectTheme(page, theme);
     for (const [view, heading] of [
-      ['Design', 'No model yet'], ['Print layout', 'No print layout yet'], ['Assembly', 'No assembly guidance yet'],
+      ['Print layout', 'No print layout yet'], ['Assembly', 'No assembly guidance yet'],
     ]) {
       await page.getByRole('link', { name: view, exact: true }).click();
       for (const tips of [true, false]) {
@@ -197,7 +198,7 @@ test('production output has no fixture paths and requests only bundled assets', 
   await page.getByRole('button', { name: 'About', exact: true }).click();
   await page.getByText('Read full license', { exact: true }).click();
   await expect(page.locator('pre')).toHaveText(license);
-  expect(requests.every(path => path === '/' || /^\/assets\/[^/]+\.(js|css)$/.test(path))).toBe(true);
+  expect(requests.every(path => path === '/' || /^\/assets\/[^/]+\.(js|css|wasm)$/.test(path))).toBe(true);
 });
 
 test.describe('without JavaScript', () => {

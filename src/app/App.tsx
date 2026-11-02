@@ -12,11 +12,16 @@ import { Workspace } from '../shared/workspace/Workspace';
 import { WALL_ART_CONTENT } from '../tools/wall-art/content';
 import { SupportDialog } from './SupportDialog';
 import { ThemeControl } from './ThemeControl';
+import { useWallArt } from '../tools/wall-art/editor/useWallArt';
+import { WallArtControls, WallArtNotice } from '../tools/wall-art/editor/WallArtControls';
+import { WallArtPreview } from '../tools/wall-art/editor/WallArtPreview';
 
 type AppProps = ReturnType<typeof bootstrapFoundation>;
 const matchMedia = (query: string) => window.matchMedia(query);
 
 export function App({ initialState, initialSystemScheme, navigation }: AppProps) {
+  const wallArt = useWallArt();
+  const modelFocus = useRef<string | null>(null);
   const [state, dispatch] = useReducer(transitionFoundation, initialState);
   const [systemScheme, setSystemScheme] = useState(initialSystemScheme);
   const main = useRef<HTMLElement>(null);
@@ -26,6 +31,13 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
   const aboutButton = useRef<HTMLButtonElement>(null);
   const { preferences, fieldErrors, navigationNotice, storageNotice } = state;
   const scheme = effectiveScheme(preferences.themePreference, systemScheme);
+  const designView = preferences.view === 'design';
+  const model = wallArt.snapshot.accepted?.result;
+  useLayoutEffect(() => {
+    if (preferences.settingsOpen && modelFocus.current) {
+      document.getElementById(modelFocus.current)?.focus(); modelFocus.current = null;
+    }
+  });
 
   const applyNavigation = useCallback((update: NavigationUpdate) => {
     focusHeading.current = update.focusHeading;
@@ -87,8 +99,11 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
         </header>
         <main id="workspace" ref={main} tabIndex={-1}>
           <Workspace content={WALL_ART_CONTENT[preferences.view]} preferences={preferences} errors={fieldErrors} onChange={changePreference}
+            {...(designView ? { preview: <WallArtPreview result={model ?? null} />, previewStatus: model ? `Preview · ${model.parts.length} parts · mm` : 'Preview · Preparing model',
+              controls: <WallArtControls editor={wallArt} />, summaries: model ? { Dimensions: model.bounds.max.map((value, index) => Number((value - model.bounds.min[index]!).toFixed(3))).join(' × ') + ' mm', Parts: String(model.parts.length), Plates: 'Not available' } : {} } : {})}
             title={WORKSPACE_VIEWS.find(view => view.id === preferences.view)?.label ?? 'Design'} headingRef={heading}
-            availability={FOUNDATION_AVAILABILITY} notices={<>
+            availability={designView ? 'Blade pattern, CAD generation, JSON designs, and assembled STEP/STL/3MF exports are available. Packing and assembly guidance are not available.' : FOUNDATION_AVAILABILITY} notices={<>
+            {designView && <WallArtNotice editor={wallArt} review={field => { modelFocus.current = `wall-art-${field ?? 'width'}`; changePreference('settingsOpen', true); }} />}
             {navigationNotice && <section className="notice"><h2>View notice</h2><p>{navigationNotice}</p></section>}
             {storageNotice && <section className="notice"><h2>Theme notice</h2><p id="theme-notice">{THEME_NOTICES[storageNotice]}</p>
               <button type="button" onClick={() => changePreference('themePreference', preferences.themePreference)}>Retry theme storage</button>

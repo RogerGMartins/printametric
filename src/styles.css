@@ -53,7 +53,7 @@ a:hover { text-decoration: underline; }
 .preview-heading span { color: var(--secondary); font-size: 12px; }
 .preview-stage { position: absolute; inset: 72px 0 52px; display: grid; place-items: safe center; padding: 16px 24px; overflow: auto; }
 /* Keep foundation explanations reachable above the overlay without resizing the canvas. */
-.workspace:has(.settings-drawer[open]) .preview-stage { bottom: 50%; }
+.workspace:has(.settings-drawer[open]):not(:has(.model-preview)) .preview-stage { bottom: 50%; }
 .empty-preview { max-width: 390px; padding: 16px; text-align: center; background: var(--preview); }
 .empty-preview h2 { font-size: 36px; font-weight: 400; line-height: 1.15; letter-spacing: -.8px; margin-bottom: 14px; text-wrap: balance; }
 .empty-preview p { max-width: 32ch; margin-inline: auto; color: var(--secondary); font-size: 14px; line-height: 1.7; }
@@ -92,6 +92,32 @@ legend { font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
 .workspace-summaries { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
 .workspace-summaries > div { display: flex; justify-content: space-between; gap: 16px; }
 .workspace-summaries dt { color: var(--secondary); }
+.workspace-summaries dd { text-align: right; font-variant-numeric: tabular-nums; }
+/* Tool controls use the same drawer and tokens, with one full-width parameter row. */
+.wall-art-controls { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 20px; }
+.wall-art-controls h3 { font-size: 13px; margin-top: 24px; }
+.parameter-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,160px),1fr)); gap: 16px; margin-top: 16px; }
+.parameter-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.parameter-field input { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--boundary); border-radius: 4px; background: var(--surface); color: var(--text); caret-color: var(--accent); font-variant-numeric: tabular-nums; }
+.parameter-field input[aria-invalid=true] { border-color: var(--error); }
+.parameter-field small { color: var(--secondary); }
+.parameter-field input:disabled,button:disabled { cursor: default; color: var(--secondary); background: var(--preview); border-color: var(--line); }
+.model-actions { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.design-file-label { display: flex; flex-direction: column; gap: 6px; max-width: 100%; }
+.design-file-label input { max-width: 100%; min-height: 44px; }
+.design-file-label input::file-selector-button { min-height: 44px; color: var(--text); background: var(--surface); border: 1px solid var(--boundary); border-radius: 4px; padding: 8px; margin-right: 8px; }
+.model-preview { position: absolute; inset: 0; }
+.model-canvas { position: absolute; inset: 0; }
+.camera-actions { position: absolute; right: 24px; top: 0; max-width: min(440px,calc(100% - 48px)); display: flex; justify-content: end; flex-wrap: wrap; gap: 6px; }
+.camera-actions button { font-size: 12px; }
+.workspace:has(.model-preview) .workspace-notices { max-width: min(420px,calc(100% - 48px)); }
+.notice[aria-label="Model status"] { padding: 8px 12px; }
+.notice[aria-label="Model status"] p:first-child { margin-top: 0; }
+@media (width <960px) {
+  /* Keep controls above the model. Tab and touch scrolling reach offscreen actions. */
+  .camera-actions { top: 42px; right: 16px; max-width: calc(100% - 32px); flex-wrap: nowrap; justify-content: start; overflow-x: auto; padding: 4px; }
+  .camera-actions button { flex: none; }
+}
 .support-dialog { width: min(640px,calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 24px; overflow: auto; overflow-wrap: anywhere; color: var(--text); background: var(--surface); border: 1px solid var(--boundary); border-radius: 4px; }
 .support-dialog::backdrop { background: rgb(0 0 0 / 55%); }
 body:has(.support-dialog[open]) { overflow: hidden; }

@@ -124,9 +124,9 @@ Use one application and one package/lockfile. Create these modules as needed:
 
 - `src/app/`: application startup coordination, navigation, theme, and Help/About.
 - `src/tools/<tool>/`: each tool's UI, parameters, validation, and generator.
-  For example, future wall-art code uses `src/tools/wall-art/geometry/` and
+  Wall-art code uses `src/tools/wall-art/geometry/` and
   `src/tools/wall-art/editor/`; printable algorithms never depend on React.
-- `src/shared/`: tool-independent workspace UI and types; later, reusable geometry
+- `src/shared/`: tool-independent workspace UI and types, reusable geometry
   infrastructure and format writers under `shared/geometry/` and `shared/export/`.
   Shared exporters consume canonical contracts, not a particular tool's parameters.
 - `tests/`: headless geometry tests and browser journeys.
@@ -140,8 +140,8 @@ systems, and layers that only forward calls. Create folders when they contain co
 
 ```text
 app (shell and composition)
- ├── tools/wall-art (tool-specific content, later editor and generator)
- └── shared (common workspace UI and types, later CAD/export infrastructure)
+ ├── tools/wall-art (tool-specific content, editor and generator)
+ └── shared (common workspace UI, types and CAD/export infrastructure)
 tools/wall-art ──> shared
 ```
 
@@ -182,14 +182,14 @@ and send user actions back; they do not read storage or interpret routes.
 | `src/app/theme.ts` | Validated theme persistence, effective scheme, and isolated storage/OS adapter |
 | `src/app/ThemeControl.tsx` | Native sun/moon action, mode status, and Use system focus restoration; no storage access |
 | `src/app/content.ts`, `SupportDialog.tsx` | View copy, Help/About, and same-site license access |
-| `src/tools/wall-art/content.ts` | Wall-art availability copy and empty-state descriptions; no generator yet |
+| `src/tools/wall-art/content.ts` | Wall-art availability copy and later-view empty states |
 | `src/shared/workspace/Workspace.tsx`, `WorkspaceDisplay.tsx` | Common workspace layout, empty preview, summaries, and labelled display settings; receive tool content through props |
 | `src/shared/workspace/types.ts` | Pure display preference and workspace content contracts; no app/tool imports |
 | `src/styles.css` | Shared tokens, themes, responsive layout, and visible focus |
 
 Use React state and native browser APIs for this slice. Test pure logic with Node
-and integrated behavior with Playwright. The foundation has no geometry/export
-implementation; later tool work adds the independent layers above. See the
+and integrated behavior with Playwright. Geometry/export lives in the independent
+wall-art core layers described below. See the
 [foundation plan](plans/website-foundation.md) for tasks, dependencies, and checks.
 
 Implemented integration contracts:
@@ -311,6 +311,60 @@ Guidance: [React state](https://react.dev/learn/choosing-the-state-structure),
 [StrictMode](https://react.dev/reference/react/StrictMode),
 [TypeScript options](https://www.typescriptlang.org/tsconfig/), and
 [Vite TypeScript](https://vite.dev/guide/features#typescript).
+
+### Wall-art core implementation
+
+The approved implementation follows these boundaries. The
+[phase-01 plan](plans/wall-art-core.md) records the user's accepted starter/settings,
+task dependencies, qualification evidence and remaining gates.
+
+- Keep tool parameters, JSON validation, generation, worker protocol and editor
+  state under `src/tools/wall-art/`. Keep independent canonical mesh types, CAD
+  initialization/validation and format writers under `src/shared/`. Shared writers
+  consume validated parts and transforms, never wall-art parameters or a Three scene.
+- App owns the mounted tool session alongside foundation state and composes explicit
+  preview/control/summary/notice slots into Workspace. Workspace retains the existing
+  disclosure and a small open/focus recovery contract. It imports no tool. Design
+  gets geometry controls; navigation retains the session while later views retain
+  their unavailable workflows. Foundation preferences do not become project storage.
+- One module worker owns CAD handles and accepted mesh arrays. Versioned parameters
+  and bounded serializable messages cross the boundary; UI receives copied mesh
+  buffers and metadata. Worker epochs and request IDs prevent stale acceptance.
+  A provisional candidate becomes accepted atomically after all checks succeed.
+- Queue only the newest generation request. Serialize CAD generation and explicit
+  exports, capturing the accepted export revision/format at click time. Retain at
+  most accepted plus candidate/export-pinned result; account for retained and copied
+  buffers. Selected export adapters load on demand where practical. No parameter,
+  camera or navigation action serializes model files.
+- A blocked synchronous kernel call requires worker termination for hard cancellation
+  or timeout. Termination also destroys accepted CAD handles. Keep the last valid
+  mesh/parameters on the client; restore CAD from that definition in a fresh worker
+  and disable exports until restoration validates. Do not present lost handles as
+  export-ready. Errors retain visible prior geometry and explicit Retry/Revert actions.
+- The native STEP writer retains memory inside its kernel despite wrapper cleanup.
+  Retire the worker after each STEP export, then rebuild accepted CAD (or the latest
+  queued edit). A failed STEP operation also destroys that worker and offers Retry.
+  This bounds native lifetime without changing the 256 MiB budget. Repeated browser
+  downloads and isolated native workers verify this path; generation-only reuse
+  stayed at 100 MiB WASM capacity in the 25-job check.
+- Preview uses on-demand rendering and the canonical mesh arrays. Camera, lighting,
+  and drawing-buffer preservation are renderer-only. The bottom drawer overlays the
+  canvas without changing its dimensions; narrow camera actions scroll horizontally.
+- Dependencies are pinned in the root manifest and lockfile. Use the single-thread WASM build
+  as a same-origin Vite asset, with ES-format workers for dynamic export imports.
+  Verify package/source licenses, matching APIs, startup cost and measured memory
+  during the first headless implementation task before qualifying the slice.
+- Verify independent STEP import plus reimported analytic CAD faces, and independent
+  STL/3MF parsing from actual bytes. The shared gate must discover Node tests and
+  wall-art browser tests in both production/development projects. Manual slicer,
+  visual, accessibility and performance evidence remains separate from CI timing.
+
+Native loft, fuse and STEP writer handles are explicitly deleted, including on
+failure. They must not depend on JavaScript finalizers to release WASM memory.
+The default 100-part mesh has 2,000 triangles. The initial WASM capacity is 100 MiB;
+capacity plus retained/copied mesh and serialization estimates is bounded at 256 MiB.
+This estimate is not the browser's total process memory. The separate WASM download
+is about 23 MB uncompressed (7.3 MB gzip); host compression affects cold startup.
 
 ## Responsiveness and printability
 

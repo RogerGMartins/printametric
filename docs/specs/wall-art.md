@@ -1,6 +1,10 @@
 # Wall art — specification suite
 
-Status: **DRAFT for user review. Not approved for implementation.**
+Status: **Suite draft; phase 01 implemented and locally verified on 2026-11-02.**
+Later phases remain unapproved. The [core plan](../plans/wall-art-core.md) freezes
+schema/generator 1/1, its ranges, first-slice C4 limits, minima and qualification
+profile. Its [checkpoint](../plans/wall-art-core.md#implementation-checkpoint--2026-11-02)
+records measured evidence and remaining limits; later-phase approval is still required.
 Collaboration mode: freedom to draft. Date: 2026-11-02.
 
 ## Purpose and authority
@@ -18,10 +22,11 @@ See [product](../product.md), [architecture](../architecture.md), and
 
 **Verified baseline:** Gridline G1–G4 is implemented and tested. Its final visual
 signoff, screen-reader checks, and physical-touch checks remain open. Existing
-wall-art code supplies availability copy, not a generator. None of this suite's
-functional acceptance criteria has implementation evidence yet.
+wall-art core now supplies the fixed blade generator, editable JSON, minimal controls,
+and three assembled-model exports. Phase-01 evidence is linked above; later phases
+remain specification proposals.
 
-**Printametric proposals:** all new ranges, algorithms, defaults, budgets, UI
+**Printametric proposals:** except for the approved phase-01 contracts, new ranges, algorithms, defaults, budgets, UI
 integration, mounting details, and expansion features in this suite. They are
 original proposed contracts, not claims of existing application behavior or
 physical printability. Approval of this suite does not approve a technical plan.
@@ -42,7 +47,7 @@ choices are conditional on separate owner decisions.
 
 | Phase / specification | Included coverage | Feature exit / dependency | Scope status |
 | --- | --- | --- | --- |
-| 01 [Canonical generator](wall-art-core.md) | Rectangular blade array; validation; worker; IDs; minimal keyboard editor; JSON file; native STEP/STL/3MF; round trips | First useful accepted design and three verified downloads | Proposed bounded implementation of approved generator direction |
+| 01 [Canonical generator](wall-art-core.md) | Rectangular blade array; validation; worker; IDs; minimal keyboard editor; JSON file; native STEP/STL/3MF; round trips | First useful accepted design and three verified downloads | Implemented; local evidence and limits in core checkpoint |
 | 02 [Outlines and layouts](wall-art-layouts.md) | Full dimension range, convenience sizes, rectangle/ellipse/hexagon/arch, five layouts, pitch/gap, boundary fragments, numbering | Same three exports with deterministic clipped parts | Proposed expansion beyond first pattern |
 | 03 [Shape and surface](wall-art-shape-surface.md) | Taper, tiers/blend, planar tops, concavity, plinth, seven relief families, density/phase/rotation/seed | Valid curved CAD and shared mesh for all families | Proposed expansion |
 | 04 [Movement](wall-art-movement.md) | Eight influence points, three fields, composition, jitter, calm ring, tip shaping/shortening, editable plan | Collision-checked movement with numeric and pointer parity | Proposed expansion |
@@ -249,8 +254,10 @@ implementation; this sequence is a proposal, not shipped compatibility.
 
 Use an explicit integer seed, default 1, range 1–9999. Independent named substreams
 serve layout, relief, movement and colour so an extra colour draw cannot move cells.
-Planning freezes the PRNG, stream derivation, ordering and test vectors with the
-generator version. No current time, global random state, or GPU-dependent geometry.
+Before the first random generator, planning freezes the PRNG, stream derivation,
+ordering and test vectors with that version. Approved generator 1 makes no random
+draws; its seed is retained but has no geometry effect. No current time, global
+random state, or GPU-dependent geometry.
 Randomize chooses a new valid seed, saves it, and is undoable. Determinism means
 matching part IDs/topology and dimensions within 0.01 mm, and volumes within 0.1%
 across supported runtimes. Byte-identical STEP/ZIP output is not required; timestamps
@@ -440,9 +447,45 @@ runtime test or dependency changes accompany this draft.
 
 ## Decisions and gates still open
 
-1. **Before phase 01 planning approval:** approve numerical defaults/minima, exact
-   seed algorithm/test vectors, generation qualification environment and initial
-   tier; review pinned CAD distribution license obligations and reader/export choices.
+### Active decision review
+
+User-confirmed workflow, 2026-11-02:
+
+- At the start of reviewing, planning or implementing a phase, read its full spec,
+  the shared contracts and earlier recorded decisions. Check decisions listed at
+  both the beginning and the end, including dependencies owned by other phases.
+- Actively ask the user for unresolved decisions needed for that phase. Do not
+  expect the user to find the questions in the documents. Ask in small, relevant
+  groups, explain the practical consequence and give a recommendation where useful.
+  Defer unrelated later-phase questions until that phase needs them.
+- Reuse a recorded answer when its scope covers the question. State which prior
+  decision applies instead of asking again. If it conflicts with a new requirement
+  or its scope is unclear, explain the conflict and ask before proceeding.
+- Record each answer in the owning spec with its date, scope and any conditions.
+  Replace the affected draft contract and mark its open decision resolved. Keep
+  one authoritative decision record; link to it from dependent specs.
+- In the same documentation update, check the other specs and shared documents
+  for consequences. Update affected defaults, contracts, dependencies, acceptance
+  criteria and open gates as needed. Explain the impact to the user; seek review
+  for consequences that require another choice rather than inventing that choice.
+- Before implementation of each phase, summarize applicable decisions and actively
+  ask about any remaining blockers. Raise newly discovered decisions during work
+  before the affected work proceeds. At review or handoff, surface any unresolved
+  decisions and the next phase they block.
+- An answer resolves only its stated decision. It does not approve the entire
+  suite or replace the separate technical-plan approval required for implementation.
+
+### Outstanding phase gates
+
+Resolved for phase 01: the user approved a simple fixed editable blade array as
+the initial example on 2026-11-02. See the owning
+[decision record](wall-art-core.md#initial-example-decision--2026-11-02).
+Richer presets remain in later phases. The phase-01 technical plan was approved
+and implemented; its checkpoint records the measured exit gates.
+
+1. **Phase 01 resolved:** defaults/minima, inert seed, qualification environment,
+   initial tier, pinned CAD provenance and reader/export choices are approved and
+   verified within the limits recorded in the core checkpoint.
 2. **Before each expansion:** approve the schema transition and original mathematical
    fixtures; resolve native CAD construction in the reviewed technical plan and
    verify it during feature implementation, without mesh-to-STEP substitution.
