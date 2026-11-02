@@ -31,7 +31,7 @@ const validators: { [K in PreferenceField]: (value: unknown) => value is Prefere
   themePreference: (value): value is ThemePreference => value === 'system' || value === 'light' || value === 'dark',
   supportPanel: (value): value is SupportPanel => value === 'none' || value === 'help' || value === 'about',
   showWorkspaceTips: (value): value is boolean => typeof value === 'boolean',
-  advancedOpen: (value): value is boolean => typeof value === 'boolean',
+  settingsOpen: (value): value is boolean => typeof value === 'boolean',
   previewBackground: (value): value is Preferences['previewBackground'] => value === 'plain' || value === 'grid',
 };
 
@@ -43,7 +43,7 @@ export function createFoundationState(): FoundationState {
   return {
     preferences: {
       view: 'design', themePreference: 'system', supportPanel: 'none',
-      showWorkspaceTips: true, previewBackground: 'plain', advancedOpen: false,
+      showWorkspaceTips: true, previewBackground: 'plain', settingsOpen: false,
     },
     fieldErrors: {}, navigationNotice: null, storageNotice: null,
   };

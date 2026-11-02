@@ -1,10 +1,12 @@
 // Shared real-modal regressions for development and served production.
 import assert from 'node:assert/strict';
+import { selectTheme } from './theme-actions.mjs';
 
 export async function verifySupportDialogs(page, baseURL, expectedLicense, theme = 'light') {
   await page.goto('about:blank');
   await page.goto(baseURL);
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption(theme);
+  await selectTheme(page, theme);
+  await page.locator('.settings-drawer > summary').click();
   await page.getByRole('checkbox', { name: 'Show workspace tips' }).uncheck();
   const originalHistory = await page.evaluate(() => history.length);
   const originalURL = page.url();

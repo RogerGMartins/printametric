@@ -4,6 +4,68 @@ import { test, expect } from './test.js';
 import { installBrowserProbe, sentinelKey, themeKey } from './browser-probe.js';
 import { verifyWorkspace } from './workspace-journey.mjs';
 import { verifySupportDialogs } from './support-journey.mjs';
+import { selectTheme } from './theme-actions.mjs';
+
+for (const theme of ['light', 'dark'] as const) {
+  for (const [width, height] of [[320, 800], [768, 1024], [959, 900], [960, 900], [1280, 800], [2560, 1440], [640, 400]] as const) {
+    test(`Gridline ${theme} ${width}×${height}: stable canvas and reachable drawer`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme });
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      const preview = page.locator('.workspace-preview');
+      const before = await preview.boundingBox();
+      const header = await page.locator('.app-header').boundingBox();
+      if (!before || !header) throw new Error('Expected visible Gridline header and preview');
+      expect(before.x).toBe(0);
+      expect(before.width).toBe(width);
+      expect(before.y).toBe(header.y + header.height);
+      const summary = page.locator('.settings-drawer > summary');
+      await summary.focus();
+      await page.keyboard.press('Enter');
+      // Opening the drawer overlays the same preview, including in short windows.
+      await expect(page.locator('.settings-drawer')).toHaveAttribute('open', '');
+      expect((await preview.boundingBox())?.height).toBe(before?.height);
+      for (const view of ['Design', 'Print layout', 'Assembly']) {
+        await page.getByRole('link', { name: view, exact: true }).click();
+        await expect(page.locator('.settings-drawer')).toHaveAttribute('open', '');
+        await expect(page.locator('main details')).toHaveCount(1);
+        await expect(page.locator('dd')).toHaveText(['Not available', 'Not available', 'Not available']);
+        const grid = await page.locator('.settings-content').evaluate(element => {
+          const tracks = getComputedStyle(element).gridTemplateColumns.split(' ').map(Number.parseFloat);
+          return { activeTracks: tracks.filter(value => value > 0).length, groups: element.children.length,
+            overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+        });
+        expect(grid.activeTracks).toBeLessThanOrEqual(grid.groups);
+        expect(grid.overflow).toBe(false);
+        await page.getByRole('radio', { name: 'Grid', exact: true }).focus();
+        await page.keyboard.press('ArrowLeft');
+        await expect(page.getByRole('radio', { name: 'Plain', exact: true })).toBeChecked();
+        await expect(page.getByRole('radio', { name: 'Plain', exact: true })).toBeInViewport();
+      }
+      await page.reload();
+      await expect(page.locator('.settings-drawer')).not.toHaveAttribute('open');
+    });
+  }
+
+  test(`theme keyboard actions start from ${theme} System and restore focus`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto('/');
+    const opposite = theme === 'light' ? 'dark' : 'light';
+    const toggle = page.locator('.theme-toggle');
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', opposite);
+    await expect(toggle).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    await expect(page.locator('#theme-mode')).toContainText('Manual');
+    await page.getByRole('button', { name: 'Use system' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(toggle).toBeFocused();
+    await expect(page.locator('#theme-mode')).toContainText('System');
+    await expect(page.getByRole('button', { name: 'Use system' })).toHaveCount(0);
+  });
+}
 
 const license = readFileSync(new URL('../../LICENSE', import.meta.url), 'utf8');
 
@@ -20,14 +82,14 @@ for (const theme of ['light', 'dark'] as const) {
   }
   test(`honest empty states: ${theme}, all tips/background combinations`, async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('combobox', { name: 'Theme' }).selectOption(theme);
+    await selectTheme(page, theme);
     for (const [view, heading] of [
       ['Design', 'No model yet'], ['Print layout', 'No print layout yet'], ['Assembly', 'No assembly guidance yet'],
     ]) {
       await page.getByRole('link', { name: view, exact: true }).click();
       for (const tips of [true, false]) {
-        await page.getByRole('checkbox').setChecked(tips);
         await page.locator('summary').click();
+        await page.getByRole('checkbox').setChecked(tips);
         for (const background of ['Plain', 'Grid']) {
           await page.getByRole('radio', { name: background, exact: true }).check();
           await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
@@ -48,10 +110,10 @@ for (const stored of ['', 'unknown', 'x'.repeat(16), 'x'.repeat(17), 'x'.repeat(
     await installBrowserProbe(page, stored);
     await page.goto('/');
     await expect(page.getByText(/The stored theme preference is invalid/)).toBeVisible();
-    await expect(page.getByRole('combobox', { name: 'Theme' })).toHaveValue('system');
+    await expect(page.locator('#theme-mode')).toHaveText('Light · System');
     expect(await page.evaluate(key => localStorage.getItem(key), themeKey)).toBe(stored);
     expect(await page.evaluate(() => window.foundationProbe.writes)).toEqual([]);
-    await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+    await page.getByRole('button', { name: 'Switch to dark theme' }).click();
     await expect(page.getByText(/The stored theme preference is invalid/)).toHaveCount(0);
     expect(await page.evaluate(key => localStorage.getItem(key), themeKey)).toBe('dark');
   });
@@ -63,7 +125,7 @@ test('denied storage property keeps navigation and dialogs usable', async ({ pag
   }));
   await page.goto('/');
   await expect(page.getByText(/The theme preference could not be read/)).toBeVisible();
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: 'Help', exact: true }).click();
   await page.keyboard.press('Escape');
@@ -77,10 +139,11 @@ test('failed write retains memory and bytes; same-value retry recovers', async (
   await installBrowserProbe(page, 'light');
   await page.goto('/');
   await page.evaluate(() => { window.foundationProbe.denyWrite = true; });
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.getByRole('button', { name: 'Retry theme storage' })).toBeVisible();
   expect(await page.evaluate(key => localStorage.getItem(key), themeKey)).toBe('light');
+  await page.locator('.settings-drawer > summary').click();
   await page.getByRole('checkbox').uncheck();
   await expect(page.getByRole('button', { name: 'Retry theme storage' })).toBeVisible();
   await page.evaluate(() => { window.foundationProbe.denyWrite = false; });
@@ -93,8 +156,8 @@ test('failed write retains memory and bytes; same-value retry recovers', async (
 test('System follows OS changes in dialogs; explicit theme ignores them', async ({ page }) => {
   await installBrowserProbe(page);
   await page.goto('/');
-  const theme = page.getByRole('combobox', { name: 'Theme' });
-  await expect(theme).toHaveValue('system');
+  const theme = page.locator('#theme-mode');
+  await expect(theme).toHaveText('Light · System');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.getByRole('button', { name: 'Help', exact: true }).click();
   await page.emulateMedia({ colorScheme: 'dark' });
@@ -102,16 +165,17 @@ test('System follows OS changes in dialogs; explicit theme ignores them', async 
   await expect(page.getByRole('heading', { name: 'Help', exact: true })).toBeFocused();
   expect(await page.evaluate(() => window.foundationProbe.writes)).toEqual([]);
   await page.keyboard.press('Escape');
-  await theme.selectOption('light');
+  await page.getByRole('button', { name: 'Switch to light theme' }).click();
   await page.emulateMedia({ colorScheme: 'light' });
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await theme.selectOption('system');
+  await page.getByRole('button', { name: 'Use system' }).click();
+  await expect(page.getByRole('button', { name: 'Switch to light theme' })).toBeFocused();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   expect(await page.evaluate(() => window.foundationProbe.writes)).toEqual([[themeKey, 'light'], [themeKey, 'system']]);
   expect(await page.evaluate(key => localStorage.getItem(key), sentinelKey)).toBe('leave this design untouched');
   await page.reload();
-  await expect(theme).toHaveValue('system');
+  await expect(theme).toHaveText('Dark · System');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   expect(await page.evaluate(key => localStorage.getItem(key), sentinelKey)).toBe('leave this design untouched');
 });
@@ -120,7 +184,7 @@ test('unavailable system preference falls back to Light', async ({ page }) => {
   await page.addInitScript(() => { window.matchMedia = () => { throw new Error('Test unavailable media API'); }; });
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 

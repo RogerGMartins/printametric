@@ -39,14 +39,15 @@ Planned spec: `docs/specs/website-foundation.md`
 - [x] Build the tool-first workspace shell, light/dark themes, and supporting content.
   Help/About and full-license access are implemented; see the
   [T4 checkpoint](plans/website-foundation.md#t4-checkpoint--2026-10-30).
-  Gridline application implementation, true zoom, and final compatibility checks
-  remain pending.
+  The approved [Gridline migration](plans/gridline-application.md) replaces the old
+  presentation with one application and retires the standalone studies.
 - [x] Build the wall-art page layout for subsequent editor integration.
 - [ ] Verify keyboard navigation and mobile layouts, review screenshots, and
   include application build checks in `npm run check`.
   T5 integrates the build, Node tests, and Chromium production/development journeys
-  into the shared gate and CI configuration. Final visual/compatibility acceptance
-  remains pending; see the [foundation plan](plans/website-foundation.md).
+  into the shared gate and CI configuration. Current Gridline evidence is recorded
+  in its migration plan; T6 remains historical. This combined item stays open for
+  user review of the implemented visuals and screen-reader/physical-touch verification.
 
 Done when users can understand the product and navigate to the first tool.
 

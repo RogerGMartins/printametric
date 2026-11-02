@@ -41,7 +41,7 @@ test('bootstrap resets session settings while retaining a stored theme and direc
   assert.equal(edited.preferences.previewBackground, 'grid');
   const reloaded = bootstrapFoundation(browser).initialState;
   assert.equal(reloaded.preferences.previewBackground, 'plain');
-  assert.equal(reloaded.preferences.advancedOpen, false);
+  assert.equal(reloaded.preferences.settingsOpen, false);
   assert.equal(reloaded.preferences.showWorkspaceTips, true);
   assert.equal(reloaded.preferences.view, 'assembly');
   assert.equal(reloaded.preferences.themePreference, 'dark');

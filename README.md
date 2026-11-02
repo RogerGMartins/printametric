@@ -3,15 +3,17 @@
 A planned self-hosted website with browser-based parametric 3D model generators.
 The first generator will create modular wall art.
 
-**Status:** T1–T4 implemented: a responsive workspace with Design, Print layout,
-and Assembly navigation, display settings, and System/Light/Dark themes. Only the
-theme persists across reloads. Preview and summaries show honest unavailable states.
-Help/About dialogs include keyboard support and the full license. Model generation
-and downloads come later.
+**Status:** One Gridline application: cobalt header, full-window preview, and a
+single collapsed Workspace settings panel. Design, Print layout, and Assembly
+navigation work, along with display settings and a sun/moon theme action. Use system
+restores OS following; only the theme preference persists across reloads.
+Help/About include keyboard support and the exact full license. Preview and summaries
+show honest unavailable states. Model generation and downloads come later.
 
-The app currently uses the original T3 styling and theme dropdown. The selected
-[Gridline visual study](artifacts/impeccable-trial/README.md) is a separate prototype.
-Application implementation requires a reviewed technical plan.
+The standalone UI studies and comparison page are retired. Open `/` on the dev or
+preview server below. See the [Gridline implementation checkpoint](docs/plans/gridline-application.md)
+for current verification and remaining screen-reader/physical-device gaps. Earlier
+[T6 evidence](docs/plans/website-foundation.md#t6-checkpoint--2026-10-31) describes the previous UI.
 
 ## Develop
 

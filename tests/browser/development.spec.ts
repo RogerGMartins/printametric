@@ -33,9 +33,9 @@ test('StrictMode balances subscriptions and performs no duplicate history or wri
   await page.getByRole('link', { name: 'Print layout', exact: true }).click();
   await page.getByRole('link', { name: 'Print layout', exact: true }).click();
   expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
   await expect.poll(() => page.evaluate(() => window.foundationProbe.mediaListeners)).toBe(0);
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('system');
+  await page.getByRole('button', { name: 'Use system' }).click();
   await expect.poll(() => page.evaluate(() => window.foundationProbe.mediaListeners)).toBe(1);
   await page.getByRole('button', { name: 'Help', exact: true }).click();
   await page.keyboard.press('Escape');

@@ -1,5 +1,6 @@
 // Shared real-page assertions used by the production and development browser suites.
 import assert from 'node:assert/strict';
+import { selectTheme } from './theme-actions.mjs';
 
 export async function verifyWorkspace(page, baseURL) {
   await page.goto(baseURL);
@@ -16,15 +17,15 @@ export async function verifyWorkspace(page, baseURL) {
   assert.equal(await page.evaluate(() => history.length), startingHistory);
   assert.equal(await page.locator(':focus').textContent(), 'Design');
 
-  const advanced = page.locator('summary');
-  await advanced.focus();
+  const settings = page.locator('summary');
+  await settings.focus();
   await page.keyboard.press('Enter');
   await page.getByRole('radio', { name: 'Grid', exact: true }).check();
   await page.getByRole('checkbox', { name: 'Show workspace tips' }).uncheck();
-  await advanced.click();
+  await settings.click();
   assert.equal(await page.locator('details').getAttribute('open'), null);
-  assert.match(await advanced.textContent(), /Grid background/);
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
+  assert.equal(await settings.textContent(), 'Workspace settings');
+  await selectTheme(page, 'dark');
   await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
 
   for (const [label, hash, empty] of [
@@ -37,9 +38,9 @@ export async function verifyWorkspace(page, baseURL) {
     assert.equal(await page.title(), `${label} · Printametric`);
     assert.equal(await page.locator(':focus').textContent(), label);
     assert.equal(await page.getByRole('link', { name: label, exact: true }).getAttribute('aria-current'), 'page');
-    assert.equal(await page.getByRole('checkbox', { name: 'Show workspace tips' }).isChecked(), false);
+    assert.equal(await page.locator('input[type=checkbox]').isChecked(), false);
     assert.equal(await page.locator('details').getAttribute('open'), null);
-    assert.match(await advanced.textContent(), /Grid background/);
+    assert.match(await page.locator('#background-heading').textContent(), /Grid/);
     assert.equal(await page.getByText('Decorative grid — not to scale.', { exact: true }).isVisible(), true);
     assert.equal(await page.locator('dd').allTextContents().then(values => values.join('|')), 'Not available|Not available|Not available');
   }
@@ -54,9 +55,9 @@ export async function verifyWorkspace(page, baseURL) {
   await page.waitForFunction(() => document.activeElement?.textContent === 'Print layout');
   await page.reload();
   await page.getByRole('heading', { name: 'Print layout', exact: true }).waitFor();
-  assert.equal(await page.getByRole('combobox', { name: 'Theme' }).inputValue(), 'dark');
-  assert.equal(await page.getByRole('checkbox', { name: 'Show workspace tips' }).isChecked(), true);
-  assert.match(await advanced.textContent(), /Plain background/);
+  assert.equal(await page.locator('#theme-mode').textContent(), 'Dark · Manual');
+  assert.equal(await page.locator('input[type=checkbox]').isChecked(), true);
+  assert.match(await page.locator('#background-heading').textContent(), /Plain/);
   assert.equal(await page.locator('details').getAttribute('open'), null);
   assert.equal(await page.evaluate(() => document.activeElement.tagName), 'BODY');
 
@@ -83,8 +84,8 @@ export async function verifyWorkspaceErrors(page, baseURL) {
   const recovery = page.getByRole('button', { name: 'Review Preview background' });
   await recovery.waitFor();
   assert.equal(await page.locator('details').getAttribute('open'), null);
-  assert.match(await page.locator('summary').textContent(), /Grid background/);
-  assert.equal(await page.getByRole('checkbox').isChecked(), true);
+  assert.match(await page.locator('#background-heading').textContent(), /Grid/);
+  assert.equal(await page.locator('input[type=checkbox]').isChecked(), true);
   await recovery.focus();
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.activeElement?.getAttribute('value') === 'grid');
@@ -95,9 +96,14 @@ export async function verifyWorkspaceErrors(page, baseURL) {
   assert.equal(await page.getByRole('radio', { name: 'Plain', exact: true }).isChecked(), true);
   assert.equal(await page.locator('#theme-error').isVisible(), true);
   assert.equal(await page.locator('#tips-error').isVisible(), true);
-  await page.getByRole('checkbox').uncheck();
+  await page.locator('.settings-drawer > summary').click();
+  await page.getByRole('button', { name: 'Review Show workspace tips' }).focus();
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.activeElement?.getAttribute('type') === 'checkbox');
+  assert.equal(await page.locator('#tips-error').isVisible(), true);
+  await page.keyboard.press('Space');
   assert.equal(await page.locator('#tips-error').count(), 0);
-  await page.getByRole('combobox', { name: 'Theme' }).selectOption('light');
+  await selectTheme(page, 'light');
   assert.equal(await page.locator('#theme-error').count(), 0);
   return 'Collapsed error remains visible, keyboard recovery retains value until valid edit, and independent errors clear correctly.';
 }

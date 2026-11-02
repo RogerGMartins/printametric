@@ -1,12 +1,11 @@
 # Website foundation — implementation plan
 
-Status: T1–T4 merged (T4 in PR #14); T5 implemented and checked, preparing its requested PR.
-True 200% browser zoom and cross-browser/screen-reader checks remain unverified.
-The selected Gridline visual study supersedes the earlier Quiet studio proposal;
-application implementation still requires a reviewed implementation-plan update.
-Earlier T3 checks below cover the original UI, not the revised visual/theme-control
-criteria. Publishing T4 does not implement the redesign. Trial source is retained
-under `artifacts/impeccable-trial/`; generated mockups and screenshots remain ignored.
+Status: T1–T5 merged (T5 in PR #15); T6 verification is recorded below as history.
+The later [Gridline — single application UI](gridline-application.md) plan was approved
+on 2026-10-31 and owns the implemented replacement, fresh evidence, and study cleanup.
+Earlier checkpoints and authorization limits below describe their original task
+boundaries. They are not current application instructions. Historical screenshots
+remain under `artifacts/`; runnable studies have been retired.
 User approval recorded on 2026-10-30: start implementation, one task at a time,
 with a review and separate pull-request opportunity after each task. Stop after
 each task's checks; wait for the user's request before publishing or starting
@@ -14,8 +13,10 @@ the next task. The user explicitly requested T4 on 2026-10-30; implement support
 dialogs in the current UI, then stop for review. PRs #13 and #14 are now merged.
 The user subsequently requested implementation of the next task, authorizing T5
 regression integration only. After the implementation handoff, the user requested
-a PR for T5. This authorizes its commit, push, and PR; T6 and Gridline application
-implementation remain pending.
+a PR for T5. After merging #15, the user requested updating main and implementing
+the next task, authorizing T6 verification and documentation. Stop for review after
+T6; that request did not authorize publishing or Gridline implementation. The later
+explicit approval is recorded in the Gridline plan.
 Scope/acceptance: [spec](../specs/website-foundation.md).
 Module boundaries: [architecture](../architecture.md#website-foundation).
 Build owns integration and performs these tasks directly unless delegation is requested.
@@ -312,3 +313,94 @@ Each task includes its relevant checks. T6 completes cross-cutting verification.
   need no change. Gridline stays a separate study. The implementation stopped for
   review; the user subsequently requested publication of this T5 scope as a PR.
   T6 and application redesign implementation remain outside that request.
+
+## T6 checkpoint — 2026-10-31
+
+The user authorized this task after merging #15 and updating main to `fd144c6`.
+Verification covers the current T3/T4 application, not the selected Gridline study.
+No runtime defect requiring a code change was reproduced. Application source,
+dependencies, tests, and CI configuration are unchanged by T6.
+
+### Environment and evidence
+
+- Windows; Node 24.22.2; Playwright 1.64.1; Chromium 156.0.8078.4 and Firefox 157.0.
+  Installed Firefox with `npx playwright install firefox`; no package change.
+- `npm run check` passed scaffold validation, both typechecks, production build,
+  21 Node tests, and 22 Chromium tests (34.4 s browser suite). Merged PR #15's
+  Linux/Windows push and PR checks also passed; that is evidence for the merged
+  T5 code, not a remote run of this documentation change.
+- Production screenshots and bounding-box checks covered Light/Dark at 1280×800,
+  768×1024, 390×844, 320×800, 959×900, and 960×900 in Chromium. Firefox covered
+  1280×800 and 320×800 in both themes. No horizontal page/dialog overflow; layout
+  changes at 960 px and preview precedes controls below it. Reviewed representative
+  workspace, keyboard-focus, Help, and expanded-license screenshots across these sizes.
+- Reused workspace and support journeys in both engines and themes: direct hashes,
+  history, reload, native controls, modal wrapping/backdrop/Close/Escape, exact license,
+  and navigation dismissal passed. No page errors or downloads. A storage sentinel
+  seeded once survived the entire navigation/reload/dialog journey without reseeding.
+- Genuine Chromium zoom used an isolated temporary profile and local test extension
+  calling `chrome.tabs.setZoom(tabId, 2)`. `getZoom` returned 2; CSS viewport changed
+  1256×801 → 628×400 and devicePixelRatio 1 → 2. Workspace keyboard/reload/history
+  and both-theme support journeys passed. Dialogs retained ≥12 CSS px margins and
+  no horizontal overflow; long license scrolling and Close remained reachable.
+  This is browser page zoom, not CSS zoom or resized-viewport emulation. Captures use
+  the compositor viewport: Playwright full-page capture altered capture sizing at
+  page zoom and produced misleading cropped images, which were replaced.
+- Measured visible text/background pairs on Grid workspace, Help, and expanded About:
+  minimum 5.29:1 Light / 6.60:1 Dark. Tested boundary/accent combinations with page,
+  surface, and selected backgrounds: minimum 3.80:1 / 3.56:1. Error text against
+  surface: 7.59:1 / 9.26:1. Focus uses a visible 3 px outline. Forced-colors emulation
+  retained native checkboxes/radios, selected-link underline, and keyboard radio focus.
+  These sampled checks are not a complete accessibility certification.
+- An in-memory Vite build exposed 26 included modules: application, React/React DOM,
+  scheduler, LICENSE, CSS/HTML, and Vite/Rolldown helpers only. No SDK, Playwright,
+  fixtures, geometry/rendering/export dependencies, or Node APIs entered the bundle.
+  Browser requests were same-origin HTML/JS/CSS only, including opening full LICENSE.
+  Production JS is 237.99 kB (74.68 kB gzip); CSS 5.23 kB (1.65 kB gzip).
+- Reviewed imports and effects: shared workspace imports no app/tool modules; wall-art
+  imports shared types only. Bootstrap remains outside rendering; storage writes are
+  explicit actions; navigation/media effects and native dialogs have cleanup. No
+  production debug controls/logging or architectural changes were needed.
+- Impeccable static scan of `src/styles.css`, `src/app`, and `src/shared/workspace`
+  returned `[]`. This supports the code review, not redesigned-UI acceptance.
+
+Local evidence is ignored under `artifacts/t6/`: `results.json`, `contrast.json`,
+`modules.json`, `detector.json`, `chromium-*.png`, `firefox-*.png`, `forced-colors-*.png`,
+and `zoom-200-*.png`. Disposable `verify.mjs`, `audit.mjs`, and `zoom-extension/`
+record reproduction details; they are not application or CI features.
+
+### Acceptance disposition
+
+Pass means verified within the stated desktop-browser scope. Fail for a proposed
+visual requirement means not implemented, not a newly introduced regression.
+
+| ID | Result | Evidence / remaining gap |
+| --- | --- | --- |
+| AC-1 | Pass | Local gate builds and serves production; dev and production journeys pass. |
+| AC-2 | Pass | Direct hashes, reload, Back/Forward, active-link history and focus in Chromium/Firefox. |
+| AC-3 | Pass | Malformed/markup-like route recovery in unit and browser journeys. |
+| AC-4 | Fail — proposed visuals absent | Current responsive layout/zoom works; neither historical Quiet studio nor selected Gridline is implemented. |
+| AC-5 | Pass | Tips/background/disclosure retain on navigation and reset on reload. |
+| AC-6 | Pass | Invalid-value unit tests and dev collapsed-error recovery preserve accepted state. |
+| AC-7 | Fail — proposed control absent | System/Light/Dark behavior passes; the app still has a select, not sun/moon and Use system. |
+| AC-8 | Partial | Existing P2 storage, invalid/denied data and same-value retry pass; toggle/Use system actions remain unimplemented. |
+| AC-9 | Pass for current controls | Keyboard journeys and focus pass, including zoom; screen-reader behavior unverified. |
+| AC-10 | Pass | Both native dialogs, exact license, narrow layouts, history dismissal, genuine 200% zoom. |
+| AC-11 | Partial | Current measured contrast and forced-colors checks pass; proposed V2 tokens/styled controls are absent. |
+| AC-12 | Pass for current content | All 24 view/theme/tips/background combinations retain honest empty states; decorative revision treatment is absent. |
+| AC-13 | Pass | Included-module audit, same-origin requests, zero downloads, unchanged storage sentinel. |
+| AC-14 | Pass | Help/About content and complete repository LICENSE checked in both engines. |
+| AC-15 | Pass | Shared gate includes all existing checks and production/dev browser regressions; merged T5 CI passed both OSes. |
+
+Technical audit summary (heuristic, not certification): accessibility 3/4 (keyboard
+and contrast verified; assistive technology untested), performance 3/4 (lean graph,
+no animation/assets; device performance not profiled), theming 4/4 (current tokens
+and OS behavior), responsiveness 3/4 (reflow/zoom verified; physical touch untested),
+implementation integrity 3/4 (consistent native controls; visual replacement pending):
+**16/20, good**. No verified P0/P1/P2 implementation defect. The visual-contract gaps
+above require the separately reviewed Gridline plan, not incidental T6 styling edits.
+
+T6's verification work is complete; the foundation's full visual acceptance is not.
+Screen-reader testing and physical touch remain unverified. README, architecture,
+development guidance, roadmap, and spec status now reflect this boundary. Product
+scope and LICENSE need no change. Stop for user review; no publication or next task.
