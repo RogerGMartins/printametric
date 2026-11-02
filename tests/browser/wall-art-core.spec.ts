@@ -50,6 +50,16 @@ for (const action of ['Zoom in', 'Zoom out', 'Rotate left', 'Rotate right']) {
     await button.focus(); await button.press('Enter');
     expect(await silhouette(page)).not.toEqual(resized);
     await page.screenshot({ path: testInfo.outputPath('camera-after-second-activation.png') });
+    await page.locator('.settings-drawer > summary').click();
+    const smallDesign = serializeDesign({ ...DEFAULT_PARAMETERS, width: 80, height: 80, pitch: 200, reliefHeight: 0 });
+    await page.getByLabel('Load design JSON').setInputFiles({ name: 'small.json', mimeType: 'application/json', buffer: Buffer.from(smallDesign) });
+    await expect(page.locator('dd').nth(1)).toHaveText('1');
+    await page.locator('.settings-drawer > summary').click();
+    const small = await silhouette(page);
+    // Retain camera scale while keeping the smaller model inside the clipping planes.
+    expect(small[0]).toBeGreaterThan(20); expect(small[1]).toBeGreaterThan(20);
+    expect(small[0]).toBeLessThan(resized[0]! / 2);
+    await page.screenshot({ path: testInfo.outputPath('camera-after-small-design.png') });
   });
 }
 
