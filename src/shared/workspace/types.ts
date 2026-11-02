@@ -4,7 +4,7 @@ export type PreviewBackground = 'plain' | 'grid';
 export interface WorkspaceDisplayPreferences {
   readonly showWorkspaceTips: boolean;
   readonly previewBackground: PreviewBackground;
-  readonly advancedOpen: boolean;
+  readonly settingsOpen: boolean;
 }
 
 export interface WorkspaceContent {

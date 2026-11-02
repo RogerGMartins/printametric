@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import type { bootstrapFoundation } from './bootstrap';
-import { FOUNDATION_FOOTER, WORKSPACE_VIEWS } from './content';
+import { FOUNDATION_AVAILABILITY, WORKSPACE_VIEWS } from './content';
 import { VIEW_TITLES } from './navigation';
 import type { NavigationUpdate } from './navigation';
 import { transitionFoundation, validatePreference } from './state';
@@ -11,6 +11,7 @@ import { applyColorScheme, effectiveScheme, readSystemScheme, subscribeSystemSch
 import { Workspace } from '../shared/workspace/Workspace';
 import { WALL_ART_CONTENT } from '../tools/wall-art/content';
 import { SupportDialog } from './SupportDialog';
+import { ThemeControl } from './ThemeControl';
 
 type AppProps = ReturnType<typeof bootstrapFoundation>;
 const matchMedia = (query: string) => window.matchMedia(query);
@@ -71,37 +72,31 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
       }}>Skip to workspace</a>
       <div className="app-shell">
         <header className="app-header">
-          <span className="brand">Printametric</span>
+          <div className="brand">Printametric<span>Wall art</span></div>
+          <nav className="workspace-navigation" aria-label="Workspace views">
+            {WORKSPACE_VIEWS.map(view => <a key={view.id} href={`#${view.id}`}
+              aria-current={preferences.view === view.id ? 'page' : undefined}
+              onClick={event => navigate(event, view.id)}>{view.label}</a>)}
+          </nav>
           <div className="header-actions">
-            <label className="theme-control">Theme
-              <select value={preferences.themePreference} aria-describedby={themeDescription}
-                aria-invalid={Boolean(fieldErrors.themePreference)}
-                onChange={event => changePreference('themePreference', event.currentTarget.value)}>
-                <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
-              </select>
-            </label>
+            <ThemeControl preference={preferences.themePreference} scheme={scheme} description={themeDescription}
+              invalid={Boolean(fieldErrors.themePreference)} onChange={value => changePreference('themePreference', value)} />
             <button ref={helpButton} type="button" onClick={() => changePreference('supportPanel', 'help')}>Help</button>
             <button ref={aboutButton} type="button" onClick={() => changePreference('supportPanel', 'about')}>About</button>
           </div>
         </header>
-        <nav className="workspace-navigation" aria-label="Workspace views">
-          {WORKSPACE_VIEWS.map(view => <a key={view.id} href={`#${view.id}`}
-            aria-current={preferences.view === view.id ? 'page' : undefined}
-            onClick={event => navigate(event, view.id)}>{view.label}</a>)}
-        </nav>
         <main id="workspace" ref={main} tabIndex={-1}>
-          <h1 ref={heading} tabIndex={-1}>{WORKSPACE_VIEWS.find(view => view.id === preferences.view)?.label}</h1>
-          <div className="workspace-notices" role="status">
+          <Workspace content={WALL_ART_CONTENT[preferences.view]} preferences={preferences} errors={fieldErrors} onChange={changePreference}
+            title={WORKSPACE_VIEWS.find(view => view.id === preferences.view)?.label ?? 'Design'} headingRef={heading}
+            availability={FOUNDATION_AVAILABILITY} notices={<>
             {navigationNotice && <section className="notice"><h2>View notice</h2><p>{navigationNotice}</p></section>}
             {storageNotice && <section className="notice"><h2>Theme notice</h2><p id="theme-notice">{THEME_NOTICES[storageNotice]}</p>
               <button type="button" onClick={() => changePreference('themePreference', preferences.themePreference)}>Retry theme storage</button>
             </section>}
             {fieldErrors.themePreference && <section className="notice field-error"><h2>Error</h2><p id="theme-error">{fieldErrors.themePreference}</p></section>}
             {fieldErrors.view && <section className="notice field-error"><h2>Error</h2><p>{fieldErrors.view}</p></section>}
-          </div>
-          <Workspace content={WALL_ART_CONTENT[preferences.view]} preferences={preferences} errors={fieldErrors} onChange={changePreference} />
+          </>} />
         </main>
-        <footer className="app-footer">{FOUNDATION_FOOTER}</footer>
       </div>
       {preferences.supportPanel !== 'none' && <SupportDialog panel={preferences.supportPanel}
         opener={preferences.supportPanel === 'help' ? helpButton : aboutButton}

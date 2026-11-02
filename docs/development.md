@@ -23,8 +23,7 @@ Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF expor
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
 T1–T4 implement the shell, state/browser adapters, responsive workspace, navigation,
 display controls, themes, and Help/About dialogs. Geometry dependencies are not
-installed. The selected Gridline study is a prototype; its application implementation
-remains pending.
+installed. Gridline is the single application UI; the standalone studies are retired.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
@@ -50,11 +49,13 @@ machine-managed files are ignored so startup cannot invalidate the npm lockfile.
   browser console and Vite terminal for failures. StrictMode can render twice
   in development. Production output does not contain source maps or debug fixtures.
 
-On a fresh page, tab order is Skip to workspace, Theme, Help, About, view links,
-tips, Advanced.
+On a fresh page, tab order is Skip to workspace, view links, theme toggle,
+Use system (when overridden), Help, About, and Workspace settings.
 Activating Skip moves focus to main without changing the hash; the next Tab then
-reaches settings. View activation and Back/Forward focus the view heading. Enter
-opens Advanced and native arrow keys change radios.
+reaches the settings summary. View activation and Back/Forward focus the view heading.
+Enter opens settings; its content scrolls independently. Native arrow keys change radios.
+Enter/Space on the sun/moon button selects the opposite effective theme. Use system
+restores OS following and returns focus to the toggle.
 Settings survive view changes; reload resets them except the stored theme.
 Disable JavaScript to check the startup notice.
 
@@ -70,7 +71,7 @@ and subscription counts. No debug controls are added to the application.
 
 T3 bootstrap checks: `node --test tests/foundation-bootstrap.test.mjs`. For UI error
 recovery, run `npm run dev` and open `/tests/fixtures/workspace-errors.html` at its
-local URL. This fixture starts with Grid retained after an invalid update, Advanced
+local URL. This fixture starts with Grid retained after an invalid update, settings
 closed, and independent tips/theme errors. Keyboard-activate Review Preview background:
 Grid receives focus and its error remains. Choose Plain to clear only that error.
 The fixture is app-typechecked but excluded from the production entry and `dist/`.
@@ -108,8 +109,10 @@ follow native DOM changes. After Close, the opener has focus and no dialog remai
 after navigation, the new view heading has focus. In About, keyboard-open Read full
 license, use Ctrl+End to reach the bottom on Windows/Linux, then Tab to reach Close.
 The license disclosure resets on reopening. Test at 320 px and in both themes.
-True browser 200% zoom remains unverified: automated zoom shortcuts did not change
-the measured viewport. A 640×400 reflow check passed but is not a zoom result.
+T6 verified genuine Chromium 200% page zoom in both themes: an isolated test
+extension used `chrome.tabs.setZoom`, `getZoom` returned 2, CSS viewport halved from
+1256×801 to 628×400, and devicePixelRatio doubled from 1 to 2. Workspace and modal
+keyboard journeys passed. Earlier 640×400 reflow evidence alone was not a zoom test.
 
 ### Browser regression runner
 
@@ -145,9 +148,25 @@ to a targeted command. Inspect the failed assertion and retained DOM snapshot in
 `npx playwright show-trace <path-to-trace.zip>` for actions, DOM, and network evidence.
 Use `DEBUG=pw:webserver` in your shell environment to diagnose server startup.
 
-The suite checks the current T3/T4 application and Theme select. It is not evidence
-for the proposed Gridline application redesign, true browser zoom, a second engine,
-or screen-reader behavior. Those remain separate review/compatibility work.
+The CI suite checks the Gridline application, native theme actions, stable canvas
+bounds, drawer lifetime, and collapsed tips/background recovery in Chromium.
+Historical T6 separately ran the shared workspace/support helpers in Firefox 157.0, both themes,
+and checked desktop/320 px layouts. Install that optional engine with
+`npx playwright install firefox`; use `firefox.launch()` from `@playwright/test`,
+a fresh context, and the exported journey helpers against a served build. T6's
+disposable local runner and evidence are in ignored `artifacts/t6/`.
+
+For manual zoom reproduction, serve the production build, set browser page zoom
+to 200%, and confirm the CSS viewport halves and devicePixelRatio doubles relative
+to 100% on the same display. Check workspace keyboard controls and Help/About in
+both themes, including scrolling the full license and restoring opener focus.
+Do not substitute CSS zoom, pinch zoom, or changing the emulated viewport. At page
+zoom, use a viewport capture rather than full-page screenshot resizing.
+
+See the [T6 checkpoint](plans/website-foundation.md#t6-checkpoint--2026-10-31) for
+measured contrast, bundle inspection, screenshot paths, and per-acceptance results.
+Screen-reader and physical-touch behavior remain unverified. Current Gridline
+verification and user-review status are in the [migration checkpoint](plans/gridline-application.md).
 
 ## Impeccable design tooling
 
@@ -165,21 +184,22 @@ The launcher can download its engine on first use. Downloaded binaries under
 application dependency. Review installer updates before replacing the local
 command adaptation or license notices.
 
-The design-trial sources are retained under `artifacts/impeccable-trial/`; generated
-HTML, screenshots, and detector output stay ignored. Run
-`node artifacts/impeccable-trial/build-previews.mjs`, then start Vite and open
-`/artifacts/impeccable-trial/index.html` to compare Contour, Gallery, Gridline, and
-a conventional editor. The wrapper adds prototype interactions to script-free
-sketches. It uses prototype-specific Help and the full LICENSE, follows system theme by
-default, and does not save preferences. These are visual studies, not application
-acceptance evidence. The user selected Gridline for refinement: the revised study
-fills the window below the header and has one collapsed bottom settings panel. Add
-`?direction=gridline&standalone=1` to the trial URL to hide the comparison bar.
-The selected layout is a visual study; its application implementation plan still
-requires review. Reproduction and browser-check instructions are in the
-[trial README](../artifacts/impeccable-trial/README.md).
-`docs/product.md` remains the product source of truth; no accepted
-visual system has been recorded in DESIGN.md.
+The approved Gridline composition now runs at `/` on the application server.
+Contour, Gallery, Conventional, Quiet studio, the comparison wrapper, and the
+standalone Gridline study are retired. Historical captures and detector output
+remain ignored under `artifacts/`; they are evidence, not runnable UI alternatives.
+Impeccable tools and licenses remain installed. `docs/product.md` is the product
+source of truth; the [foundation spec](specs/website-foundation.md) records the
+accepted Gridline visual contract. No separate DESIGN.md is maintained.
+
+Gridline evidence is local under `artifacts/gridline-application/`: `verify.mjs`
+runs the size matrix, Firefox journeys, forced colors, storage/download sentinels,
+and genuine Chromium zoom using the retained T6 test extension. `audit.mjs` measures
+rendered contrast and inspects the production module graph. Serve the current build
+on port 4473 before running these local evidence scripts. The portable regressions
+live in `tests/browser/` and run through `npm run check`; no artifact file is required
+by CI. At constrained heights, document and panel scrolling are intentional. Compare
+canvas bounds in document coordinates so scrolling is not mistaken for resizing.
 
 ## Lifecycle
 

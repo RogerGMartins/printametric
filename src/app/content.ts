@@ -6,14 +6,14 @@ export const WORKSPACE_VIEWS: readonly { readonly id: View; readonly label: stri
   { id: 'print-layout', label: 'Print layout' },
   { id: 'assembly', label: 'Assembly' },
 ];
-export const FOUNDATION_FOOTER = 'Foundation workspace — no printable design, design saving, or downloads.';
+export const FOUNDATION_AVAILABILITY = 'Foundation workspace — no printable design, design saving, or downloads.';
 
-// Help describes the available workspace, not the proposed visual redesign.
+// Help describes the single application workspace and its real storage behavior.
 export const HELP_SECTIONS = [
   { heading: 'Workspace views', text: 'Design, Print layout, and Assembly are views of the wall-art workspace. They are not required steps. Use the view links or your browser’s Back and Forward buttons to move between them.' },
-  { heading: 'Display settings', text: 'Show workspace tips controls optional guidance. Advanced contains the Plain and Grid preview backgrounds. The grid is decorative, not to scale. These settings survive view changes and reset on reload.' },
+  { heading: 'Display settings', text: 'Open Workspace settings at the bottom to change tips and the Plain or Grid preview background. The grid is decorative, not to scale. These settings and the open panel survive view changes and reset on reload.' },
   { heading: 'Keyboard', text: 'Use Tab and Shift+Tab to move between controls. Skip to workspace moves focus to the main content. Enter activates links and disclosures; native arrow keys change radio choices. In this dialog, Tab stays inside. Escape or the Close button returns focus to the opener. Browser navigation closes the dialog and focuses the new view heading.' },
-  { heading: 'Theme storage', text: 'Theme offers System, Light, and Dark. System follows your operating system. Only the theme preference is remembered in this browser; no design is saved. If storage fails, the selected theme still applies for this visit. Use Retry theme storage to try again.' },
+  { heading: 'Theme storage', text: 'The sun/moon button switches to the opposite theme. System follows your operating system until you choose an override; Use system restores that behavior. Only the theme preference is remembered in this browser; no design is saved. If storage fails, the selected theme still applies for this visit. Use Retry theme storage to try again.' },
   { heading: 'Not available yet', text: 'Model generation, editing, presets, design save/load, plate configuration, part arrangement, assembly guidance, and downloads are not available yet. Planned model formats: STEP, STL, and standard 3MF.' },
 ] as const;
 

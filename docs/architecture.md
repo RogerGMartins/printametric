@@ -158,6 +158,11 @@ These boundaries were approved for task-by-task implementation on 2026-10-30.
 T1 supplies the entry point and separate browser/Node typechecks. T2 adds independent
 state and browser adapters. T3 connects them to the responsive workspace, display
 settings, and themes. T4 adds SupportDialog, Help/About content, and bundled license text.
+T5 integrates the production/development browser gate. T6 checked module boundaries,
+effect cleanup, and the included production graph: only app code, React/React DOM,
+scheduler, license text, styles, and build helpers are shipped. Verification evidence
+and remaining visual/assistive-technology gaps live in the
+[T6 checkpoint](plans/website-foundation.md#t6-checkpoint--2026-10-31).
 
 ```text
 hash / history ── navigation adapter ──┐
@@ -175,6 +180,7 @@ and send user actions back; they do not read storage or interpret routes.
 | `src/app/state.ts` | UI preference types/defaults and pure validation; no React or browser globals |
 | `src/app/navigation.ts` | Pure hash resolution plus isolated history/event adapter |
 | `src/app/theme.ts` | Validated theme persistence, effective scheme, and isolated storage/OS adapter |
+| `src/app/ThemeControl.tsx` | Native sun/moon action, mode status, and Use system focus restoration; no storage access |
 | `src/app/content.ts`, `SupportDialog.tsx` | View copy, Help/About, and same-site license access |
 | `src/tools/wall-art/content.ts` | Wall-art availability copy and empty-state descriptions; no generator yet |
 | `src/shared/workspace/Workspace.tsx`, `WorkspaceDisplay.tsx` | Common workspace layout, empty preview, summaries, and labelled display settings; receive tool content through props |
@@ -210,22 +216,27 @@ Implemented integration contracts:
   since bootstrap. Derive the effective scheme and use `applyColorScheme` for the
    root `data-theme` and native-control `color-scheme` with shared CSS tokens.
 
-T3 presentation boundaries:
+Current Gridline presentation boundaries:
 - App owns a pure reducer and OS snapshot, with cleaned-up navigation/media Effects.
   Layout Effects synchronize the root scheme, title, and requested heading focus.
   Bootstrap applies the initial scheme before mounting. No Effect writes storage.
 - `tools/wall-art/content.ts` supplies empty-state and unavailable-section content.
   App selects it by view; shared Workspace knows no route or tool identity. Preview
-  precedes settings in the DOM. CSS places controls left at 960 px and above, and
-  stacks preview first below 960 px, including fractional viewport widths.
-- WorkspaceDisplay owns only element refs and pending recovery focus. Its native
-  disclosure reports actual toggles, ignoring matching programmatic open events.
-  Field errors remain outside the disclosure; recovery opens it, then focuses the
-  selected radio without clearing the error. Only a valid field edit clears it.
+  precedes settings in the DOM. App supplies title, heading ref, shell notices, and
+  availability copy explicitly. Workspace owns the full-window preview and one
+  bottom settings disclosure; its overlay does not resize the canvas. Panel content
+  scrolls within half the workspace height. Short windows allow document scrolling.
+- Workspace owns field refs and pending recovery focus. Its native disclosure reports
+  actual toggles, ignoring matching programmatic open events. Session-only
+  `settingsOpen` defaults false and survives navigation, not reload. WorkspaceDisplay
+  renders controlled tips/background fields. Errors remain outside the disclosure;
+  recovery opens it and focuses the checkbox or selected radio without clearing errors.
+  Only a valid edit clears that field. Notice scrolling stays separate from settings.
 - Theme notices include an explicit Retry theme storage action. It submits the
-  current valid selection again, so recovery does not depend on a select emitting
-  change when its already-selected option is chosen. Failed writes keep memory
-  and old stored bytes; successful retries clear the notice.
+  current valid preference again without toggling. The sun/moon button selects the
+  opposite effective scheme; Use system writes `system` and focuses the toggle.
+  Both use the existing validation/storage path. Failed writes keep memory and old
+  stored bytes; successful retries clear the notice. The persisted key is unchanged.
 - The error fixture under `tests/fixtures/` mounts the real App with rejected
   updates. It is typechecked but has no production entry/import. Its test-only
   unmount export verifies effect cleanup. T5 runs the shared browser journeys
@@ -246,10 +257,15 @@ T4 support-dialog boundaries:
 - Help/About copy lives in `app/content.ts`. `LICENSE?raw` bundles the unchanged
   repository text into About's native disclosure. Wrapped, preformatted text shares
   the dialog's scroll container; there is no nested modal, fetch, or download.
-- Dialog styles use the current app tokens. The selected Gridline study remains a
-  separate prototype; Help documents the working Theme select rather than its toggle.
+- Dialog styles use the current Gridline tokens. Help documents the working toggle,
+  Use system action, and bottom settings panel.
 
 #### Code practices for the foundation
+
+The [single-UI plan](plans/gridline-application.md), approved on 2026-10-31, records
+the Gridline migration, study cleanup, and fresh verification. The presentation
+contracts above replace the earlier side-inspector layout without changing the
+dependency direction. Historical T6 evidence describes the previous application.
 
 - **Dependency direction:** `App` composes adapters and UI. UI receives typed props
   and callbacks; shared UI uses shared types, not app state types or browser adapters. Adapters

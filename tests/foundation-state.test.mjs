@@ -13,7 +13,7 @@ const acceptedValues = {
   supportPanel: ['none', 'help', 'about'],
   showWorkspaceTips: [true, false],
   previewBackground: ['plain', 'grid'],
-  advancedOpen: [true, false],
+  settingsOpen: [true, false],
 };
 const invalidValues = [undefined, null, '', 'unknown', 'TRUE', 0, 1, NaN, Infinity, [], {}, new Boolean(false)];
 const update = (state, field, value) => transitionFoundation(state, { type: 'preference', field, value });
@@ -22,7 +22,7 @@ test('state defaults are fresh and page-session preferences reset on reload', ()
   const initial = createFoundationState();
   assert.deepEqual(initial.preferences, {
     view: 'design', themePreference: 'system', supportPanel: 'none',
-    showWorkspaceTips: true, previewBackground: 'plain', advancedOpen: false,
+    showWorkspaceTips: true, previewBackground: 'plain', settingsOpen: false,
   });
   const edited = update(update(initial, 'previewBackground', 'grid'), 'showWorkspaceTips', false);
   assert.equal(edited.preferences.previewBackground, 'grid');
@@ -57,8 +57,8 @@ test('state keeps collapsed errors, independent notices, and settings through na
   state = update(state, 'previewBackground', 'not-a-background');
   state = update(state, 'themePreference', 'not-a-theme');
   state = transitionFoundation(state, { type: 'storage-notice', notice: 'write-failed' });
-  state = update(state, 'advancedOpen', true);
-  state = update(state, 'advancedOpen', false);
+  state = update(state, 'settingsOpen', true);
+  state = update(state, 'settingsOpen', false);
   state = update(state, 'showWorkspaceTips', false);
   state = update(state, 'supportPanel', 'help');
   const navigated = transitionFoundation(state, {
