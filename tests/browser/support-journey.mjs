@@ -42,10 +42,11 @@ export async function verifySupportDialogs(page, baseURL, expectedLicense, theme
       for (const name of ['Workspace views', 'Display settings', 'Keyboard', 'Theme storage', 'Not available yet']) {
         assert.equal(await dialog.getByRole('heading', { name, exact: true }).count(), 1);
       }
-      assert.match(await dialog.textContent(), /Planned model formats: STEP, STL, and standard 3MF\./);
+      assert.match(await dialog.textContent(), /Export STEP, STL, or 3MF prepares only the selected format/);
       assert.match(await dialog.textContent(), /Only the theme preference is remembered/);
       assert.match(await dialog.textContent(), /They are not required steps/);
     } else {
+      assert.equal(await dialog.getByRole('link', { name: 'Third-party licenses and CAD sources (new tab)' }).getAttribute('href'), '/licenses/THIRD_PARTY_NOTICES.md');
       assert.equal(await dialog.locator('.support-about > p').first().textContent(),
         'Printametric is a personal-use source-available project, not open source.');
       await last.focus();

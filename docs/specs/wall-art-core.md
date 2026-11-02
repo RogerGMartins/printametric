@@ -1,6 +1,8 @@
 # Wall art 01 — canonical generator and first exports
 
-Status: **DRAFT for user review; not approved implementation.**
+Status: **Implemented and locally verified — 2026-11-02.** See the
+[implementation checkpoint](../plans/wall-art-core.md#implementation-checkpoint--2026-11-02)
+for acceptance evidence and remaining manual/platform limits.
 Authority: [suite C1–C4](wall-art.md). Acceptance prefix: `WA-CORE`.
 
 ## Problem, flow and scope
@@ -15,11 +17,30 @@ number → wait for accepted preview → choose format → Export → inspect fi
 reader. Failed input leaves the prior design intact. Print layout and Assembly
 retain honest unavailable content until their owning phases arrive.
 
-Confirmed: architectural pipeline and required formats. Proposed: the pattern,
-numbers and UI below. Included: headless validation/generation, curved verification
+Confirmed: architectural pipeline, required formats, numerical contracts, UI details
+and the simple initial pattern chosen below. Included: headless validation/generation, curved verification
 coupon, two-part fixture, worker cancellation and minimal accessible integration.
 Excluded: alternate layouts/outlines, surface families, movement, colour bands,
 frame, packing, kit files, autosave/library, room scene and physical load claims.
+
+### Initial example decision — 2026-11-02
+
+The user chose a simple starting example rather than bringing surface-pattern work
+forward. Phase 01 starts with the rectangular array of equal-height upright tapered
+blades described here. It is editable through the same parameters that generate
+the preview and exports. It is a fixed starting design, not a randomized New action
+or a separate preview-only model. More examples and richer patterns can follow in
+their owning phases; the phase 05 preset catalogue is not a phase 01 dependency.
+
+The user approved the [technical plan](../plans/wall-art-core.md) on 2026-11-02,
+including defaults, ranges, minima, budgets, qualification profile and dependency/
+reader choices. Compatibility, provenance and measured qualification remain
+implementation verification gates. Build owns the plan's code and test paths.
+
+Generator 1 makes no random draws. Seeds 1, 5000 and 9999 produce the same geometry
+and stable IDs; saved definitions and parameter digests retain the seed. Stable
+IDs are `wa-g1-r<row>-c<column>` (zero-based, +Y to −Y then −X to +X);
+`mapNumber` is one-based row-major order.
 
 ## Model schema 1 / generator 1
 
@@ -41,7 +62,7 @@ Fixed values: rectangle, regular square-derived cells, no movement, flat top,
 straight sides, plinth enabled, one neutral material, no engraving. The seed's
 no-effect notice is visible; a reserved seed must not imply randomness exists.
 
-### Original proposed construction
+### Approved construction
 
 Set column count `max(1, round(width/pitch))`, row count similarly; `.5` rounds up.
 Cells divide the exact panel rectangle evenly. Thus pitch is characteristic, not
@@ -66,8 +87,9 @@ an analytic curved face to prove native curved STEP preservation.
 
 ## Saved file and output contracts
 
-Editable JSON envelope 1 contains `format: "printametric-wall-art"`,
-`formatVersion: 1`, model schema/generator pair, explicit seed and parameters.
+Editable JSON envelope 1 has exactly `format: "printametric-wall-art"`,
+`formatVersion: 1`, `modelSchemaVersion: 1`, `generatorVersion: 1`, `seed` and
+`parameters`. Parameters contains the seven non-seed fields in the table above.
 It excludes meshes, camera, timestamps required for geometry, and kernel handles.
 Maximum 1 MiB before decoding; strict UTF-8 JSON object; maximum nesting 16.
 Unknown fields/versions, truncated JSON, arrays in place of objects, and unsupported
@@ -134,8 +156,8 @@ Export selector/action, file input and cancel work by keyboard at 320 px and gen
 
 ### Stories and required implementation tests
 
-All rows use the suite's mandatory story completion contract. QA owns
-`tests/wall-art-core.test.mjs` and `tests/browser/wall-art-core.spec.ts`.
+All rows use the suite's mandatory story completion contract. The approved plan
+assigns implementation of the Node and browser tests to build.
 
 | Story | Completion / acceptance IDs | Required automated assertions and manual limits |
 | --- | --- | --- |
@@ -149,8 +171,8 @@ reader contracts without changing approved stack. `docs/product.md` and
 capabilities complete. `README.md`: add first design/file workflow and assembled
 export warning. `docs/development.md`: actual worker setup, round-trip and failure
 debugging. Foundation spec: availability expectations change only for Design.
-No LICENSE change. Exact PRNG freeze, kernel license review, reader selection and
-C4 budget approval are phase blockers; no server or mounting decision is needed.
+No LICENSE change. Generator 1 has no PRNG. Budgets and reader choices are approved;
+kernel provenance and reader/qualification evidence are recorded in the checkpoint.
 
 ## Implementation steps and handoff
 

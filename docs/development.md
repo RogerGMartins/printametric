@@ -17,13 +17,15 @@ the existing Node 24.6 installation, which emits that warning during install.
 Installed tooling: Node.js 24, npm, TypeScript, Node's built-in test runner, and
 YAML parsing for configuration checks. T1 installs React 19.3.1, Vite 8.3.5, and
 the official React plugin 6.1.2. T5 adds Playwright Test 1.64.1 and its pinned Chromium.
-The planned geometry stack uses Three.js/React
-Three Fiber for preview and
-Replicad/OpenCascade.js WASM for independent CAD geometry and STEP/STL/3MF exports.
+The installed geometry stack uses Three.js 0.187.0 / React Three Fiber 9.8.2 for
+preview, Replicad 1.2.0 / replicad-opencascadejs 1.1.0 for worker-owned native CAD,
+and fflate 0.8.3 for standard 3MF packages. Independent STEP tests use occt-import-js
+0.0.23; STL/3MF tests use Three's independent readers.
 See [architecture.md](architecture.md) for boundaries and the export feasibility gate.
 T1–T4 implement the shell, state/browser adapters, responsive workspace, navigation,
-display controls, themes, and Help/About dialogs. Geometry dependencies are not
-installed. Gridline is the single application UI; the standalone studies are retired.
+display controls, themes, and Help/About dialogs. Phase 01 adds the blade generator,
+JSON files and assembled exports. Gridline is the single application UI; the
+standalone studies are retired.
 Keep one root npm lockfile; run installs from the root. The root dev dependencies
 declare the official plugin SDK for typechecking. OpenCode may generate its own
 .opencode/package.json and Bun lockfile matching its installed version; these
@@ -167,6 +169,60 @@ See the [T6 checkpoint](plans/website-foundation.md#t6-checkpoint--2026-10-31) f
 measured contrast, bundle inspection, screenshot paths, and per-acceptance results.
 Screen-reader and physical-touch behavior remain unverified. Current Gridline
 verification and user-review status are in the [migration checkpoint](plans/gridline-application.md).
+
+## Wall-art core usage and debugging
+
+`npm ci` installs the pinned geometry dependencies. Vite serves the single-thread
+CAD WASM as a same-origin asset; no CDN, credential or cross-origin isolation is
+required. The asset is about 23 MB raw / 7.3 MB gzip; configure compression when a
+hosting target is chosen. License/source material is in `public/licenses/` and
+`THIRD_PARTY_NOTICES.md`. The explicit maintenance script
+`node scripts/update-third-party-notices.mjs` refreshes those copies from pinned
+packages/sources; it is not part of startup or the ordinary build.
+
+Open Design, wait for Model ready, then open Workspace settings and scroll to Blade
+pattern. Enter or blur commits a valid numeric draft. Revert restores accepted
+parameters. Save design JSON and Load design JSON use versioned parameters; they do
+not persist a browser project. Export STEP/STL/3MF captures one accepted revision.
+Files use millimeters and assembly placement, not bed packing. STEP temporarily
+rebuilds the CAD worker after download to release native export memory; the previous
+preview stays visible. Seed is saved but has no geometric effect in generator 1.
+
+Useful checks:
+
+```sh
+node --test tests/wall-art-core.test.mjs tests/wall-art-worker.test.mjs tests/wall-art-contracts.test.mjs
+npm run check
+node scripts/qualify-wall-art.mjs
+npm run preview -- --host 127.0.0.1 --port 6473 --strictPort
+node scripts/qualify-wall-art-browser.mjs
+```
+
+The last command is optional local evidence, after a build and with the preview
+server running. It uses a headed Windows integrated-GPU Chromium profile, optional
+Firefox, and the retained local `artifacts/t6/zoom-extension` for genuine page zoom.
+It is not a portable CI prerequisite. Set `WALL_ART_URL` to use another preview URL.
+Without the extension, reproduce 200% page zoom manually using the browser menu;
+confirm CSS viewport and DPR changes as described above. Use headed captures when
+checking an overlapping drawer: headless Chromium full-page screenshots can omit a
+partially covered WebGL layer. Core browser regressions run in both CI projects.
+
+For worker diagnosis, break in `geometry/worker.ts` at generation/export and in
+`editor/worker-client.ts` at response acceptance, timeout and `retireSTEPWorker`.
+Inspect epoch/revision, accepted digest and budget metadata; do not log complete
+designs. The 30-second watchdog terminates blocked CAD and retains the last valid
+client mesh. Retry restores native handles before export is enabled. Tests inject
+controlled workers and a fake clock to reproduce stale completion, crash and timeout.
+`tests/browser/wall-art-core.spec.ts` demonstrates WASM-request failure, explicit
+Retry and missing-WebGL fallback without adding production debug controls.
+
+Format breakpoints are in `src/shared/export/`. Node tests reimport curved native
+STEP through Replicad and independent occt-import-js, and STL through Three's reader.
+Browser tests use the independent 3MF reader and check all 100 world-space placements.
+For offline slicer checking, run OrcaSlicer with `--arrange 0 --export-stl <model.3mf>`
+from an artifacts directory; its default command otherwise rearranges the assembly.
+Actual evidence and platform limits are in the
+[core checkpoint](plans/wall-art-core.md#implementation-checkpoint--2026-11-02).
 
 ## Impeccable design tooling
 

@@ -33,7 +33,7 @@ export function SupportDialog({ panel, opener, onDismiss }: SupportDialogProps) 
     if (event.key !== 'Tab') return;
     // These are the dialog's only tab stops. Explicit wrapping also prevents Tab
     // from leaving the document for browser chrome at the native modal boundary.
-    const controls = event.currentTarget.querySelectorAll<HTMLElement>('button, summary');
+    const controls = event.currentTarget.querySelectorAll<HTMLElement>('button, summary, a[href]');
     const first = controls[0];
     const last = controls[controls.length - 1];
     const atStart = document.activeElement === first || document.activeElement === heading.current
@@ -59,6 +59,7 @@ export function SupportDialog({ panel, opener, onDismiss }: SupportDialogProps) 
       </section>)
       : <div className="support-about">
         {ABOUT_PARAGRAPHS.map(text => <p key={text}>{text}</p>)}
+        <p><a href="/licenses/THIRD_PARTY_NOTICES.md" target="_blank" rel="noreferrer">Third-party licenses and CAD sources (new tab)</a></p>
         <details><summary>Read full license</summary><pre className="license-text">{license}</pre></details>
       </div>}
   </dialog>;

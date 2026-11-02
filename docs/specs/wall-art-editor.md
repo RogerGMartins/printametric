@@ -4,6 +4,11 @@ Status: **DRAFT for user review; functional integration, not a Gridline redesign
 Depends on [04](wall-art-movement.md). Authority: [suite](wall-art.md).
 Acceptance prefix: `WA-EDIT`. Proposed model schema/generator: `5/4`.
 
+Phase 01 now implements the fixed starter, eight numeric controls, camera actions,
+JSON save/load, recovery, and selected STEP/STL/3MF exports in Gridline. See its
+[checkpoint](../plans/wall-art-core.md#implementation-checkpoint--2026-11-02).
+This does not approve the catalogue, colours, or expanded controls in phase 05.
+
 ## Problem and user journey
 
 A maker needs to understand how size, layout, shape, surface, movement and colour
@@ -82,6 +87,10 @@ the same captured revision. STL has no colours; supply group labels through file
 or manifest. 3MF material metadata needs compatible-reader verification.
 
 ## Original preset and random-design contract
+
+Phase 01's [approved initial example](wall-art-core.md#initial-example-decision--2026-11-02)
+is one simple editable blade array. This later catalogue and random-design action
+extend that starting experience; they are not required to deliver phase 01.
 
 Provide six starter shortcuts and an expandable catalogue of23 original presets
 in three groups. The count is a coverage requirement, not permission to reuse any

@@ -11,9 +11,13 @@ interface WorkspaceProps extends WorkspaceDisplayProps {
   readonly headingRef: RefObject<HTMLHeadingElement | null>;
   readonly notices: ReactNode;
   readonly availability: string;
+  readonly preview?: ReactNode;
+  readonly previewStatus?: string;
+  readonly controls?: ReactNode;
+  readonly summaries?: Readonly<Record<string, string>>;
 }
 
-export function Workspace({ content, title, headingRef, notices, availability, ...display }: WorkspaceProps) {
+export function Workspace({ content, title, headingRef, notices, availability, preview, previewStatus, controls, summaries, ...display }: WorkspaceProps) {
   const { preferences, errors, onChange } = display;
   const [primarySection, ...secondarySections] = content.unavailableSections;
   const tips = useRef<HTMLInputElement>(null);
@@ -31,8 +35,8 @@ export function Workspace({ content, title, headingRef, notices, availability, .
   }
   return <div className="workspace">
     <section className={`workspace-preview${preferences.previewBackground === 'grid' ? ' preview-grid' : ''}`} aria-label="Preview">
-      <header className="preview-heading"><h1 ref={headingRef} tabIndex={-1}>{title}</h1><span>Preview · No generated model</span></header>
-      <div className="preview-stage"><div className="empty-preview"><h2>{content.heading}</h2><p>{content.description}</p></div></div>
+      <header className="preview-heading"><h1 ref={headingRef} tabIndex={-1}>{title}</h1><span>{previewStatus ?? 'Preview · No generated model'}</span></header>
+      <div className="preview-stage">{preview ?? <div className="empty-preview"><h2>{content.heading}</h2><p>{content.description}</p></div>}</div>
       {preferences.previewBackground === 'grid' && <p className="grid-caption">Decorative grid — not to scale.</p>}
     </section>
     <div className="workspace-notices" role="status">
@@ -50,9 +54,10 @@ export function Workspace({ content, title, headingRef, notices, availability, .
       <div className="settings-content">
         <WorkspaceDisplay {...display} tipsRef={tips} backgroundRef={background} availability={availability} />
         <section className="settings-group" aria-label="Model availability">
-          {primarySection && <div><h2>{primarySection.heading}</h2><p>{primarySection.description}</p></div>}
-          <dl className="workspace-summaries">{['Dimensions', 'Parts', 'Plates'].map(label => <div key={label}><dt>{label}</dt><dd>Not available</dd></div>)}</dl>
+          {!controls && primarySection && <div><h2>{primarySection.heading}</h2><p>{primarySection.description}</p></div>}
+          <dl className="workspace-summaries">{['Dimensions', 'Parts', 'Plates'].map(label => <div key={label}><dt>{label}</dt><dd>{summaries?.[label] ?? 'Not available'}</dd></div>)}</dl>
         </section>
+        {controls}
         {secondarySections.map(section => <section className="settings-group" key={section.heading}><h2>{section.heading}</h2><p>{section.description}</p></section>)}
       </div>
     </details>

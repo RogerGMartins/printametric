@@ -145,17 +145,19 @@ outline on the selected theme icon preserve meaning in forced colors.
 | Optional tip | “Change the display here. Open Help for workspace guidance.” |
 | Radio fieldset | `Preview background`: `Plain`, `Grid`; “Changes the display only.” |
 | Grid caption, even with tips off | `Decorative grid — not to scale.` |
-| Wall-art settings | “Model editing and presets are not available yet.” |
+| Wall-art settings | Phase-01 blade controls and explicit JSON/model downloads; presets remain later work |
 | Build-plate settings | “Plate configuration is not available yet.” |
-| Availability in settings, all views | `Foundation workspace — no printable design, design saving, or downloads.` |
+| Availability in settings | Design reports generated bounds and parts; plate count and later workflows remain unavailable |
 
 | View | Empty heading | Body |
 | --- | --- | --- |
-| Design | No model yet | Model generation is not available in this version. |
+| Design | Preparing your blade pattern | Generate the fixed starter, then show the validated model or a visible failure/recovery state. |
 | Print layout | No print layout yet | Part arrangement and fit checks are not available in this version. |
 | Assembly | No assembly guidance yet | Assembly guidance is not available in this version. |
 
-Preview metadata reads `Preview · No generated model`. Grid is decorative CSS,
+Phase 01 supersedes Design's original empty state on 2026-11-02. Its accepted model
+metadata includes part count and millimeters; pending and failed states are explicit.
+Other views retain `Preview · No generated model`. Grid is decorative CSS,
 without axes, ticks, plate outlines, objects, or millimeter labels. Empty text uses
 an opaque preview-colored surface. Do not add actions that cannot work.
 
@@ -173,7 +175,8 @@ workspace disclosure is native `details`/`summary`; no nested Advanced panel.
 ### Keyboard and dialogs — H1
 
 Tab order: Skip to workspace, view links, theme toggle, Use system when present,
-Help, About, recovery actions when present, settings summary, then open settings.
+Help, About, recovery actions when present, Design camera actions, settings summary,
+then open settings.
 Brand is plain text. View heading is the main heading. Preview text is not normally
 a tab stop; overflowing scroll regions must remain keyboard reachable. Use native
 keys without global shortcuts or custom arrow routing. Labels, descriptions, and
@@ -184,10 +187,11 @@ and make the background inert. Escape or `Close Help` / `Close About` restores t
 opener unless navigation requires heading focus. Backdrop clicks do not close it.
 Maximum width 640 px, minimum viewport margins 12 px, bounded internal scrolling.
 
-Help contains Workspace views, Display settings, Keyboard, Theme storage, and Not
-available yet. Explain views are not required steps, only theme persists, and editing,
-design save/load, arrangement, assembly guidance, and downloads are unavailable.
-Include “Planned model formats: STEP, STL, and standard 3MF.”
+Help explains the working blade controls, JSON save/load and assembled STEP/STL/3MF
+downloads, plus Workspace views, Display settings, Keyboard and Theme storage.
+Views are not required steps. Only theme persists automatically. Arrangement,
+assembly guidance, presets and mounting remain unavailable. About also links to
+same-site third-party license/source notices; its exact root-license text is unchanged.
 
 About starts “Printametric is a personal-use source-available project, not open
 source.” Explain private noncommercial individual use, including private self-hosting;
