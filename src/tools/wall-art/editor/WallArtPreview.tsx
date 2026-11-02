@@ -1,5 +1,5 @@
 /** Renderer-only camera and lighting; printable meshes are never regenerated here. */
-import { Component, useEffect, useState, type ReactNode } from 'react';
+import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrthographicCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -16,6 +16,7 @@ const cameraActions: CameraAction[] = ['Fit view', 'Front view', 'Isometric view
 function Scene({ result, action }: { result: ModelResult; action: { name: CameraAction; sequence: number } }) {
   const { camera, gl, size, invalidate } = useThree();
   const [controls, setControls] = useState<OrbitControls | null>(null);
+  const consumedAction = useRef<{ camera: OrthographicCamera; sequence: number } | null>(null);
   useEffect(() => {
     camera.up.set(0, 0, 1);
     const orbit = new OrbitControls(camera, gl.domElement); orbit.enablePan = false; orbit.enableDamping = false;
@@ -28,14 +29,19 @@ function Scene({ result, action }: { result: ModelResult; action: { name: Camera
     const [x, y, z] = result.bounds.max.map((value, index) => value - result.bounds.min[index]!);
     const radius = Math.hypot(x!, y!, z!) / 2;
     const target = new Vector3(0, 0, z! / 2);
-    if (action.name === 'Zoom in' || action.name === 'Zoom out') camera.zoom = Math.max(0.05, Math.min(20, camera.zoom * (action.name === 'Zoom in' ? 1.2 : 1 / 1.2)));
-    else if (action.name === 'Rotate left' || action.name === 'Rotate right') {
-      camera.position.sub(controls.target).applyAxisAngle(new Vector3(0, 0, 1), action.name === 'Rotate left' ? Math.PI / 12 : -Math.PI / 12).add(controls.target);
-    } else {
+    const zoom = action.name === 'Zoom in' || action.name === 'Zoom out';
+    const rotate = action.name === 'Rotate left' || action.name === 'Rotate right';
+    // A new camera needs framing. Model/viewport updates must not replay a button
+    // command, including when StrictMode reconnects the orbit controls.
+    if (consumedAction.current?.camera !== camera || (!zoom && !rotate)) {
       controls.target.copy(target);
       camera.position.copy(target).add(action.name === 'Front view' ? new Vector3(0, -0.001, radius * 3) : new Vector3(radius * 0.6, -radius * 1.25, radius * 2.6));
       camera.zoom = Math.min(size.width, size.height) / (radius * 2.35);
+    } else if (consumedAction.current.sequence !== action.sequence) {
+      if (zoom) camera.zoom = Math.max(0.05, Math.min(20, camera.zoom * (action.name === 'Zoom in' ? 1.2 : 1 / 1.2)));
+      else if (rotate) camera.position.sub(controls.target).applyAxisAngle(new Vector3(0, 0, 1), action.name === 'Rotate left' ? Math.PI / 12 : -Math.PI / 12).add(controls.target);
     }
+    consumedAction.current = { camera, sequence: action.sequence };
     camera.near = 0.1; camera.far = radius * 15; camera.updateProjectionMatrix(); controls.update(); invalidate();
   }, [action, result, camera, controls, size.width, size.height, invalidate]);
   return <><ambientLight intensity={1.5} /><directionalLight position={[-300, -500, 800]} intensity={3} />
