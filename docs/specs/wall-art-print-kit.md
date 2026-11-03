@@ -5,6 +5,12 @@ Depends on [07](wall-art-frame.md) for frame-inclusive kits; decorative-only kit
 do not need an enabled frame. Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-KIT`. Kit manifest version1; printer profile version1.
 
+Phase 02's approved identification contract uses a recessed assembly +Y arrow,
+physical numbers where the complete mark fits, and an explicit map-only status
+otherwise. Preserve these distinctions in kit/map output; do not substitute an
+edge notch. Numbered-plan display in phase 02 does not provide this phase's PDF,
+packing or printer-specific preparation. See [phase-02 decisions](wall-art-layouts.md#approved-decisions--2026-11-02).
+
 ## Problem and flow
 
 Set printer dimensions from Design, inspect fit/counts, open Print layout, review

@@ -60,6 +60,12 @@ strict versioned JSON, shared preview/export tessellation and three assembled
 formats. Its [implementation checkpoint](plans/wall-art-core.md) tracks qualification.
 The wider checklist stays open for mounting, additional patterns and full acceptance.
 
+Phase 02 adds the approved four outlines, five layouts, underside identification,
+numbered contour lookup and disk-backed exports. Its
+[checkpoint](plans/wall-art-layouts.md) records the accepted timing limitation:
+512 parts is a completed measured case; 4000 is a hard ceiling, not guaranteed
+throughput. Generator 1 remains reproducible and upgrade requires confirmation.
+
 - [ ] Define the first panel/pattern, backing and mounting, parameter ranges,
   clearances, tolerances, and generation budgets.
 - [ ] Implement validated deterministic CAD generation with explicit seeds.

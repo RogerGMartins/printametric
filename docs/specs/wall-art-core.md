@@ -5,6 +5,11 @@ Status: **Implemented and locally verified — 2026-11-02.** See the
 for acceptance evidence and remaining manual/platform limits.
 Authority: [suite C1–C4](wall-art.md). Acceptance prefix: `WA-CORE`.
 
+The approved [phase-02 compatibility contract](wall-art-layouts.md#approved-decisions--2026-11-02)
+keeps generator 1 and its file bytes reproducible. Opening an old file does not
+upgrade it; an explicit, previewed upgrade creates an unsaved generator-2 design
+without adding engraving or changing the numeric geometry parameters.
+
 ## Problem, flow and scope
 
 A maker needs one useful repeatable model before a large editor catalogue. This

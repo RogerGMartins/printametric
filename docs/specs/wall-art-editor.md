@@ -9,6 +9,12 @@ JSON save/load, recovery, and selected STEP/STL/3MF exports in Gridline. See its
 [checkpoint](../plans/wall-art-core.md#implementation-checkpoint--2026-11-02).
 This does not approve the catalogue, colours, or expanded controls in phase 05.
 
+Phase 02 has approved a minimal 3D/Numbered plan toggle, paged part lookup,
+exclusion acknowledgment and explicit v1 upgrade. Reuse its contracts under the
+[measured-capacity continuation](../plans/wall-art-layouts.md#measured-capacity-continuation--approved);
+those controls are not implemented yet. Presets must retain explicit generator
+versions and must not silently add engraving to upgraded phase-01 files.
+
 ## Problem and user journey
 
 A maker needs to understand how size, layout, shape, surface, movement and colour

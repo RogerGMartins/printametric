@@ -313,7 +313,50 @@ Guidance: [React state](https://react.dev/learn/choosing-the-state-structure),
 [TypeScript options](https://www.typescriptlang.org/tsconfig/), and
 [Vite TypeScript](https://vite.dev/guide/features#typescript).
 
-### Wall-art core implementation
+### Generator-2 layout implementation
+
+New sessions use generator 2; versioned imports dispatch through `DesignClient`.
+Generator 1 retains the worker path documented below. The approved layout plan
+owns geometry contracts and the accepted capacity limitation.
+
+```text
+versioned drafts/import -> validate -> DesignClient
+  v1 -> original worker -> original accepted CAD and mesh
+  v2 -> compiled WASM -> disposable native batches -> provisional archives/meshes
+                                                     -> clearance -> atomic acceptance
+accepted revision -> explicit export -> bounded native STEP fragments / mesh stream
+                                    -> temporary browser File -> download -> release
+```
+
+`layout-coordinator.ts` owns the 120-second job, aggregate budgets, stable numbering,
+exclusion identity and three-initial/two-replacement worker policy. Each native
+heap processes at most 32 items and reserves 333,333,333 bytes. Accepted archives,
+canonical mesh arrays and renderer estimates remain reserved during replacement.
+Cancellation retires candidate workers without discarding accepted export sources.
+Only immutable compiled code and unchanged base contours are reused; native handles
+never cross heaps. Imported files contain parameters, not private native snapshots.
+
+`DesignClient` pins accepted revisions during export and queues the latest edit.
+An explicit v1 upgrade first creates a separate preview; confirmation alone replaces
+the accepted definition and original imported bytes. Failed imports and candidates
+retain the previous valid design. Fragment acknowledgment is keyed to the exact
+exclusion set and is checked again by the export worker.
+
+`layout-export.ts` owns a temporary storage lease, a disk writer and at most one
+native STEP batch. Shared writers stream STL/3MF or strictly remapped native STEP
+fragments with bounded buffers. Cancellation closes workers before storage cleanup.
+The downloaded File remains leased until explicit release; subsequent exports can
+reclaim abandoned directories only after the owning tab's lock disappears. This
+requires secure-context OPFS and quota; storage failure is visible, never a partial
+download. No automatic project storage or background export is added.
+
+The numbered plan consumes native contour paths and accepted IDs; its labels and
+selection never alter printable geometry. The 3D preview and mesh exports consume
+the same canonical arrays. Tool controls remain in the Gridline bottom drawer.
+The following capacity-investigation sections preserve historical evidence; the
+current route is the implementation described here.
+
+### Generator-1 core implementation
 
 The approved implementation follows these boundaries. The
 [phase-01 plan](plans/wall-art-core.md) records the user's accepted starter/settings,
@@ -366,6 +409,97 @@ The default 100-part mesh has 2,000 triangles. The initial WASM capacity is 100 
 capacity plus retained/copied mesh and serialization estimates is bounded at 256 MiB.
 This estimate is not the browser's total process memory. The separate WASM download
 is about 23 MB uncompressed (7.3 MB gzip); host compression affects cold startup.
+
+### Wall-art layouts — approved implementation in progress
+
+The user approved the [phase-02 plan](plans/wall-art-layouts.md) on 2026-11-02.
+The planned extensions follow these boundaries. Headless geometry helpers now
+implement small tested portions; the editor and aggregate generation/export route
+remain pending. These are not measured production capacity claims.
+
+- Keep exact version-1 generation alongside a version-2 definition and generator.
+  Dispatch through a tool-local tagged definition; old files retain their original
+  geometry until an explicit upgrade. Upgrade preserves original bytes and creates
+  a new unsaved revision. Shared exporters remain independent of tool versions.
+- Layout algorithms, native clipping/offsets, random site streams, component keys,
+  engraving and orientation metadata belong to `tools/wall-art/geometry/`. The
+  tool result adds accepted contours and numbering/exclusion metadata around the
+  shared mesh contract. The 2D numbered lookup consumes these accepted contours;
+  neither the renderer nor an SVG approximation constructs printable geometry.
+- Preserve the existing worker epoch/revision and previous-valid-result protocol.
+  Exclusion acknowledgment is bound to the actual exclusion set and captured
+  revision, checked in both client and worker before model export. Saved parameters
+  do not carry consent. Worker restoration cannot authorize a changed exclusion set.
+- Pass explicit, validated export budgets to shared writers. Qualify the requested
+  4000-part tier with distinct engraved solids, accepted/candidate overlap, native
+  writer allocations and bounded 3MF XML/ZIP serialization. Preserve per-version
+  limits and STEP-worker retirement. Do not confuse WASM capacity with complete
+  worker memory or advertise a tier from part-count validation alone.
+- App continues to compose the existing bottom drawer and preview slots. Tool-owned
+  3D/numbered-plan controls and accessible part lookup add no route, side inspector,
+  storage service, second kernel pool or generic plugin abstraction.
+
+The original retention/export approach failed the early capacity gate. The
+[capacity revision](plans/wall-art-layouts.md#capacity-revision--approved)
+proposes immutable compressed native snapshots, one bounded CAD batch at a time,
+and disk-backed streamed exports. **The user approved that revision on 2026-11-02.** It changes
+v2 accepted-model ownership and adds temporary export storage; neither behavior is
+implemented. The installed kernel and current v1 worker protocol remain in use.
+
+Experimental fresh-worker archive and small native STEP-fragment tests now pass.
+Earlier bounded Node probes failed the throughput target. The controlled browser
+comparison meets the single-run 512 checkpoint. The first two-worker 4000-part probe
+timed out; the later three-worker probe completed within 120 seconds under separately
+approved experimental memory limits. See the plan's evidence. These helpers live only in
+scripts/test support. No snapshot
+retention, temporary browser storage or fragment writer is connected to the editor.
+
+The user approved a controlled CPU/parallelism investigation. Test-only two/three-worker
+probe uses independent native instances, shared compiled code and fixed aggregate
+memory reservations. This is not a production worker-pool decision: the approved
+retention route still requires browser memory/overlap and throughput qualification.
+The three-worker experiment allows 768 MiB estimated / 1 GiB sampled aggregate
+process memory. Its 4000-part run approached that measured cap, so production
+limits are not increased by this result.
+The subsequent retained-design probe exceeded the 1 GiB cap while generating a
+replacement with 4000 previous parts and independent CPU preview buffers retained.
+This lower-bound fixture has no renderer/GPU allocations. A fixed three-worker
+production policy remains blocked; see the plan's retention-gate evidence.
+An approved follow-up used three workers initially and two for replacement. Both
+4000-part jobs completed while retaining the previous design, but the replacement
+took 113.5 s and reached about 996 MiB sampled aggregate memory. This single
+synthetic result does not establish repeatability or room for renderer/export
+allocations; the application worker policy remains unchanged.
+The final four-worker retention experiment exceeded its separately approved
+1.2 GB sampled cap during replacement. Worker-count investigation is closed;
+the three-then-two policy remains the candidate for the existing integration
+gates. No four-worker production pool is enabled.
+
+The user subsequently approved a **2 GB (2,000,000,000-byte)** v2 memory cap. The
+real 512-part job passed once at 19.4 s / 1.20 GB after batch-owned glyph reuse.
+After native relief and clearance optimization, the maximum-dimension triangular
+fixture completed once in 92.2 s / 1.13 GB. See the
+[current qualification checkpoint](plans/wall-art-layouts.md#native-timing-optimization--initial-large-job-passes).
+The later large request timed out before rendering at 1920 completed parts.
+The user subsequently accepted this timing limitation and approved continuation
+with measured-capacity reporting. The 4000-part count is a hard ceiling, not a
+throughput promise. Timeout must preserve the accepted design and its export source.
+Headless geometry keeps full native face topology through inset/loft, converts
+surface UV contours into assembly XY, and validates meshes from the final engraved
+solid. Mesh refinement has four bounded attempts below the maximum chord tolerance
+to satisfy native/mesh volume agreement on nonplanar ruled sides. Convex polygon
+half-planes reject impossible glyph placements before native cutter work and can
+certify containment with a two-CAD-tolerance clearance margin. Other placements
+require native containment and boundary distance. Straight-edge
+bases use one three-section ruled loft. Their base/top convex envelopes can prove
+solid separation; curved or unproven pairs require native distance checks. Small
+all-family checks and one large initial run do not establish accepted/candidate/UI overlap.
+The user-approved measured-capacity continuation permits editor integration after
+the remaining geometry/export correctness and fixture-review checks.
+
+The implementation must reconcile the owning specs and validate the proposed
+curved, nonconvex and large-tier fixtures before this section becomes an accepted
+implementation description. No dependency or kernel upgrade is planned.
 
 ## Responsiveness and printability
 

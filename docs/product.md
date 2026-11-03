@@ -49,7 +49,12 @@ evidence that geometry or an exported file is valid.
 
 ## After MVP
 
-- More patterns and outlines; evaluate slicer-specific 3MF project integration.
+- Phase 02's expanded outlines/layouts and physical identification are now approved
+   next-phase work. The user accepted the [measured capacity limitation](plans/wall-art-layouts.md#measured-capacity-continuation--approved)
+   and approved continuing under a 120-second watchdog and 2 GB memory cap.
+   They now run in the editor with explicit generator-1 compatibility and upgrade.
+   Further patterns and slicer-specific
+  3MF project integration remain later work.
 - A second tool and shared editor controls when needed. The initial website
   opens directly into the first tool; add a catalogue when it becomes useful.
 - Monetization with privacy and layout considered.

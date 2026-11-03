@@ -28,7 +28,7 @@ for (const theme of ['light', 'dark'] as const) {
       for (const view of ['Design', 'Print layout', 'Assembly']) {
         await page.getByRole('link', { name: view, exact: true }).click();
         await expect(page.locator('.settings-drawer')).toHaveAttribute('open', '');
-        await expect(page.locator('main details')).toHaveCount(1);
+        await expect(page.locator('main details.settings-drawer')).toHaveCount(1);
         if (view === 'Design') await expect(page.locator('dd').last()).toHaveText('Not available');
         else await expect(page.locator('dd')).toHaveText(['Not available', 'Not available', 'Not available']);
         const grid = await page.locator('.settings-content').evaluate(element => {
@@ -89,7 +89,7 @@ for (const theme of ['light', 'dark'] as const) {
     ]) {
       await page.getByRole('link', { name: view, exact: true }).click();
       for (const tips of [true, false]) {
-        await page.locator('summary').click();
+        await page.locator('.settings-drawer > summary').click();
         await page.getByRole('checkbox').setChecked(tips);
         for (const background of ['Plain', 'Grid']) {
           await page.getByRole('radio', { name: background, exact: true }).check();
@@ -100,7 +100,7 @@ for (const theme of ['light', 'dark'] as const) {
           await expect(page.getByText('Decorative grid — not to scale.', { exact: true })).toHaveCount(background === 'Grid' ? 1 : 0);
           await expect(page.locator('input[type=file], a[download], canvas, [role=progressbar]')).toHaveCount(0);
         }
-        await page.locator('summary').click();
+        await page.locator('.settings-drawer > summary').click();
       }
     }
   });

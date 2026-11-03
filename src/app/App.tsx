@@ -14,7 +14,7 @@ import { SupportDialog } from './SupportDialog';
 import { ThemeControl } from './ThemeControl';
 import { useWallArt } from '../tools/wall-art/editor/useWallArt';
 import { WallArtControls, WallArtNotice } from '../tools/wall-art/editor/WallArtControls';
-import { WallArtPreview } from '../tools/wall-art/editor/WallArtPreview';
+import { WallArtWorkspacePreview } from '../tools/wall-art/editor/WallArtWorkspacePreview';
 
 type AppProps = ReturnType<typeof bootstrapFoundation>;
 const matchMedia = (query: string) => window.matchMedia(query);
@@ -35,7 +35,10 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
   const model = wallArt.snapshot.accepted?.result;
   useLayoutEffect(() => {
     if (preferences.settingsOpen && modelFocus.current) {
-      document.getElementById(modelFocus.current)?.focus(); modelFocus.current = null;
+      const input=document.getElementById(modelFocus.current);
+      const advanced=input?.closest('details.layout-advanced');
+      if(advanced instanceof HTMLDetailsElement)advanced.open=true;
+      input?.focus(); modelFocus.current = null;
     }
   });
 
@@ -99,7 +102,7 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
         </header>
         <main id="workspace" ref={main} tabIndex={-1}>
           <Workspace content={WALL_ART_CONTENT[preferences.view]} preferences={preferences} errors={fieldErrors} onChange={changePreference}
-            {...(designView ? { preview: <WallArtPreview result={model ?? null} />, previewStatus: model ? `Preview · ${model.parts.length} parts · mm` : 'Preview · Preparing model',
+            {...(designView ? { preview: <WallArtWorkspacePreview editor={wallArt} />, previewStatus: model ? `Preview · ${model.parts.length} parts · mm` : 'Preview · Preparing model',
               controls: <WallArtControls editor={wallArt} />, summaries: model ? { Dimensions: model.bounds.max.map((value, index) => Number((value - model.bounds.min[index]!).toFixed(3))).join(' × ') + ' mm', Parts: String(model.parts.length), Plates: 'Not available' } : {} } : {})}
             title={WORKSPACE_VIEWS.find(view => view.id === preferences.view)?.label ?? 'Design'} headingRef={heading}
             availability={designView ? 'Blade pattern, CAD generation, JSON designs, and assembled STEP/STL/3MF exports are available. Packing and assembly guidance are not available.' : FOUNDATION_AVAILABILITY} notices={<>
