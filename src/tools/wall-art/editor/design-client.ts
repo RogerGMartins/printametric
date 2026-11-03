@@ -46,6 +46,7 @@ export class DesignClient {
     if(this.disposed)return;
     if(this.pending&&definitionDigest(this.pending.definition)===definitionDigest(definition)&&this.pending.originalBytes===originalBytes&&this.pending.upgrade===upgrade)return;
     if(this.exporting||this.snapshot.exporting){this.queued=candidate;return;}
+    this.queued=null;
     this.run(candidate);
   }
   private accept(candidate:Candidate,result:ModelResult,layout:LayoutSnapshot|null){
@@ -62,17 +63,19 @@ export class DesignClient {
       // Retain an existing v1 worker only when it owns the accepted v1 design.
       if(!this.legacy){
         const client=new WallArtClient(this.host.createLegacy,state=>{
-          if(this.disposed||!this.legacyListening)return;
+          if(this.disposed||!this.legacyListening||this.legacy!==client)return;
           if(state.accepted&&state.status==='ready'&&!state.error&&this.pending?.definition.generatorVersion===1&&
             state.accepted.result.digest===definitionDigest(this.pending.definition)&&state.accepted.originalBytes===this.pending.originalBytes)
             this.accept(this.pending,state.accepted.result,null);
           else if(state.error){this.pending=null;this.publish({status:this.snapshot.accepted?'ready':'failed',error:state.error,exporting:null});}
           else {
-            if(state.accepted&&state.status==='ready'&&!this.pending&&this.snapshot.accepted?.definition.generatorVersion===1)
+            if(state.accepted&&state.status==='ready'&&!this.pending&&this.snapshot.accepted&&this.legacyMatchesAccepted())
               this.publish({accepted:{...this.snapshot.accepted,result:state.accepted.result}});
             this.publish({status:state.status,exporting:state.exporting});
           }
-          if(!state.exporting&&this.queued)this.pump();
+          // STEP completion publishes before retiring its heap. Submit only after
+          // that synchronous sequence; a newer submission clears the old queue.
+          if(!state.exporting&&this.queued)queueMicrotask(()=>{if(!this.snapshot.exporting)this.pump();});
         },(bytes,format,revision)=>this.host.download(bytes,format,revision));
         this.legacy=client;client.start();
       }
@@ -81,6 +84,9 @@ export class DesignClient {
       catch(error){this.fail(error);}
       return;
     }
+    // Hidden legacy work must not change the CAD backing the retained definition.
+    // An idle matching heap can survive an upgrade preview; all others retire.
+    if(this.legacy&&!this.legacyMatchesAccepted()){this.legacy.dispose();this.legacy=null;}
     const controller=new AbortController();this.generation=controller;
     const old=this.snapshot.accepted;
     const reservedBytes=old&&!old.layout?LIMITS.memoryBytes+old.result.budget.wasmBytes+old.result.budget.meshBytes*4:0;
@@ -101,10 +107,16 @@ export class DesignClient {
   }
   cancelGeneration(){
     ++this.sequence;this.queued=null;this.pending=null;this.generation?.abort();this.generation=null;
-    if(this.legacyListening&&this.legacy&&this.snapshot.accepted?.definition.generatorVersion===1){
-      this.publish({upgrade:null,progress:null,error:null,status:'recovering'});this.legacy.cancelGeneration();return;
+    const accepted=this.snapshot.accepted;
+    if(accepted?.definition.generatorVersion===1){
+      if(this.legacy?.snapshot.exporting){this.legacy.cancelGeneration();return;}
+      if(!this.legacyMatchesAccepted()){
+        this.legacyListening=false;this.legacy?.dispose();this.legacy=null;
+        this.run({definition:accepted.definition,originalBytes:accepted.originalBytes,upgrade:false});return;
+      }
+      this.legacyListening=true;
     }
-    if(this.legacyListening&&this.legacy){this.legacyListening=false;this.legacy.dispose();this.legacy=null;}
+    else if(this.legacy){this.legacyListening=false;this.legacy.dispose();this.legacy=null;}
     this.publish({status:this.snapshot.accepted?'ready':'failed',upgrade:null,progress:null,error:this.snapshot.accepted?null:{code:'CANCELLED',message:'Generation cancelled. Retry when ready.'}});
   }
   acknowledge(){const layout=this.snapshot.accepted?.layout;if(layout)this.publish({acknowledgedKey:layout.exclusionKey});}
@@ -115,7 +127,10 @@ export class DesignClient {
   export(format:ExportFormat){
     const accepted=this.snapshot.accepted;
     if(!accepted||this.pending||this.snapshot.upgrade||this.snapshot.error||this.snapshot.status!=='ready'||this.snapshot.exporting)return;
-    if(!accepted.layout){this.legacyListening=true;this.legacy?.export(format);return;}
+    if(!accepted.layout){
+      if(!this.legacyMatchesAccepted()){this.fail(new DesignError('CAD_SYNC','Restore the accepted design before exporting. Select Revert or Retry.'));return;}
+      this.legacyListening=true;this.legacy?.export(format);return;
+    }
     const controller=new AbortController();this.exporting=controller;
     this.publish({exporting:format});
     void this.host.exportLayout(accepted.layout,format,this.snapshot.acknowledgedKey,this.host,controller.signal).then(download=>{
@@ -127,6 +142,11 @@ export class DesignClient {
     });
   }
   private pump(){const candidate=this.queued;this.queued=null;if(candidate&&!this.disposed)this.run(candidate);}
+  private legacyMatchesAccepted(){
+    const accepted=this.snapshot.accepted,state=this.legacy?.snapshot;
+    return accepted?.definition.generatorVersion===1&&state?.status==='ready'&&!state.error&&
+      state.accepted?.result.digest===definitionDigest(accepted.definition)&&state.accepted.originalBytes===accepted.originalBytes;
+  }
   cancelExport(){this.queued=null;this.exporting?.abort();if(this.legacyListening)this.legacy?.cancelExport();}
   dispose(){this.disposed=true;++this.sequence;this.generation?.abort();this.exporting?.abort();this.legacy?.dispose();this.queued=null;}
 }

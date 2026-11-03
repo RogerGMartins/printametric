@@ -33,6 +33,13 @@ for(const colorScheme of ['light','dark'] as const)test(`narrow ${colorScheme} l
   await page.locator('.layout-advanced > summary').click();await page.locator('.settings-drawer > summary').click();
   await page.getByRole('button',{name:'Review model settings'}).press('Enter');
   await expect(gap).toBeFocused();await expect(gap).toHaveValue('99');
+  // Close and recover before the browser can deliver the delayed native toggle.
+  await page.evaluate(()=>{
+    document.querySelector<HTMLDetailsElement>('.layout-advanced')!.open=false;
+    document.querySelector<HTMLElement>('.settings-drawer > summary')!.click();
+    [...document.querySelectorAll('button')].find(button=>button.textContent==='Review model settings')!.click();
+  });
+  await expect(gap).toBeFocused();await expect(gap).toHaveValue('99');
   await page.getByRole('button',{name:'Revert to accepted design'}).click();
   await page.getByLabel('Cell layout').selectOption('triangular');await expect(page.getByRole('button',{name:'Save design JSON',exact:true})).toBeEnabled();
   await page.getByLabel('Straight boundary',{exact:true}).uncheck();

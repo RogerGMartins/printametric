@@ -192,6 +192,7 @@ Inspect metadata and revision IDs, not complete user designs. Current regression
 
 ```sh
 node --test tests/wall-art-runtime.test.mjs
+node --test tests/wall-art-version-races.test.mjs
 npm run test:browser -- --project=development tests/browser/wall-art-layouts.spec.ts
 npm run check
 ```
@@ -199,6 +200,12 @@ npm run check
 The full gate rebuilds production output. A direct production browser run requires
 a current build. The capacity investigation below includes historical v1-only and
 test-fixture checkpoints; those descriptions do not override the integrated route.
+
+The version-race tests use controlled legacy ports to reproduce a failed v2 load
+after an unfinished v1 edit, STEP retirement with queued edits, and a newer edit
+arriving before the deferred queue runs. Check retained definition/digest and original
+byte identity together. The narrow layout browser journeys also close the drawer and
+activate model-error recovery in one task, before the native `toggle` event fires.
 
 ### Generator-1 compatibility
 
