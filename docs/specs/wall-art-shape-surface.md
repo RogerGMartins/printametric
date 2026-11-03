@@ -1,8 +1,20 @@
 # Wall art 03 — shape and surface relief
 
-Status: **P0 implemented; P1 native construction gate failed; P2 visual review pending (2026-11-03). Product/UI decisions remain recorded.**
+Status: **R3 in progress: rectangular fields/modes, flat native footprints and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-03). Product/UI decisions remain recorded.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
+
+The approved center comparison has [measured results and native views](../plans/wall-art-shape-surface.md#center-comparison-results--formula-not-selected).
+The linear field remains the default. C2 is approved as the provisional direction;
+the [bounded construction checkpoint](../plans/wall-art-shape-surface.md#c2-construction-checkpoint--triangle-blocker-resolved)
+resolves its remaining triangle failure. This is not final formula acceptance or
+a completed P2 checkpoint.
+
+The [R3 progress checkpoint](../plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter)
+records the implemented subsets, rejected containment case, starter views and
+independent exports. General clipped integration, nonrectangular curved tops,
+anchor fallback and no-plinth identification remain incomplete. Review images
+are evidence for a later decision, not implicit acceptance of curvature settings.
 
 ## Guided decision review — 2026-11-03
 
@@ -88,6 +100,13 @@ smooth-patch route does not meet the proposed deviation limit at those regions.
 P1 remains incomplete; the user approved its boundary-aware construction revision
 on 2026-11-03 under the plan's failed-gate rule. Neither diagnostic passes nor the new
 regressions approve curvature, formulas, global error bounds or the P2 visuals.
+
+The approved revision's [later checkpoint](../plans/wall-art-shape-surface.md#revised-construction-checkpoint--spiral-tessellation-blocker)
+records bounded numerical patches and valid native solids in 36 cases, with 33
+valid meshes and three narrow Spiral-center mesh failures. R2 remains incomplete;
+R3/P2 have not passed. The subsequent smoother-center comparison was approved;
+its results are linked above. Selecting a replacement formula still requires review. Existing appearance decisions
+and geometry/export limits remain in force.
 
 ## Problem, flow and scope
 

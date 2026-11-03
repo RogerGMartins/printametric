@@ -3,6 +3,7 @@
 import { DesignError } from '../model/budget.ts';
 import { validateParametersV3 } from '../model/validation-v3.ts';
 import { surfaceRandomWords } from '../model/surface-random.ts';
+import { spiralCenterWeight, validateSpiralCenter, type SpiralCenter } from './spiral-center.ts';
 
 export interface SurfaceField {
   readonly referenceLength: number;
@@ -10,7 +11,8 @@ export interface SurfaceField {
   evaluate(x: number, y: number): number;
 }
 
-export function createSurfaceField(input: unknown): SurfaceField {
+export function createSurfaceField(input: unknown, spiralCenter: SpiralCenter = 'linear'): SurfaceField {
+  validateSpiralCenter(spiralCenter);
   const p = validateParametersV3(input), referenceLength = Math.min(p.width, p.height);
   const radial = p.family === 'ring' || p.family === 'dome';
   const angle = radial ? 0 : (p.rotation % 360) * Math.PI / 180;
@@ -37,9 +39,9 @@ export function createSurfaceField(input: unknown): SurfaceField {
       case 'dome': result = Math.max(0, 1 - r * r); break;
       case 'spiral': {
         const theta = r === 0 ? 0 : Math.atan2(b, a);
-        // Provisional linear radial blend: continuous at the origin. Its derivative
-        // and the r=.02 join need explicit treatment in native approximation.
-        result = 0.5 + 0.5 * Math.min(1, r / 0.02) * Math.cos(p.spiralArms * theta - tau * d * r + tau * phase);
+        // Linear remains the default. Smoother alternatives are checkpoint-only;
+        // they must not silently change the versioned field or saved parameters.
+        result = 0.5 + 0.5 * spiralCenterWeight(r, spiralCenter) * Math.cos(p.spiralArms * theta - tau * d * r + tau * phase);
         break;
       }
       case 'ridges': {

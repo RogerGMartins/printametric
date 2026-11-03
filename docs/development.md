@@ -39,6 +39,10 @@ installation, reopen terminals/OpenCode and confirm `node --version`, then run
 ### Application checks and debugging
 
 - `npm run dev` starts Vite with source maps and React StrictMode checks.
+  Generated `artifacts/` and `playwright-report/` files are excluded from its file
+  watcher to avoid scanning large evidence trees. They remain locally servable;
+  manually refresh artifact pages after regenerating them. Application source
+  and test fixtures retain normal hot reload.
 - `npm run typecheck:app` checks browser code using `tsconfig.app.json`.
   `npm run typecheck` checks Node-only tools, Vite/Playwright configuration, and
   TypeScript browser tests using `tsconfig.json`. JavaScript journey helpers are
@@ -529,6 +533,98 @@ all three failed regions without entering the mesher. These regressions run in
 the ordinary gate. No production debug controls, user-design logging or external
 service is needed. Full starter visuals, 3MF/slicer evidence and general clipped
 part construction remain pending; the capability tests do not replace them.
+
+The approved piecewise revision has a separate diagnostic matrix:
+
+```sh
+node --test tests/wall-art-surface-domains.test.mjs tests/wall-art-surface-certificates.test.mjs tests/wall-art-boundary-native.test.mjs
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise --family=spiral
+```
+
+`--piecewise` selects 36 Spiral/Ridges/Dome cases across two locations, two top
+ratios and three side profiles. It currently exits 1: 33 meshes pass and three
+narrow Spiral-center meshes fail, despite valid native solids. Refinement remains
+bounded by 100,000 triangles per part. Reports use `native-piecewise-*.json` names;
+the original 126-case route remains available without this flag. Neither matrix
+constitutes the full starter/assembly/export visual checkpoint.
+
+Break in `surface-sampling.ts` for domain/error/work bounds, and in the isolated
+`shape-surface-boundary-native.mjs` and `shape-surface-boundary-mesh.mjs` helpers
+for native trimming, boundary reduction and mesh rejection. The residual helper
+bounds entire polynomial intervals; point sampling is supplementary evidence.
+The native regression retains a real CAD-valid/mesh-invalid Spiral case so that
+future changes cannot bypass mesh validation. Failed seam experiments are kept in
+ignored artifacts, not imported by tests or the app. See the
+[revised checkpoint](plans/wall-art-shape-surface.md#revised-construction-checkpoint--spiral-tessellation-blocker)
+for measured results, limitations and the next review decision.
+
+The approved Spiral-center comparison is also isolated:
+
+```sh
+node --test tests/wall-art-spiral-center.test.mjs tests/wall-art-boundary-native.test.mjs
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise --family=spiral --spiral-center=smooth-c2
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise --family=spiral --spiral-center=smooth-c1
+```
+
+The default remains `linear`. C2 now passes all 12 cases after bounded angular-chart
+changes and exits 0; the formerly failing broad/straight canonical mesh has 98,886
+triangles. C1 still passes 9 of 12, with native validity failures at narrow centers,
+and correctly exits 1. The modes are not
+saved parameters or production UI options. Tests preserve the linear baseline,
+exterior field, whole-domain bounds and exact input values.
+
+Add `--comparison-artifacts` to a Spiral piecewise run to write matched native
+tessellations and selected STEP/STL/3MF files under ignored
+`artifacts/shape-surface-comparison/`. Invalid tessellations may be labelled for
+diagnostic viewing, but printable exports require the normal mesh checks first.
+The local `viewer.html` and screenshot are review evidence, not CI prerequisites.
+Narrow curved and broad straight C2 regressions check two STEP readers and STL;
+local browser evidence checks four 3MF files and a broad straight slicer import.
+The independent STEP reader retessellates CAD and uses a separate 500,000-triangle
+diagnostic ceiling; canonical generation remains capped at 100,000 per part.
+See the
+[current construction checkpoint](plans/wall-art-shape-surface.md#c2-construction-checkpoint--triangle-blocker-resolved)
+for actual measurements, exact collapsed-triangle normalization and the slicer's
+bed-placement behavior. These individual files do not qualify whole assemblies.
+
+### R3 area, footprint and starter probes
+
+The rectangular moment routines cover all seven fields with explicit error/work
+bounds. `surface-moments.ts` owns dispatch and constrained planar fitting;
+family-specific modules own boundary integrals. Linear Spiral center cases can
+still exhaust their bounded work. The selected C2 investigation is explicit and
+does not change the saved design format. Nonrectangular area integration remains
+pending. Native capability helpers remain under `tests/support/`.
+
+```sh
+node --test tests/wall-art-surface-moments.test.mjs tests/wall-art-planar-native.test.mjs tests/wall-art-footprint-native.test.mjs tests/wall-art-surface-modes.test.mjs
+node scripts/qualify-shape-surface-starter.mjs 2.2
+node scripts/qualify-shape-surface-starter.mjs 1
+node scripts/qualify-shape-surface-starter.mjs 4
+node scripts/check-shape-surface-starter.mjs <generated-starter-directory>
+```
+
+The starter command creates timestamped directories under ignored
+`artifacts/wall-art-shape-surface/`. It uses five isolated 20-part workers for the
+100-piece Wave fixture, then writes `starter.step`, `starter.stl`, `starter.3mf`,
+the preview manifest and a report. Each full generation/export run has a 120-second
+watchdog, a sampled 2 GB process cap and aggregate mesh/output limits. The reader
+command separately checks 100 native STEP solids, 100 independent STEP meshes and
+100 STL placements. Its input files are capped at 256 MiB. A passing fixture is
+not a general capacity tier; every report retains `checkpointComplete: false`.
+
+The footprint test uses real clipped phase-02 bases. It proves radial containment
+before constructing a flat top; an invalid intermediate taper is rejected even
+when its final top fits. CAD vertex endpoint mapping is bounded and topology-based,
+not a proximity weld. Diagnose those paths in `shape-surface-footprint-native.mjs`
+and `shape-surface-vertex-mesh.mjs`. The tests do not certify general curved tops
+or the local engraving floor without a plinth.
+
+Retained starter views and independent 3MF/slicer evidence are linked in the
+[R3 progress checkpoint](plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter).
+These local HTML/scripts are evidence, not application routes or CI dependencies.
+The full P2 visual/export review and production integration remain pending.
 
 ## Impeccable design tooling
 

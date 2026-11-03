@@ -1,14 +1,14 @@
 # Wall art 03 — technical implementation plan
 
-Status: **P0 implemented; initial P1 construction gate failed; R1–R3 revision approved; P2 pending (2026-11-03).**
+Status: **R3 has bounded rectangular field/mode checks, general flat-footprint checks, and three exported 100-part starters. R3 remains in progress; the full P2 checkpoint is not complete (2026-11-03).**
 
 Requirements: [phase-03 spec](../specs/wall-art-shape-surface.md), decisions
 D1–D18 and SHAPE-UI-D1/D2, AC-1–11 and ST-1–4. Shared boundaries:
 [architecture proposal](../architecture.md#phase-03-shape-and-surface--proposal).
 The user requested “you can start implementation of this phase-03” after reviewing
 this plan. This authorizes P0–P2 under the checkpoint below, not P3–P7.
-Small rectangular native fixtures passed diagnostic checks, but required boundary
-cases failed. No phase-03 generator or full visual checkpoint has been qualified.
+Earlier boundary failures and their construction revisions are recorded below.
+No production phase-03 generator or full visual checkpoint has been qualified.
 
 ## Approval and sequence
 
@@ -449,3 +449,364 @@ the browser log belongs to the intentional failure-recovery fixture. These passe
 do not resolve the native qualification failure above. `git diff --check` also
 passed. The later revision approval permits the checkpoint PR and R1–R3 work;
 production integration and new dependencies remain outside that approval.
+
+## Revised construction checkpoint — Spiral tessellation blocker
+
+The approved R1–R3 revision improved the boundary cases but did not pass R2.
+Checkpoint [PR #22](https://github.com/RogerGMartins/printametric/pull/22) initially
+preserved the P0/native investigation at `f802425`. The user subsequently requested
+updating that PR with the verified R1–R3 capability work below before continuing.
+The full P2 acceptance gate remains separate from publication.
+
+### Implemented investigation
+
+- `geometry/surface-sampling.ts` separates Dome's circular join, Ridges' crest and
+  trough strips, and Spiral's center/join into bounded parameter domains.
+- `geometry/surface-fit.ts` uses Bernstein coefficient bounds and interpolation
+  remainders instead of accepting agreement at sampled points. Position errors
+  propagate through field derivative bounds. The analysis includes explicit
+  floating-point allowances for elementary functions; it is not a formal proof
+  of every platform's `sin`/`pow` implementation.
+- The isolated native helper trims those patches against a rectangular top,
+  constructs shared-boundary flanks and checks the resulting native solid.
+  Boundary-curve reduction requires a whole-interval residual bound and monotone
+  coordinate correspondence. Native knot-removal success alone is insufficient.
+- Straight, proposed 2.2 and proposed 4 side profiles remain in the matrix.
+  Top/profile component allowances remain 0.0002 mm each. Boundary reduction
+  reserves at most 0.00005 mm after taper amplification. This does not establish
+  the complete trimmed/assembled generator's global error certificate.
+- Tessellation uses the existing 0.05 mm/5-degree starting settings and bounded
+  finer attempts. Exact repeated-position, zero-area triangles at collapsed polar
+  edges are removed before unchanged mesh validation. No nearby-point welding,
+  nonzero-area triangle removal, hole filling or relaxed topology check is used.
+
+Patch/control-point limits remain 256/4096, with bounded numerical work. Native
+capability helpers remain under `tests/support/`; neither v3 production dispatch
+nor a general clipped-part generator has been introduced.
+
+### Measured result and diagnosis
+
+`node scripts/qualify-wall-art-shape-surface.mjs --piecewise` completed **36** fixed
+cases: **33 passed, 3 rejected**. The run took **66.8 seconds**, with sampled
+whole-process Node RSS **1,223,573,504 bytes**. This is not an exact transient peak
+or browser-retention measurement. All cases produced valid native solids and met
+the numerical component bounds, but the following failed mesh acceptance:
+
+| Family/location | Top ratio | Curvature | Failure |
+| --- | --- | --- | --- |
+| Spiral, centered at `[0, 0]` | 0.12 | 1, 2.2, 4 | Open/non-manifold/inconsistently wound mesh; finer attempts eventually exceed 100,000 triangles per part. |
+
+The failed cases retain their original formulas. Their failure is not permission
+to export the valid CAD solid while supplying an invalid preview/STL/3MF mesh.
+The command exits 1 and reports `checkpointComplete: false`.
+
+Evidence: `artifacts/shape-surface-piecewise-refined-mesh.log` and timestamped
+`native-piecewise-*.json` reports under `artifacts/wall-art-shape-surface/checkpoint/`.
+Earlier failed construction and meshing reports remain available.
+
+Shared-native-edge projection, direct triangulation extraction, rectangle-corner
+domain splitting and forced edge/pcurve parameter alignment did not resolve the
+failure. Unreduced boundary curves exceeded the triangle budget in a narrow
+straight-side probe. The final shared-edge diagnostic found 78 invalid-connectivity
+edges; corresponding boundary coordinates already agreed in Float32. Maximum
+projection was about 2.85e-14 mm. Therefore a rounding crack is **not an established
+root cause**. Unsuccessful helper code remains only in ignored artifacts, including
+`diagnose-phase03-seams.mjs` and `shape-surface-native-seams.mjs`.
+
+### Verification and remaining gate
+
+The targeted domain, residual-bound and native suites pass **8 tests**:
+
+```sh
+node --test tests/wall-art-surface-domains.test.mjs tests/wall-art-surface-certificates.test.mjs tests/wall-art-boundary-native.test.mjs
+```
+
+These include native STEP reimport and independent STL placement for passing
+Spiral/Ridges/Dome fixtures, plus a real narrow-Spiral regression that requires
+rejection despite native-solid validity. They do not claim a second independent
+CAD reader, 3MF or slicer qualification for this revised construction. The earlier
+two-reader Wave evidence belongs to the initial route.
+
+Full `npm run check` passed on 2026-11-03: scaffold validation, both typechecks,
+production build, **107 Node tests** and **70 browser tests** (5.4 minutes for the
+browser suite). Output: `artifacts/phase03-boundary-check.log`. Regression success
+includes rejection of the known invalid Spiral mesh; it does not qualify that
+geometry. `git diff --check` passed.
+R2 is incomplete. R3 and the full P2 visual/export checkpoint remain pending,
+including means, planar fitting, clipped/nonconvex parts, plinth/identification,
+the complete starter and retained-design budgets. No curvature or final surface
+construction is approved by these partial results.
+
+### Center comparison — approved
+
+Preserve the current failing fixture and limits. Compare its existing linear
+Spiral-center blend with a bounded, smoother center transition designed to remove
+the angular singularity, then require native-solid, unchanged mesh, error-bound
+and export checks. Include matched native views before selecting any changed
+formula. This is an experimental comparison, not a claim that smoothing will
+solve the unresolved meshing failure. The R1 approval explicitly requires review
+before smoothing or changing a field. On 2026-11-03 the user approved this bounded
+comparison and a public-behavior reference review. The existing linear field remains
+the baseline; no final replacement formula is selected by this approval. No family
+removal, parameter restriction, dependency upgrade or budget increase is proposed.
+
+### Center comparison results — formula not selected
+
+The comparison is a checkpoint-only argument, not a saved parameter or editor
+option. `spiral-center.ts` keeps `linear` as the default. Inside the existing
+radius `r < 0.02`, let `t=r/0.02`: baseline weight is `t`, C1 is `3t²−2t³`, and C2
+is `10t³−15t⁴+6t⁵`. All become 1 outside this region. Only the central 5 mm radius
+changes on a 500 mm panel. The candidates remove the corresponding center
+derivative singularity; this does not prove the cause of the earlier mesh failure.
+Bernstein product bounds and physical-coordinate error transport include the
+changed envelope. Error allocations, 4,096 poles, 100,000 triangles, 120 seconds
+and 2 GB remain fixed.
+
+Each matrix has twelve Spiral cases: two top ratios, two locations, and side
+profiles 1/2.2/4. Every command fails while any fixture fails.
+
+| Transition | Passing cases | Remaining failure |
+| --- | --- | --- |
+| Linear | 9/12 | Three narrow-center meshes fail connectivity and bounded refinement. |
+| Cubic C1 | 9/12 | Three narrow-center candidates fail native-solid validity. |
+| Quintic C2 | 11/12 | Broad center, ratio 0.8, straight sides exceeds 100,000 triangles at the first mesh tolerance. |
+
+C2 completed in 17.3 s with sampled whole-process RSS of 554,950,656 bytes. Its
+narrow-center meshes contain 84,550 / 45,110 / 66,450 triangles; passing broad-center
+curved meshes contain 96,352 / 97,352 triangles. This leaves little margin and does
+not qualify arbitrary parameters or large assemblies. C1 took 11.7 s / 653,041,664
+bytes. Logs: `artifacts/shape-surface-smooth-center-run.log` and
+`shape-surface-smooth-c1.log`. A bounded lower-degree reconstruction did not resolve
+the broad failure and was reverted; retain `shape-surface-smooth-c2-bounded-degree.log`.
+
+#### Native views and exports
+
+`artifacts/shape-surface-comparison/native-center-comparison.png` shows matched
+actual-CAD views, with `viewer.html`, fixed-parameter JSON and manifests beside it.
+It compares linear/C2 at both top ratios and curvature 2.2. The invalid linear
+narrow mesh is labelled diagnostic-only and has no printable export. C2 shows a
+softer central transition while retaining the surrounding form. This observation
+does not approve its silhouette or formula.
+
+The valid C2 narrow fixture passes STEP through Replicad and a second CAD reader,
+including volume and millimeter placement. The independent mesher emits collapsed
+polar-edge triangles: only exactly repeated-vertex zero-area triangles are removed
+before unchanged manifold/volume checks. No proximity welding or hole repair.
+STL passes its independent reader. Both narrow and broad curved 3MF fixtures pass
+Three's reader for closed meshes, volume, bounds and `[137, -46, 9]` translation.
+
+OrcaSlicer imports the narrow 3MF and produces an actual 45,110-triangle STL with
+matching dimensions and volume (relative error 0.000944315). It preserves XY but
+moves the floating input down 9 mm onto the bed; `slicer-evidence.json` records this.
+Original 3MF placement was verified separately. The initial `--info` call failed
+without diagnostics; `--arrange 0 --export-stl` succeeded and its file was checked.
+No physical print was performed.
+
+The explicit `--comparison-artifacts` C2 run, including exports, repeats 11/12 at
+20.9 s / 616,534,016 sampled RSS bytes and exits 1. This is not latency qualification.
+Native exports are written only after mesh checks pass. All artifacts remain local.
+
+#### Public-behavior observations
+
+A public trial was inspected through ordinary controls in disposable contexts.
+No source, implementation formulas or assets were copied. With movement reset and
+continuous Spiral selected, square panels rendered visibly faceted geometry: the
+100-piece view reported 2,190/7,536 total triangles for narrow/broad tops; an 81-piece
+odd-grid view reported 2,028/5,988. These are UI-reported counts, not verified files.
+Downloads were unavailable. A spiral-looking preset combined Dome with separate
+movement, so its appearance cannot establish standalone Spiral field behavior.
+These observations establish neither native STEP capability nor an algorithm
+that can replace the independently developed CAD route.
+
+#### Decision and verification
+
+Recommendation: review C2 as the provisional direction for further construction,
+then resolve the broad/straight budget case under the same limits before P2. C2
+is not selected automatically; comparison approval does not approve a replacement
+formula. C1 is not a qualified fallback. Full starter, means/planes, general
+clipping, identification, retained editing and whole-assembly exports remain pending.
+
+The user answered “yes” to this direction on 2026-11-03. Continue C2 construction
+and resolve the broad-top/straight-side case under the existing limits. This is
+provisional direction approval, not final P2 acceptance or production integration.
+The original linear comparison remains reproducible.
+
+Three pure comparison tests pass. The targeted C2 native regression passes after
+exact collapsed-triangle normalization in the independent reader. Full
+`npm run check` passed: scaffold validation, both typechecks, production build,
+**111 Node tests** and **70 browser tests** (2.0 minutes for the browser suite).
+Output: `artifacts/phase03-center-comparison-check.log`. These regressions do not
+override the remaining native qualification failure. `git diff --check` passed.
+
+### C2 construction checkpoint — triangle blocker resolved
+
+Following the approved provisional C2 direction, narrower angular charts reduce
+the mesher's refinement cost without changing the field. C2 now uses angular
+degree 10 with sector count `ceil(angleSpan*arms/4)`; linear/C1 retain degree 12
+and the previous divisor 6. Every chart still carries the same whole-domain error
+check. Radial construction, tolerances, native validation and production budgets
+are unchanged. Degree-8 boundary reduction and whole-cycle angular charts did not
+qualify and were reverted; their diagnostic logs remain in artifacts.
+
+The supervised twelve-case C2 matrix now **passes 12/12**, exits 0, and still
+reports `checkpointComplete: false`. It took 26.0 s with sampled whole-process
+RSS of 703,201,280 bytes. Evidence: `artifacts/shape-surface-c2-narrower-charts.log`.
+This is a small diagnostic matrix, not repeated latency or browser qualification.
+
+| Centered case | Canonical triangles | Control poles |
+| --- | ---: | ---: |
+| Narrow top, straight sides | 73,868 | 1,264 |
+| Narrow top, curvature 2.2 | 79,126 | 2,408 |
+| Narrow top, curvature 4 | 66,836 | 1,576 |
+| Broad top, straight sides — former failure | 98,886 | 2,024 |
+| Broad top, curvature 2.2 | 92,086 | 3,960 |
+| Broad top, curvature 4 | 93,008 | 2,552 |
+
+All canonical meshes pass closed/manifold/winding and 0.1% native-volume checks
+below 100,000 triangles. All native constructions stay below 4,096 poles and the
+existing error allocations. The worst broad cases have little headroom; these
+results do not guarantee other parameters or assembly sizes.
+
+The narrow curved and formerly failing broad straight fixtures each pass two
+STEP readers and independent STL checks. The independent STEP reader creates its
+own tessellation: 60,178 and 108,632 triangles respectively, versus canonical
+79,126 and 98,886. That diagnostic uses an explicit 500,000-triangle test ceiling;
+it does not replace the 100,000-triangle canonical part assertion or alter runtime
+budgets. Topology, volume and placement checks remain unchanged.
+
+The explicit artifact run also passes 12/12 (`shape-surface-c2-chart-exports.log`).
+`artifacts/shape-surface-comparison/native-c2-chart-comparison.png` adds matched
+straight-sided views. Four C2 3MF files (both ratios, straight/curvature 2.2) pass
+the independent browser reader. OrcaSlicer imports and re-exports the formerly
+failing broad/straight file as a valid 98,886-triangle STL, with relative native
+volume error 0.0000092108, preserved dimensions/XY and the documented -9 mm bed
+shift. Evidence: `smooth-c2-0.8-c1-slicer-evidence.json` beside the comparison.
+
+Targeted C2 reader regressions pass. Final `npm run check` passed scaffold validation,
+both typechecks, production build, **112 Node tests** and **70 browser tests**
+(2.3 minutes for the browser suite). Log: `artifacts/phase03-c2-chart-final-check.log`.
+The original linear rejection regression remains.
+
+The first full run passed all Node tests but failed four development-browser
+checks while loading or generating models. Targeted runs reproduced delays even
+after stopping the owned review servers and rebuilding Vite's cache. Failure
+traces and logs remain under `artifacts/phase03-c2-chart-*`. Vite debug output
+showed multi-second source resolution. An isolated watcher-exclusion experiment
+loaded promptly; a later control also recovered, so no single cause is proven.
+The final configuration excludes generated `artifacts/` and `playwright-report/`
+trees from development watching. Source/test-fixture hot reload remains enabled;
+artifact pages require manual refresh. No test timeout or assertion was relaxed.
+All checks then passed. The local review servers were stopped during diagnosis;
+the retained native screenshots remain available.
+
+R3 still owns means, planar fitting, general clipped/nonconvex parts, plinth and
+identification, complete starter/family views, assembly exports and retained-design
+budgets. This resolves the specific R2 triangle blocker, not the complete P2 gate.
+
+### R3 progress — area, native footprints and assembled starter
+
+**Scope remains investigative.** The user requested continuation of the approved
+R3 work. The following are implemented capability slices, not a general generator,
+production version dispatch or approval of the complete P2 checkpoint.
+
+#### Area and top modes
+
+`surface-moments.ts` now has rectangular area/first-moment routes for all seven
+families. Harmonic fields use analytic integrals; Dome uses disk/rectangle
+primitives; Ring uses bounded Gauss quadrature; Ridges integrates across its
+half-cycle boundaries; Spiral uses bounded adaptive charts with the selected
+center envelope. Explicit derivative/remainder bounds control stopping, rather
+than agreement of sample grids. Work exhaustion is an error. Floating/libm
+allowances remain explicit assumptions, not a formal platform arithmetic proof.
+The original linear Spiral still exhausts work on some center/join rectangles;
+it is never silently replaced by C2. Nonrectangular integration remains pending.
+
+Rectangle planar fitting solves the constrained area-weighted three-variable
+least-squares problem. All four corners constrain the entire plane to [0,1].
+The native planar builder proves nested-section injectivity with Bernstein bounds
+and rejects a folded sloping taper. Four exact vertical subdivisions reduce native
+meshing cost without changing the profile or its error allowance.
+
+Continuous Wave/Dunes/Random now use bounded Cartesian harmonic patches; Ring uses
+bounded radial patches. Existing Dome/Spiral/Ridges domains remain. An isolated
+native mode probe passes **28 cases**: all seven fields, each stepped, half-blended,
+continuous and planar. Stepped/blended cases have actual fused plinths; continuous
+and planar cases have none. Canonical meshes pass the unchanged closed-mesh,
+100,000-triangle and 0.1% volume checks. This is a representative rectangle matrix,
+not coverage of all mode/footprint/parameter combinations. Log:
+`artifacts/phase03-r3-surface-modes.log`. All seven continuous representative
+families also pass native STEP/STL round trips.
+
+#### Native flat footprints
+
+`shape-surface-footprint-native.mjs` restores real phase-02 contours and proves
+star-shaped containment about the selected anchor using the rational Bernstein
+sign of `X*Y'−Y*X'`. Caps and flanks share the same native boundary. Offset-curve
+conversion has an explicit 0.00000001 mm bound; uncertain containment rejects.
+This route currently constructs flat tops only. A concave star-shaped fixture is
+accepted; an outside-anchor fixture is rejected. Maximum-inscribed-circle anchor
+fallback and general sloping/continuous footprints remain pending.
+
+The four-outline/five-layout matrix checks the largest and smallest eligible
+clipped bases: **39 valid parts and one proven rejection**. The rejected radial
+fragment extends outside its original footprint at an intermediate taper scale;
+it is retained as rejection evidence, not dropped from a design. Native area-based
+analytic volume and adaptive CAD volume agree; all accepted meshes pass. The
+adaptive CAD measurement uses its reported integration error, rather than relying
+on the less accurate default volume routine.
+
+A separate exact-topology adapter maps mesh endpoints to their corresponding CAD
+vertices, with at most 0.0000001 mm adjustment. It resolves near-zero rounding
+differences on a hexagonal fixture. It does not search spatial neighbors, weld
+nearby surfaces or fill holes. The older Spiral failure remains a rejection test;
+this limited vertex result does not establish that earlier failure's cause.
+
+#### Complete Wave starter evidence
+
+`qualify-shape-surface-starter.mjs` builds the actual 500×500 mm, 100-piece stepped
+Wave starter with plinths, numbers and orientation marks. Five fresh native heaps
+build twenty parts each, then assemble native STEP and streamed STL/3MF. Overall
+time, sampled process RSS, aggregate triangles and fixed diagnostic operation
+reservations are bounded. The operation reservation is not a precise count of
+every internal kernel operation or a qualified production scheduler.
+
+| Side profile | Canonical triangles | Generation + exports | Sampled process RSS |
+| --- | ---: | ---: | ---: |
+| Straight (1) | 12,528 | 22.2 s | 541,704,192 bytes |
+| Provisional inward curve (2.2) | 106,288 | 35.8 s | 576,045,056 bytes |
+| Strong inward curve (4) | 105,008 | 27.9 s | 572,198,912 bytes |
+
+Each run completes under 120 seconds / 2 GB, with actual top heights
+**31.5663–58.4337 mm**, not assumed envelope endpoints. These are single Node
+diagnostic runs, not repeated browser capacity claims. Reports, models and preview
+manifests are in `artifacts/wall-art-shape-surface/starter-<profile>-<timestamp>/`.
+Logs: `phase03-r3-starter.log`, `phase03-r3-starter-straight.log` and
+`phase03-r3-starter-strong.log` under `artifacts/`.
+
+All three assemblies pass two STEP readers (100 native solids / 100 independently
+retessellated parts), STL checks for all 100 placements, and the browser 3MF reader
+for all 100 placements. Independent readers retain their separately documented
+diagnostic ceilings. The default 2.2 assembly also imports into OrcaSlicer and
+re-exports **100 valid STL parts**, preserving world placement; maximum relative
+native-volume error is 0.000441702. No physical print was performed. An initial
+reader script API mistake and a mistyped slicer input filename were corrected;
+their failed logs remain evidence, not successful checks.
+
+`artifacts/wall-art-shape-surface/starter-review.png` contains matched front, side
+and isometric views of all three native assemblies. The side view follows the
+wave direction. These views are available for user review, not recorded approval.
+
+#### Remaining R3 scope and verification
+
+General clipped-domain integration and constrained planes, continuous/sloping
+nonrectangular solids, anchor fallback, local no-plinth engraving-floor proof and
+Map-only reasons, full family assembly/mode views, end-to-end error accounting,
+and retained-design/browser work budgets remain incomplete. Existing plinth
+engraving is reused only where its 1.2 mm floor contract actually applies.
+R3 must finish those checks before the full P2 review stop; P3–P7 remain gated.
+
+Targeted moments, profile, footprint, domain and mode checks pass. Full
+`npm run check` passed: scaffold validation, both typechecks, production build,
+**124 Node tests** and **70 browser tests** (2.1 minutes for the browser suite).
+Output: `artifacts/phase03-r3-check.log`. `git diff --check` passed. These checks
+cover the implemented capability paths, not the remaining full P2 requirements.
