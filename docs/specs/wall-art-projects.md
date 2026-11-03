@@ -5,6 +5,16 @@ Depends on [05](wall-art-editor.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-PROJECT`. Project envelope version 1 is independent of the
 model schema/generator pair. This phase does not change CAD semantics.
 
+Reuse phase 02's approved exact 1/1 and 2/2 dispatch and explicit upgrade contract.
+Preserve original imported bytes through upgrade; opening a project must not
+reinterpret a v1 model or add physical identification cuts automatically. See the
+[owning decisions](wall-art-layouts.md#approved-decisions--2026-11-02).
+
+Phase 02's approved capacity revision also separates private session-only native
+snapshots and temporary export files from project persistence. Neither counts as
+Save, recovery or a portable project. Reuse its ownership and cleanup contract;
+do not place native snapshots in this phase's editable file envelope.
+
 ## Problem and user flow
 
 A maker must be able to experiment without losing the last useful design. Start

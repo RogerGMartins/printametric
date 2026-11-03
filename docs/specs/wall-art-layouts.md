@@ -1,8 +1,53 @@
 # Wall art 02 — outlines, cell layouts and identification
 
-Status: **DRAFT for user review; proposed expansion.**
+Status: **Implemented and locally verified on 2026-11-03. The user approved the visual fixtures and accepted measured capacity under the 120-second / 2 GB limits. See the plan's integrated checkpoint for acceptance evidence and remaining physical/assistive verification limits.**
 Depends on [01](wall-art-core.md). Authority: [C1–C4](wall-art.md).
-Acceptance prefix: `WA-LAYOUT`. Model schema/generator pair: proposed `2/2`.
+Acceptance prefix: `WA-LAYOUT`. Model schema/generator pair: `2/2`.
+
+## Approved decisions — 2026-11-02
+
+The user approved the [technical plan](../plans/wall-art-layouts.md) after choosing
+all four outlines and five layouts, the 4000-part qualification target, retained
+X-only taper, physical numbering with an orientation mark, and exact v1 reproduction
+with explicit upgrade. This approval does not establish measured capacity.
+
+- Keep exact model/generator pairs 1/1 and 2/2 and the existing six-key format-1
+  envelope, 1 MiB UTF-8 file limit and depth 16. Mixed or unknown pairs fail.
+- New v2 designs use engraving depth 1 mm and an enabled orientation mark. Explicit
+  v1 upgrade copies numeric fields/seed with rectangle/square/straight boundary,
+  engraving depth 0, numeral ratio 0.34 and mark disabled. Generate and preview
+  before confirmation; failure/cancel preserves v1 and the original file bytes.
+- The mark is an original recessed 4×5 mm arrow with a 0.8 mm shaft, pointing to
+  assembly +Y. It is not an edge notch. Use a 0.8 mm gap from the number block.
+- The user approved the twenty-family contour sheet, original digits and underside
+  orientation marks on 2026-11-03. The plan records the reproducible review fixture.
+- Original seven-segment digits use a 6×10 unit cell, 1.6-unit bars and a 1-unit
+  spacing. The 0.8 mm minimum stroke requires height ≥5 mm for this glyph set.
+  Fit on a 0.05 mm decrement lattice; a failed combined fit leaves both cuts absent
+  and reports map-only identification. Depth zero intentionally disables both cuts.
+- The approved upper gate is 4000 retained parts, 100,000 contour units,
+  2,000,000 total triangles (100,000 per part), 200,000 CAD operations,
+   **2 GB (2,000,000,000 bytes)** estimated aggregate memory and measured peak,
+   and 120 seconds. The user approved this memory revision after the real
+   512-part probe failed the previous cap. Qualification samples the whole dedicated
+   Chromium process group plus controller, not only a worker heap.
+  The 512-part point is an internal checkpoint. The user subsequently accepted the
+  measured timing limitation and approved continued implementation; see the
+  [capacity continuation](../plans/wall-art-layouts.md#measured-capacity-continuation--approved).
+  4000 is a hard ceiling, not a throughput guarantee. Timeout must retain the prior
+  valid design; never accept a partially generated model or silently reduce its size.
+- The user subsequently approved the
+  [capacity revision](../plans/wall-art-layouts.md#capacity-revision--approved):
+  private compressed native snapshots, one bounded CAD batch at a time, and up to
+  2 GiB temporary disk-backed output during explicit large exports. Previous-valid
+  native export sources must survive failure/cancel. This is a feasibility contract,
+   not measured release support. The approved concurrency candidate is three
+   initial workers and two during replacement; actual capacity is reported from
+   completed measurements, with large-tier repeatability explicitly unqualified.
+
+The plan owns lattice formulas, keyed random vectors, component tie-breaking and
+the remaining native offset/nonconvex-span fixture gates. Build owns the listed
+implementation and regression files for this phase; no delegation is requested.
 
 ## Problem and user flow
 
@@ -14,7 +59,7 @@ canonical model. All earlier format and invalid-input gates remain mandatory.
 Included: four built-in outlines, five cell families, exact clipping, deterministic
 small-fragment handling, physical numbering and dimensions up to 2000 mm. Excluded:
 imported SVG, movement, new surface families and frame geometry. Large dimension
-support is a proposal requiring C4 qualification, not a verified capability.
+support is approved scope requiring C4 qualification, not a verified capability.
 
 ## Parameters
 
@@ -31,6 +76,7 @@ Phase 01 fields remain unless replaced here. Units/steps follow C3.
 | baseThickness | number | 10 | 10–40 / 0.2 / mm | Per-part plinth; retained from 01 |
 | engravingDepth | number | 1 | 0–3 / 0.05 / mm | Recessed map number on base underside; 0 disables |
 | numeralRatio | number | 0.34 | 0.1–0.6 / 0.01 / ratio | Requested glyph height / minimum base span |
+| orientationMark | boolean | true | true/false | Recessed assembly +Y arrow; inactive and retained when engraving depth is 0 |
 | seed | integer | 1 | 1–9999 / 1 / none | Irregular layout seed; other layouts unaffected |
 
 Convenience actions set width/height to 300×300, 500×500, 800×600 or 1000×1000 mm.
@@ -99,10 +145,11 @@ readable when the part is turned over about local X; map shows the upright assem
 number and a back-view note. Use original or redistribution-permitted outline glyphs,
 not system-dependent font metrics. Requested numeral size must fit with 1.2 mm
 edge clearance, ≥0.8 mm stroke width and ≥1.2 mm residual floor. Reduce glyph height
-only to a documented minimum 3 mm; otherwise leave the part unengraved, identify
+only to the glyph-specific minimum (5 mm for the approved bars, above the general
+3 mm floor); otherwise leave the part unengraved, identify
 it as “Map-only ID” and include a distinct contour/orientation lookup. Never omit
-the part. Proposed optional one-notch orientation mark uses the same limits; its
-exact glyph/mark geometry must be frozen in generator 2 fixtures before build.
+the part. The approved recessed arrow uses the same edge/floor limits. Exact glyph
+and mark fixtures must pass review before editor integration.
 
 ## UI, states and errors
 
@@ -136,7 +183,7 @@ smaller size. 2000 mm is not hidden behind a misleading successful preview.
 
 ### Stories and required implementation tests
 
-QA owns `tests/wall-art-layouts.test.mjs` and
+Build owns `tests/wall-art-layouts.test.mjs` and
 `tests/browser/wall-art-layouts.spec.ts`; all linked criteria must pass in the
 shared gate under the suite's completion contract.
 
@@ -151,8 +198,11 @@ qualified tiers. `docs/architecture.md`: record layout keys, exclusions and numb
 metadata; no new architecture layer required. `README.md`: document nominal versus
 actual dimensions and map-only IDs. `docs/development.md`: layout/fragment/engraving
 fixtures and qualification commands. No setup or LICENSE change beyond the already
-reviewed geometry runtime; glyph rights need review. Pending: qualification to
-4000 pieces, exact PRNG vectors and glyph geometry. These gate this phase, not 01.
+reviewed geometry runtime. The approved original glyphs need fixture review rather
+than a font license. Pending: remaining native geometry, integrated recovery and
+fixture review; 4000-piece throughput is an accepted unqualified limitation. PRNG
+vectors are frozen in the approved plan and executable tests. These gate this phase,
+not 01.
 
 ## Implementation steps and handoff
 

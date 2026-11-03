@@ -297,6 +297,12 @@ options; later edits do not retarget it. One export job at a time. Preserve pinn
 objects until success/cancel/failure; dispose superseded kernel, mesh, GPU and URL
 resources. Parameter/colour/camera edits create no serialized model/PDF/ZIP files.
 
+Phase 02's approved [capacity revision](../plans/wall-art-layouts.md#capacity-revision--approved)
+permits private compressed native CAD snapshots in session memory during generation.
+These are internal ownership records, not portable files or automatic downloads.
+STEP/STL/3MF serialization and temporary disk output still require explicit export.
+The revision is experimental until its generation, retention and export gates pass.
+
 Errors include code, affected field or part IDs, useful nonsecret context and an
 action: correct values, revert, retry, reduce complexity, or save project file.
 Never log entire designs/assets by default. Unknown worker failures get a safe
@@ -304,18 +310,30 @@ message and reproducible version/budget context, not raw kernel stacks in UI.
 
 ## Common contract C4 — geometry and generation budgets
 
+Phase-02 decisions approved on 2026-11-02 are recorded in
+[its owning spec](wall-art-layouts.md#approved-decisions--2026-11-02) and
+[technical plan](../plans/wall-art-layouts.md). The later
+[capacity continuation](../plans/wall-art-layouts.md#measured-capacity-continuation--approved)
+accepts the recorded timing limitation: 4000 is a hard ceiling, not a guaranteed
+capacity; report completed measurements and preserve the prior design on timeout. The v2
+parameter-only file limit remains 1 MiB; 16 MiB is reserved for later embedded assets.
+Generator 1 remains supported exactly, with explicit no-cut upgrade to pair 2/2.
+The plan fixes keyed FNV-1a/Mulberry32 layout vectors for seeds 1/5000/9999; future
+random domains stay separate. Physical numbering includes the optional recessed
+orientation arrow. Qualification results must precede any capacity claim.
+
 All numbers below are **proposed qualification limits**, not benchmarks. Bounds
 apply equally to imports. Larger individual parameter ranges do not guarantee that
 every combination fits. Report which combined budget fails before expensive work.
 
 | Budget | First slice | Expanded local core / assets |
 | --- | --- | --- |
-| Decorative parts | 128 | Hard ceiling 4000; qualification tiers 512 then 4000 |
+| Decorative parts | 128 | Hard ceiling 4000; measured capacity varies with geometry and hardware |
 | Frame tiles / total solids | none / 128 | 256 / 4256 |
 | Input normalized contour vertices | 4096 | 100,000 across generated footprints; asset limits also apply |
 | Tessellation | 100,000 triangles/part; 500,000 total | 100,000/part; 2,000,000 total |
 | CAD operations counted before scheduling | 10,000 | 200,000 |
-| Estimated geometry job memory | 256 MiB | 512 MiB; measured worker peak ceiling 768 MiB |
+| Estimated geometry job memory | 256 MiB | V2: 2 GB estimated aggregate and measured process peak; see the [approved memory revision](../plans/wall-art-layouts.md#memory-revision--2-gb-approved) |
 | Generation timeout | 30 s | 120 s |
 | Project file bytes before parsing | 1 MiB | 16 MiB including embedded assets |
 | Active CAD jobs | 1 plus latest queued candidate | same; export pins at most one extra accepted result |

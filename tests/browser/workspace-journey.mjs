@@ -17,13 +17,13 @@ export async function verifyWorkspace(page, baseURL) {
   assert.equal(await page.evaluate(() => history.length), startingHistory);
   assert.equal(await page.locator(':focus').textContent(), 'Design');
 
-  const settings = page.locator('summary');
+  const settings = page.locator('.settings-drawer > summary');
   await settings.focus();
   await page.keyboard.press('Enter');
   await page.getByRole('radio', { name: 'Grid', exact: true }).check();
   await page.getByRole('checkbox', { name: 'Show workspace tips' }).uncheck();
   await settings.click();
-  assert.equal(await page.locator('details').getAttribute('open'), null);
+  assert.equal(await page.locator('.settings-drawer').getAttribute('open'), null);
   assert.equal(await settings.textContent(), 'Workspace settings');
   await selectTheme(page, 'dark');
   await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
@@ -38,8 +38,8 @@ export async function verifyWorkspace(page, baseURL) {
     assert.equal(await page.title(), `${label} · Printametric`);
     assert.equal(await page.locator(':focus').textContent(), label);
     assert.equal(await page.getByRole('link', { name: label, exact: true }).getAttribute('aria-current'), 'page');
-    assert.equal(await page.locator('input[type=checkbox]').isChecked(), false);
-    assert.equal(await page.locator('details').getAttribute('open'), null);
+    assert.equal(await page.getByLabel('Show workspace tips', { exact: true }).isChecked(), false);
+    assert.equal(await page.locator('.settings-drawer').getAttribute('open'), null);
     assert.match(await page.locator('#background-heading').textContent(), /Grid/);
     assert.equal(await page.getByText('Decorative grid — not to scale.', { exact: true }).isVisible(), true);
     assert.equal(await page.locator('dd').allTextContents().then(values => values.join('|')), 'Not available|Not available|Not available');
@@ -56,9 +56,9 @@ export async function verifyWorkspace(page, baseURL) {
   await page.reload();
   await page.getByRole('heading', { name: 'Print layout', exact: true }).waitFor();
   assert.equal(await page.locator('#theme-mode').textContent(), 'Dark · Manual');
-  assert.equal(await page.locator('input[type=checkbox]').isChecked(), true);
+  assert.equal(await page.getByLabel('Show workspace tips', { exact: true }).isChecked(), true);
   assert.match(await page.locator('#background-heading').textContent(), /Plain/);
-  assert.equal(await page.locator('details').getAttribute('open'), null);
+  assert.equal(await page.locator('.settings-drawer').getAttribute('open'), null);
   assert.equal(await page.evaluate(() => document.activeElement.tagName), 'BODY');
 
   await page.goto('about:blank');
@@ -83,9 +83,9 @@ export async function verifyWorkspaceErrors(page, baseURL) {
   await page.goto(`${baseURL}/tests/fixtures/workspace-errors.html`);
   const recovery = page.getByRole('button', { name: 'Review Preview background' });
   await recovery.waitFor();
-  assert.equal(await page.locator('details').getAttribute('open'), null);
+  assert.equal(await page.locator('.settings-drawer').getAttribute('open'), null);
   assert.match(await page.locator('#background-heading').textContent(), /Grid/);
-  assert.equal(await page.locator('input[type=checkbox]').isChecked(), true);
+  assert.equal(await page.getByLabel('Show workspace tips', { exact: true }).isChecked(), true);
   await recovery.focus();
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.activeElement?.getAttribute('value') === 'grid');

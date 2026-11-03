@@ -4,6 +4,15 @@ import { readFile } from 'node:fs/promises';
 import { serializeDesign } from '../../src/tools/wall-art/model/design-file.ts';
 import { DEFAULT_PARAMETERS } from '../../src/tools/wall-art/model/parameters.ts';
 
+// The core regressions intentionally exercise generator 1, including its camera
+// and original file/export contracts. New sessions now start with generator 2.
+async function openLegacyDesign(page:Page){
+  await page.goto('/');await page.locator('.settings-drawer > summary').click();
+  await page.getByLabel('Load design JSON').setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(serializeDesign({...DEFAULT_PARAMETERS}))});
+  await expect(page.getByRole('button',{name:'Preview upgrade to generator 2'})).toBeEnabled({timeout:30000});
+  await page.locator('.settings-drawer > summary').click();
+}
+
 // Measure the rendered silhouette, without exposing camera internals in production.
 async function silhouette(page: Page) {
   return page.locator('.model-canvas canvas').evaluate(async (canvas: HTMLCanvasElement) => {
@@ -26,7 +35,7 @@ async function silhouette(page: Page) {
 for (const action of ['Zoom in', 'Zoom out', 'Rotate left', 'Rotate right']) {
   test(`${action} runs once per activation across generation and resize`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/'); await expect(page.getByText('Model ready.', { exact: true })).toBeVisible({ timeout: 30_000 });
+    await openLegacyDesign(page);
     await page.getByRole('button', { name: 'Fit view', exact: true }).click();
     const initial = await silhouette(page);
     const button = page.getByRole('button', { name: action, exact: true });
@@ -67,7 +76,7 @@ test('core controls, retained revisions, JSON recovery, camera and all assembled
   test.setTimeout(90_000);
   const errors: string[] = [], downloads: string[] = [];
   page.on('pageerror', error => errors.push(error.message)); page.on('download', d => downloads.push(d.suggestedFilename()));
-  await page.goto('/'); await expect(page.getByText('Model ready.', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await openLegacyDesign(page);
   await expect(page.locator('canvas')).toHaveCount(1);
   for (const name of ['Front view', 'Rotate left', 'Rotate right', 'Zoom in', 'Zoom out', 'Isometric view', 'Fit view']) await page.getByRole('button', { name, exact: true }).click();
   await page.locator('.settings-drawer > summary').click();

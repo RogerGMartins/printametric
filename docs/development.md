@@ -170,7 +170,37 @@ measured contrast, bundle inspection, screenshot paths, and per-acceptance resul
 Screen-reader and physical-touch behavior remain unverified. Current Gridline
 verification and user-review status are in the [migration checkpoint](plans/gridline-application.md).
 
-## Wall-art core usage and debugging
+## Wall-art usage and debugging
+
+New sessions use generator 2. Outline and layout controls are in Workspace settings;
+pitch, gap, seed and identification are in **Advanced layout and identification**.
+The **Numbered plan** shows native contours and excluded fragments, with a keyboard
+part-number lookup and enlarged selected contour. Exclusions require acknowledgment
+before export. Whole-cell overflow reports actual assembly dimensions.
+
+Generator-1 files retain original bytes and geometry until **Preview upgrade** and
+**Confirm upgrade** complete. Cancelled or failed candidates retain the accepted
+design. Generator-2 exports use a leased temporary browser File: finish the download,
+then select **Release downloaded file**. Quota/API failures are visible. Browser
+storage is used only for explicit exports, not project persistence.
+
+Break in `editor/design-client.ts` for accepted/candidate revisions, queued edits,
+upgrade confirmation and exclusion acknowledgment. `geometry/layout-coordinator.ts`
+owns budgets and the 120-second watchdog; `batch-client.ts` owns worker termination.
+`editor/layout-export.ts` pins the selected revision and cleans failed export leases.
+Inspect metadata and revision IDs, not complete user designs. Current regressions:
+
+```sh
+node --test tests/wall-art-runtime.test.mjs
+npm run test:browser -- --project=development tests/browser/wall-art-layouts.spec.ts
+npm run check
+```
+
+The full gate rebuilds production output. A direct production browser run requires
+a current build. The capacity investigation below includes historical v1-only and
+test-fixture checkpoints; those descriptions do not override the integrated route.
+
+### Generator-1 compatibility
 
 `npm ci` installs the pinned geometry dependencies. Vite serves the single-thread
 CAD WASM as a same-origin asset; no CDN, credential or cross-origin isolation is
@@ -229,6 +259,215 @@ For offline slicer checking, run OrcaSlicer with `--arrange 0 --export-stl <mode
 from an artifacts directory; its default command otherwise rearranges the assembly.
 Actual evidence and platform limits are in the
 [core checkpoint](plans/wall-art-core.md#implementation-checkpoint--2026-11-02).
+
+### Phase-02 native capacity investigation
+
+Phase 02 is paused at its memory qualification gate; the editor still runs generator 1.
+Pure v2 contract tests run with `node --test tests/wall-art-layouts.test.mjs` and are
+included in `npm run check`. The optional early capacity probe is:
+
+```sh
+node scripts/qualify-wall-art-layouts.mjs
+```
+
+It defaults to a synthetic 512-part job and writes metadata to ignored
+`artifacts/wall-art-layouts/`. Set `LAYOUT_PARTS` to 32 for a small native STEP smoke
+check, or up to 4000 for the planned ceiling. A failed budget exits nonzero. The
+current 512 run stops before completion; do not interpret it as supported capacity.
+`LAYOUT_DIAGNOSTIC=release-parts` discards native parts after validation to isolate
+retention behavior; that mode never qualifies exports and exits nonzero by design.
+No model coordinates or complete user designs are logged. See the
+[capacity checkpoint](plans/wall-art-layouts.md#implementation-checkpoint--native-capacity-blocker)
+for measurements, remaining work and the required plan review.
+
+`node scripts/diagnose-wall-art-memory.mjs` isolates repeated versus fresh native
+shapes in separate heaps. It records allocation pressure, not a proven leak owner.
+For the four-digit archive/export probe, set `LAYOUT_PARTS=32`,
+`LAYOUT_START_NUMBER=3969`, and `LAYOUT_NATIVE_ARCHIVE=1`, then run the capacity
+script. It tests the installed native binary snapshot binding and reversible gzip
+in the diagnostic worker only. The application still retains v1 live CAD handles;
+it does not use native snapshots or temporary export storage. The
+[capacity revision](plans/wall-art-layouts.md#capacity-revision--approved)
+is approved for feasibility work; editor integration remains gated by its results.
+
+The approved revision's experimental checks are:
+
+```sh
+node --test tests/wall-art-capacity.test.mjs tests/step-fragments.test.mjs
+node scripts/qualify-layout-batches.mjs
+```
+
+The batch probe defaults to 512 synthetic numbered parts in groups of 32. It
+shares compiled code and compressed glyph templates, but starts a fresh native
+heap for each batch and waits for worker termination. `LAYOUT_PARTS` selects
+1–4000 parts, `LAYOUT_BATCH_SIZE` selects 1–32, and `LAYOUT_POCKET_MODE=profile`
+selects the experimental perforated-layer construction instead of Boolean pockets.
+Reports separate initialization, fixture preparation, construction, validation/mesh
+and archival times. RSS includes the controller; it is not isolated browser-worker
+memory. A completed small probe is not a supported tier. The current 512 timing
+gate failed in earlier Node probes; the later controlled browser comparison passed
+the single-run checkpoint. Neither result is a release qualification; see the plan.
+
+Snapshot tests use fresh workers and check native curved topology, corruption
+rejection and retained source bytes. STEP fragment tests check lexical edge cases
+and independent native import with names, millimeter scale and nonzero placement.
+These helpers stay outside the production bundle. No OPFS storage or streamed
+export has been connected to the application.
+
+For the approved parallelism investigation, `LAYOUT_WORKERS=1` (default) or `2`
+selects independent native heaps in `scripts/qualify-layout-batches.mjs`. Reports
+include per-worker CPU and wall time, whole-process CPU time, aggregate memory
+reservations and a geometry digest sorted by part number. Two-worker experiments
+reserve 192 MiB per batch and retain the existing global limits. Run comparisons
+sequentially; concurrent benchmark commands would distort the results.
+`node scripts/profile-layout-browser.mjs` builds a separate test fixture into
+`artifacts/`, serves it on strict port 6573 and runs headed Chromium comparisons in
+1/2/2/1-worker order. Browser timer delay is a responsiveness diagnostic, not the
+cancel-acknowledgment acceptance test. Native browser peak memory and real
+accepted/candidate overlap still require qualification. These probes do not change
+the application's single-worker policy.
+For a single ceiling probe, run the browser script with `LAYOUT_PARTS=4000` and
+`LAYOUT_WORKERS=2`; otherwise it compares 512 parts in 1/2/2/1 order. The existing
+120-second watchdog still applies. The successful 512 comparison showed roughly
+1.85× speedup with two workers and identical geometry; see the plan for measured
+times and the remaining memory, overlap and full-tier qualification gaps.
+The actual 4000-part browser probe still timed out after 704 parts and recorded a
+long timer stall. Preserve that failed result when comparing future traces.
+
+The user subsequently approved a three-worker experiment with 768 MiB estimated
+memory and 1 GiB sampled whole-process memory, keeping the 120-second timeout.
+`LAYOUT_WORKERS=3` selects that Node probe. For the browser comparison use
+`LAYOUT_SEQUENCE=2,3,3,2`; filenames include the count and sequence so earlier
+reports remain intact. The Windows browser sampler sums the dedicated Chromium
+process working sets and controller RSS about once per second. Shared pages can
+be counted twice; samples do not establish an exact transient peak. A measurement
+failure or excess aborts the experiment. This does not revise application limits.
+The browser profiler builds in a separate process, waits for its exit, then serves
+the compiled fixture with a small static server. This releases compiler memory
+before timing and memory sampling. New report names end in `-isolated.json`;
+earlier compiler-inclusive failures remain available for comparison.
+The controlled 512-part 2/3/3/2 comparison took 14.6–14.8 s with two workers and
+11.5–11.7 s with three, with identical geometry. The subsequent three-worker
+4000-part synthetic run completed in 84.6 s, but sampled memory reached 1017 MiB.
+This is one generation result with little memory margin, not release qualification;
+the real accepted/candidate/UI overlap and large exports remain unmeasured.
+
+For the next retention gate, use `LAYOUT_OVERLAP=1 LAYOUT_SEQUENCE=3,3` with
+`LAYOUT_PARTS=4000`. The first completed job remains in the fixture as native
+snapshots and canonical meshes, plus independent position/index copies for a CPU
+preview. The second job runs while those actual buffers remain live. Reports end
+in `-isolated-overlap.json` and include accepted/candidate byte counts and last
+reported progress if the memory watchdog closes the browser. This is a lower bound:
+the renderer, GPU buffers, normals and application shell are still absent. The
+sampler also takes a final measurement after acceptance to include newly retained
+buffers. Any failed case stops the sequence; it does not discard the old design to
+make the next job fit.
+The full-tier retention sequence failed the memory gate: its initial 4000-part
+design completed in 95.8 s, but the next job exceeded 1 GiB with last reported
+progress of 1920 parts while the prior design remained retained. This failure
+precedes renderer/GPU and export allocation. Keep the evidence and application
+limits unchanged; a successful first generation does not qualify editing.
+
+The subsequent `LAYOUT_PARTS=4000 LAYOUT_OVERLAP=1 LAYOUT_SEQUENCE=3,2` probe
+passed once: initial generation took 83.1 s and retained-design replacement took
+113.5 s. Sampled peaks were about 992 and 996 MiB. The replacement kept all prior
+native snapshots, meshes and CPU preview copies. Its narrow time/memory margins
+still require repeatability and export qualification; this does not enable a
+production worker pool. Evidence ends in `4000-3-2-isolated-overlap.json`.
+
+The final user-requested concurrency experiment used `LAYOUT_SEQUENCE=4,4` with
+4000 parts and overlap. Four-worker sequences reserve 1 GiB estimated allocation
+and enforce a literal 1.2 GB (1,200,000,000-byte) sampled cap. Initial generation
+finished in 65.8 s, but replacement exceeded the cap at 1,204,072,448 bytes with
+last reported progress of 3200 parts. Worker-count investigation is now closed;
+three workers initially and two during replacement remain the demonstrated
+candidate. Continue the existing geometry/export gates rather than another sweep.
+
+### Real layout geometry checkpoint
+
+`node --test tests/wall-art-partitions.test.mjs tests/wall-art-identification.test.mjs`
+checks the small native planar/solid/numbering fixtures. The tapered matrix uses a
+fresh worker per outline/layout family, so one accumulating native test heap does
+not stand in for the approved batch lifetime. `generate-v2.ts` is a headless part
+builder; the application still dispatches generator 1.
+
+`node scripts/profile-real-layout-browser.mjs` builds a separate fixture, serves it
+on strict port 6773, and tests a real 512-part rectangle/square design with numbered
+parts. It uses the fixed three-worker initial candidate, 32-item batches and the
+user-approved literal 2 GB cap. Native heaps reserve one sixth of that cap each.
+Reports use timestamped `real-<outline>-<layout>-<width>x<height>-*.json` names under
+`artifacts/wall-art-layouts/`; earlier `real-512-*` evidence remains available.
+The compiler exits before memory sampling. `LAYOUT_WIDTH`, `LAYOUT_HEIGHT`,
+`LAYOUT_OUTLINE`, `LAYOUT_KIND`, `LAYOUT_TOP_RATIO` and `LAYOUT_RELIEF` select a real
+fixture through the same parameter validation. The default 512-part job passed
+once at 19.4 s / 1.20 GB. After geometry-preserving relief and clearance optimization,
+the 2000×2000 triangular fixture at ratio 0.99 completed 3808 parts in 92.2 s / 1.13 GB.
+`LAYOUT_REPLACEMENT=1` adds a two-worker height edit while retaining the previous
+native snapshots and canonical meshes. It reuses immutable bases only when all
+footprint parameters match. Each job keeps its own 120-second watchdog; reports
+include both jobs and whether a failed replacement preserved the accepted result.
+`LAYOUT_RENDER=1` includes the actual `WallArtPreview`, checks a nonblank canvas,
+and retains its allocations during replacement. It includes render time in the
+generation watchdog. Report names add `-render`; viewport captures use the same
+timestamped name with a `.png` extension. The fixture waits for Three to
+create its WebGL context before inspecting it, so it preserves the application's
+framebuffer options. The application shell and exports are still absent. See the
+[current capacity checkpoint](plans/wall-art-layouts.md#native-timing-optimization--initial-large-job-passes)
+for measurements and remaining work. The 512-part rendered initial/replacement
+probe passed once, but the subsequent large triangular request timed out during
+initial generation at 1920 parts, before rendering. Timing repeatability remains
+unqualified; earlier single-run passes do not qualify a tier.
+
+The user accepted that timing limitation and approved continued implementation.
+Keep the 120-second / 2 GB limits; report 512 as a completed measured case and 4000
+as a hard ceiling, not a guaranteed throughput. The latest 512-part persistent
+profile run took 16.9 s initially and 42.0 s for retained replacement.
+
+Add `LAYOUT_EXPORTS=step,stl,3mf` to the real-layout probe for explicit disk-backed
+downloads with accepted native buffers and the renderer retained. This uses a
+disposable persistent Chromium profile, removed after completion. Native STEP
+restores at most 32 parts per fresh heap; each selected export keeps its own
+120-second watchdog. The 512-part export run completed STEP/STL/3MF in
+76.4/0.7/1.1 seconds, with a combined sampled peak of 1.16 GB. Reports and downloads
+share timestamped names. Independent browser mesh-reader allocations are included
+in the sampled peak. This remains a qualification fixture, not application export.
+
+`node --test tests/wall-art-layout-exports.test.mjs` checks small real exports for
+all twenty outline/layout families, including native archive restoration and STEP
+reimport through two CAD readers. It is included in `npm run check`.
+`node scripts/render-layout-fixtures.mjs` creates the native-contour and original
+glyph review sheet under `artifacts/wall-art-layouts/fixture-review.{html,png}`.
+V2 streamed 3MF uses portable `Part-N` display names and preserves full stable IDs
+in `partnumber`; some slicers copy display names directly into Windows filenames.
+Check generated files, not only Orca's exit code, when testing STL re-export.
+
+### Disk-backed export feasibility
+
+`node scripts/qualify-disk-exports.mjs` builds the isolated R3 fixture and checks
+native STEP / streamed 3MF downloads, file-lock cleanup, quota denial, cancellation,
+and cross-tab ownership in Chromium and Firefox. It also downloads a 256 MiB byte
+fixture and verifies its hash without loading the entire file into Node memory.
+The byte fixture tests storage/download behavior, not full-tier geometry exports.
+
+The script creates disposable persistent browser profiles under ignored artifacts;
+private contexts are unsuitable for proving disk-backed storage. Build and native
+fixture preparation run in child processes which exit before memory measurement.
+Bounded native fragments are fetched directly by the worker, rather than expanded
+into arrays of numbers in the browser automation protocol. Chromium sampling uses
+the same 1 GiB experimental cap as the three/two-worker candidate. Firefox file
+correctness is checked separately; its native peak is not measured by this sampler.
+`EXPORT_ENGINE=chromium` or `firefox` selects one engine. `EXPORT_BYTES` changes the
+byte fixture (up to 1 GiB). `EXPORT_STEP_REPEAT` repeats the two native fixtures up
+to 2000 times to probe bounded STEP assembly; repeated geometry is not a complete
+4000-part export qualification. Reports are in `artifacts/wall-art-layouts/disk-exports/`.
+
+The experimental storage lease holds a cross-tab lock until explicit release after
+download. Global reservations limit temporary output to 2 GiB across tabs. Failure
+closes the native file handle before acknowledgment; cleanup retries only transient
+termination-related file locks. A later explicit export can reclaim an abandoned
+directory after its owning tab's lock disappears. The app still uses its v1 export
+path. Portable regressions live in `tests/stream-three-mf.test.mjs` and the
+development-only `tests/browser/export-storage.spec.ts`.
 
 ## Impeccable design tooling
 

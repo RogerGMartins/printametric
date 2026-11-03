@@ -21,8 +21,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    { name: 'production', testMatch: ['**/foundation.spec.ts', '**/wall-art-core.spec.ts'], use: { baseURL: productionURL } },
-    { name: 'development', testMatch: ['**/development.spec.ts', '**/wall-art-core.spec.ts'], use: { baseURL: developmentURL } },
+    { name: 'production', testMatch: ['**/foundation.spec.ts', '**/wall-art-core.spec.ts', '**/wall-art-layouts.spec.ts'], use: { baseURL: productionURL } },
+    { name: 'development', testMatch: ['**/development.spec.ts', '**/wall-art-core.spec.ts', '**/wall-art-layouts.spec.ts', '**/export-storage.spec.ts'], use: { baseURL: developmentURL } },
   ],
   webServer: [
     {
