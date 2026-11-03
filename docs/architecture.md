@@ -356,6 +356,43 @@ the same canonical arrays. Tool controls remain in the Gridline bottom drawer.
 The following capacity-investigation sections preserve historical evidence; the
 current route is the implementation described here.
 
+### Phase-03 shape and surface — proposal
+
+**Pending approval of the [phase-03 technical plan](plans/wall-art-shape-surface.md).**
+The [owning spec](specs/wall-art-shape-surface.md) records product/UI decisions;
+actual native surfaces and curvature are not yet qualified. Approval starts a
+bounded headless investigation, followed by an explicit native-CAD visual stop
+before production integration. The plan owns tasks and proposed numerical methods.
+
+- Keep pure v3 fields, independent relief randomness, validation, migration and
+  native construction tool-local. Preserve exact v1/v2 routes and v2 layout random
+  streams. Extend exact definition dispatch to 3/3 only after the checkpoint.
+  Proposed JSON retains the format-1 six-key envelope with layout `seed` outside
+  parameters and required `surfaceSeed` inside; no native data enters saved files.
+- Extend archive-backed batches/snapshots with explicit version tags and direct
+  part-builder dispatch. Reuse validated partition geometry without changing old
+  IDs in place. Freeze topology-key correspondence across upgrades. Surface edits
+  reuse footprints, not shaped CAD. No generic generator registry or second pool.
+- A v3 native builder produces final bare/engraved solids, their canonical mesh,
+  actual bounds, stable anchor and identification reason. Tool metadata distinguishes
+  floor-only Map-only ID from invalid material or failed CAD. Shared mesh/export
+  writers remain independent of wall-art fields and generator versions.
+- `DesignClient` owns source-revision-bound upgrade previews for direct v1→v3 and
+  v2→v3. Retain the original export source until confirmation. Separate preserved
+  original-file provenance from current accepted JSON serialization after upgrade.
+  Budget accepted/candidate/export-pinned archives, native heaps and renderer copies
+  together. Stale completion cannot accept or dispose the wrong revision.
+- Keep existing disposable batches and disk-backed export leases. Validate any
+  v3-specific clearance certificate rather than assuming X-only v2 taper bounds
+  apply. Preserve approved limits; capacity must be measured for this geometry.
+- Gridline retains one outer drawer. Tool Surface/Shape/Layout/Files controls
+  precede shared Display. App composes slots; shared Workspace knows no tool fields.
+  Accepted/candidate/error metadata supplies UI truth, not renderer inference.
+
+No stack, dependency, hosting, storage service or license change is proposed.
+Implementation must replace this proposal with verified facts and checkpoint links;
+it must not label the investigation as shipped generator-3 support.
+
 ### Generator-1 core implementation
 
 The approved implementation follows these boundaries. The
