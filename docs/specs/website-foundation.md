@@ -240,7 +240,7 @@ IDs retain their original meanings. Evidence lives in the implementation plan.
 | AC-14 | Help/About scope, formats, storage copy, license summary; keyboard-open exact full repository LICENSE. |
 | AC-15 | `npm run check`: scaffold, both typechecks, build, Node regressions, production/development browser tests. |
 
-Use current Node 24 LTS. Record OS/browser versions, viewport, theme, and evidence
+Use the supported Node version from `package.json`. Record OS/browser versions, viewport, theme, and evidence
 under ignored `artifacts/`. Smoke-test a second browser engine. Report screen-reader
 and physical-device gaps honestly. Keep fixtures outside production.
 

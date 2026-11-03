@@ -25,7 +25,9 @@ for current verification and remaining screen-reader/physical-device gaps. Earli
 
 ## Develop
 
-Install current Node.js 24 LTS, then run from the repository root:
+Install a current Node.js 26 release (26.12.1 or newer), then run
+from the repository root. `.node-version` selects major 26 for CI and compatible
+version managers; `package.json` records the minimum supported version.
 
 ```sh
 npm ci

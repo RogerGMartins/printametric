@@ -5,7 +5,7 @@ import { tool } from "@opencode-ai/plugin";
 const exec = promisify(execFile);
 
 export default tool({
-  description: "Run Printametric's local CI checks. Requires Node.js 24 and npm ci first.",
+  description: "Run Printametric's local CI checks. Requires Node.js 26.12.1+ (26.x) and npm ci first.",
   args: {},
   async execute(_args, context) {
     const cwd = context.worktree || context.directory;

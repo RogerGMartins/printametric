@@ -9,7 +9,7 @@ Discuss substantial changes in an issue before implementing them. Include the
 problem, expected behavior, and acceptance criteria. For bugs, include steps,
 browser/OS, parameters or a non-sensitive saved design, and expected/actual output.
 
-Use Node.js 24, run npm ci, and run npm run check before submitting a PR. Keep
+Use Node.js 26.12.1 or newer within 26.x, run npm ci, and run npm run check before submitting a PR. Keep
 changes focused. Include regression tests for behavior changes and screenshots
 for UI work. Do not submit copied third-party assets, secrets, or large exports.
 Dependency licenses must permit inclusion and the owner's intended hosting use.
