@@ -16,4 +16,7 @@ Thumbs.db
 .opencode/bun.lockb
 .opencode/package.json
 .opencode/package-lock.json
-artifacts/
+artifacts/*
+# Impeccable's downloaded engine and local decision-server state.
+.opencode/skills/impeccable/scripts/bin/
+.impeccable/

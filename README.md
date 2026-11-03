@@ -1,24 +1,60 @@
 # Printametric
 
-A planned self-hosted website with browser-based parametric 3D model generators.
-The first generator will create modular wall art.
+A self-hostable website with browser-based parametric 3D model tools.
+The first generator creates a simple modular wall-art blade pattern.
 
-**Status:** development scaffolding only; the web application is not implemented yet.
+**Status:** One Gridline application: cobalt header, full-window preview, and a
+single collapsed Workspace settings panel. Design, Print layout, and Assembly
+navigation work, along with display settings and a sun/moon theme action. Use system
+restores OS following; only the theme preference persists across reloads.
+Design now has validated CAD generation, an interactive preview, local JSON
+save/load, and selected STEP/STL/3MF exports. Print layout and Assembly remain
+unavailable. Help/About include keyboard support, the exact license and CAD notices.
+See the [wall-art core checkpoint](docs/plans/wall-art-core.md) for verification.
+
+Open **Workspace settings** to edit the blade dimensions. Enter or leave a field
+to apply valid values. Revert discards drafts; invalid inputs retain the last valid
+model. Save design JSON before reloading: designs are not saved automatically.
+Exports contain separate parts in assembly positions, in millimeters, rather than
+packed build plates. The initial seed is saved but has no visual effect.
+
+The standalone UI studies and comparison page are retired. Open `/` on the dev or
+preview server below. See the [Gridline implementation checkpoint](docs/plans/gridline-application.md)
+for current verification and remaining screen-reader/physical-device gaps. Earlier
+[T6 evidence](docs/plans/website-foundation.md#t6-checkpoint--2026-10-31) describes the previous UI.
 
 ## Develop
 
-Install a current Node.js 26 release (26.12.1 or newer) and OpenCode, then run
+Install a current Node.js 26 release (26.12.1 or newer), then run
 from the repository root. `.node-version` selects major 26 for CI and compatible
 version managers; `package.json` records the minimum supported version.
 
 ```sh
 npm ci
-npm run check
-opencode
+npm run dev
 ```
 
-Quit and restart OpenCode after changing its configuration, agents, commands,
-skills, or tools. Models and credentials come from your own OpenCode setup.
+Open the local URL printed by Vite (normally `http://localhost:5173`). To check
+the app and serve its production output:
+
+```sh
+npm run test:browser:install
+npm run check
+npm run build
+npm run preview
+```
+
+Preview normally uses `http://localhost:4173` and is for local verification,
+not production hosting. `npm run build` typechecks the app and creates `dist/`.
+Use `npm run typecheck:app` for browser types or `npm run typecheck` for Node/tooling
+types. See [development notes](docs/development.md#application-checks-and-debugging).
+Browser installation is needed after `npm ci` on a new machine or a Playwright
+upgrade. The shared check runs Node regressions and Chromium journeys against
+served production output and the development build.
+
+For the agent workflow, install OpenCode and run `opencode` from this directory.
+OpenCode reloads command files automatically. Models and credentials come from
+your own OpenCode setup.
 
 ## OpenCode workflow
 
@@ -26,10 +62,18 @@ skills, or tools. Models and credentials come from your own OpenCode setup.
 | --- | --- |
 | `/spec <feature>` | Specifier writes bounded contracts and acceptance criteria |
 | `/design <spec path>` | Frontend defines layout, accessible controls, and UI states |
-| `/implement <spec path or task>` | Implement and verify a vertical slice |
+| `/plan-implementation <spec path>` | Write the technical task plan; stop for your review and approval |
+| `/implement <spec path or task>` | Execute the approved plan and verify the working slice |
 | `/verify <spec path>` | QA checks acceptance criteria and reports evidence and gaps |
 | `/review <scope>` | Review correctness, geometry, accessibility, and tests |
 | `/ship <scope>` | Check release readiness; publish only when explicitly requested |
+| `/pr [files or task; title/body guidance]` | Check, commit, push, and open a PR for the selected changes |
+
+Use `/pr` after reviewing a completed task. For example:
+`/pr T2; title: Add foundation state and browser adapters`.
+You can supply explicit file paths and description notes instead. With no arguments,
+it uses the completed task in the conversation. Invocation authorizes the commit,
+push, and PR for that scope; `/ship` remains the broader readiness command.
 
 Specialists: `@specifier` for feature contracts, `@frontend` for editor design and
 implementation, `@geometry` for parametric geometry, `@qa` for verification and
@@ -43,8 +87,13 @@ Commands are workflow entry points; agents are the roles executing them.
 and planning. `/spec`, `/design`, `/verify`, and `/review` invoke their specialists.
 Specialists can be addressed directly without creating a command for each role.
 
+Review the technical plan in `docs/plans/<feature>.md` after `/plan-implementation`.
+Request changes or approve it and run `/implement`. Planning does not start coding.
+
 ## Project documents
 
+- [MVP roadmap and checklist](docs/mvp-roadmap.md)
+- [Editor capabilities and design findings](docs/editor-capability-findings.md)
 - [Product direction](docs/product.md)
 - [Application stack and architecture](docs/architecture.md)
 - [Development workflow and tooling](docs/development.md)
@@ -54,13 +103,17 @@ Selected application stack: **React + TypeScript + Vite**, **Three.js + React
 Three Fiber**, plain CSS, and **Replicad/OpenCascade.js WASM** for CAD geometry.
 Required exports: **STEP, STL, and 3MF**, derived from the same CAD model.
 Start client-side with versioned JSON design files and static self-hosting.
-The web application and its dependencies will be added with the first feature.
+These dependencies are installed and pinned in the root lockfile. The CAD WASM
+asset is served locally; no hosted geometry service is required. See
+[third-party notices and CAD source provenance](THIRD_PARTY_NOTICES.md).
 
 ## CI and deployment
 
-GitHub Actions runs `npm ci` and `npm run check` on Linux and Windows for pushes
-and pull requests. Checks validate the scaffold's local conventions, parse YAML,
-typecheck the OpenCode tool, and run its tests. They do not yet test a website.
+GitHub Actions runs `npm ci`, installs Playwright Chromium and its system dependencies,
+and runs `npm run check` on Linux and Windows for pushes and pull requests. Checks
+validate the scaffold's local conventions, parse YAML, typecheck tooling, browser
+tests, and the app, build production output, and run Node and browser regressions.
+Failed browser runs retain traces, screenshots, and an HTML report as CI artifacts.
 Dependabot checks npm dependencies and GitHub Actions weekly.
 
 For ChatGPT-connected PR reviews, use the official Codex GitHub integration.

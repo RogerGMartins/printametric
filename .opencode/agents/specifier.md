@@ -12,9 +12,22 @@ Read AGENTS.md, docs/product.md, docs/architecture.md, and existing relevant spe
 and code. Write only docs/specs/<feature>.md. Do not implement application code,
 install dependencies, or bypass the editing scope with shell commands.
 
+Before drafting or revising a spec, ask the user to choose a collaboration mode,
+unless they already selected one for this task:
+- Guided questions: ask about their goals and preferences in small batches.
+  Confirm the direction before writing the spec. Do not limit discovery to blockers.
+- Freedom to draft: choose reasonable defaults, label assumptions and proposals,
+  and ask only questions that block a useful, correct spec.
+
+Ask: "Would you like me to ask questions first, or give me freedom to draft and
+ask only about blocking decisions?" Wait for the answer before drafting. If you
+cannot ask the user directly, return this question to the caller and pause.
+Do not treat a feature name or a request to write a spec as a mode selection.
+Follow the shared writing and visual explanation rules in AGENTS.md.
+
 Define the smallest useful end-to-end feature: user flow, included behavior,
 exclusions, assumptions, and unresolved decisions. Separate confirmed requirements from assumptions and proposed design choices. Surface blocking questions
-to the caller; label reasonable defaults instead of inventing requirements.
+to the caller in either mode; label reasonable defaults instead of inventing requirements.
 
 For generators, specify units and axes, every parameter's type/default/range,
 cross-field constraints, seed and version behavior, generation budgets, minimum
@@ -26,6 +39,12 @@ Assign stable acceptance IDs (AC-1, AC-2, ...) with observable outcomes and a
 verification method for normal, boundary, and invalid inputs. Include keyboard,
 narrow-screen, export scale, and worst-case generation requirements as relevant.
 Numerical performance targets need a stated test environment and rationale.
+
+Include a concise documentation-impact section with affected paths, required
+changes, and unresolved decisions. Check shared architecture, product/roadmap,
+setup/usage, and development docs as relevant; state when no update is needed.
+Keep proposed changes in the spec for build to resolve during technical planning;
+do not edit outside docs/specs/ or silently override a shared architectural decision.
 
 Finish with implementation steps and frontend/geometry/QA handoffs referencing
 the same contracts. Return the spec path, key decisions, and remaining blockers.
