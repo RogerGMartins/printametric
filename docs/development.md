@@ -204,7 +204,10 @@ test-fixture checkpoints; those descriptions do not override the integrated rout
 The version-race tests use controlled legacy ports to reproduce a failed v2 load
 after an unfinished v1 edit, STEP retirement with queued edits, and a newer edit
 arriving before the deferred queue runs. Check retained definition/digest and original
-byte identity together. The narrow layout browser journeys also close the drawer and
+byte identity together. They also check that committing the accepted values cancels
+an older queued edit and clears a matching legacy CAD error. The runtime suite covers
+the same accepted-value queue recovery for generator 2. The narrow layout browser
+journeys also close the drawer and
 activate model-error recovery in one task, before the native `toggle` event fires.
 
 ### Generator-1 compatibility

@@ -1363,3 +1363,16 @@ This includes the same-task drawer regression in both themes and both projects.
 The recovered invalid field was also inspected in a 320 px dark-theme production
 capture at `artifacts/pr19-recovery-dark-320.png`; focus and the original `99` draft
 remain visible in the open drawer.
+
+The next review identified two accepted-value recovery cases. Both reproduced:
+committing the accepted parameters during export left an older edit queued, and
+correcting a failed legacy edit cleared only the outer error. Accepted-value
+recovery now discards the queued edit and clears the matching legacy CAD error.
+Missing or mismatched legacy CAD is rebuilt instead of being declared exportable.
+Original imported bytes and the captured export revision stay intact.
+
+Controlled-port regressions cover both failures; the real generator-2 runtime test
+also checks queued-edit cancellation when accepted values are restored. The final
+local `npm run check` passed both typechecks, the build, **87 Node tests and all 70
+browser tests** (65.2 seconds and 2.4 minutes). The previous follow-up commit passed
+all four Ubuntu/Windows remote checks; the new commit requires fresh CI results.

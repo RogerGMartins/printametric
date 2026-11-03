@@ -95,5 +95,13 @@ test('versioned client pins export revisions, queues edits and retains archives 
     finishExport({file:new File(['late'],'late.stl'),revision:replacement.result.revision,format:'stl',release:async()=>{releaseCount++;}});
     await wait(state=>state.exporting===null);
     assert.equal(downloads.length,1);assert.equal(releaseCount,1);assert.equal(client.snapshot.accepted,replacement);
+    client.export('stl');
+    client.submit({...definition,parameters:{...definition.parameters,reliefHeight:23}});
+    client.clearError(); // Commit the accepted height again while export is active.
+    finishExport({file:new File(['retained'],'retained.stl'),revision:replacement.result.revision,format:'stl',release:async()=>{}});
+    await wait(state=>state.exporting===null);
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(client.snapshot.status,'ready');assert.equal(client.snapshot.accepted,replacement);
+    assert.equal(downloads.length,2);assert.equal(downloads[1].revision,replacement.result.revision);
   } finally {client.dispose();}
 });

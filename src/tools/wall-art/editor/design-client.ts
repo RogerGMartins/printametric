@@ -120,7 +120,16 @@ export class DesignClient {
     this.publish({status:this.snapshot.accepted?'ready':'failed',upgrade:null,progress:null,error:this.snapshot.accepted?null:{code:'CANCELLED',message:'Generation cancelled. Retry when ready.'}});
   }
   acknowledge(){const layout=this.snapshot.accepted?.layout;if(layout)this.publish({acknowledgedKey:layout.exclusionKey});}
-  clearError(){this.publish({error:null});}
+  /** Committing the accepted values supersedes queued edits without regenerating
+   * matching CAD or changing the original imported bytes. */
+  clearError(){
+    this.queued=null;
+    if(this.snapshot.accepted?.definition.generatorVersion===1){
+      if(!this.legacyMatchesAccepted(true)){this.cancelGeneration();return;}
+      this.legacyListening=true;this.legacy?.clearError();
+    }
+    this.publish({error:null});
+  }
   retry(){const definition=this.snapshot.accepted?.definition??{modelSchemaVersion:2 as const,generatorVersion:2 as const,parameters:{...DEFAULT_PARAMETERS_V2}};
     if(definition.generatorVersion===1){this.legacy?.dispose();this.legacy=null;}
     this.submit(definition,this.snapshot.accepted?.originalBytes??null);}
@@ -142,9 +151,9 @@ export class DesignClient {
     });
   }
   private pump(){const candidate=this.queued;this.queued=null;if(candidate&&!this.disposed)this.run(candidate);}
-  private legacyMatchesAccepted(){
+  private legacyMatchesAccepted(allowError=false){
     const accepted=this.snapshot.accepted,state=this.legacy?.snapshot;
-    return accepted?.definition.generatorVersion===1&&state?.status==='ready'&&!state.error&&
+    return accepted?.definition.generatorVersion===1&&state?.status==='ready'&&(allowError||!state.error)&&
       state.accepted?.result.digest===definitionDigest(accepted.definition)&&state.accepted.originalBytes===accepted.originalBytes;
   }
   cancelExport(){this.queued=null;this.exporting?.abort();if(this.legacyListening)this.legacy?.cancelExport();}
