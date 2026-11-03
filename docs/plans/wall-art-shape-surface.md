@@ -1,11 +1,14 @@
 # Wall art 03 — technical implementation plan
 
-Status: **Awaiting user review.** Prepared 2026-11-03.
+Status: **P0 implemented; initial P1 construction gate failed; R1–R3 revision approved; P2 pending (2026-11-03).**
 
 Requirements: [phase-03 spec](../specs/wall-art-shape-surface.md), decisions
 D1–D18 and SHAPE-UI-D1/D2, AC-1–11 and ST-1–4. Shared boundaries:
 [architecture proposal](../architecture.md#phase-03-shape-and-surface--proposal).
-This plan does not approve implementation. No phase-03 CAD has been qualified.
+The user requested “you can start implementation of this phase-03” after reviewing
+this plan. This authorizes P0–P2 under the checkpoint below, not P3–P7.
+Small rectangular native fixtures passed diagnostic checks, but required boundary
+cases failed. No phase-03 generator or full visual checkpoint has been qualified.
 
 ## Approval and sequence
 
@@ -338,5 +341,111 @@ both typechecks, production build, **87 Node tests and 70 browser tests**. Log:
 bundle-size warnings remain. Tracked-diff whitespace review and the new plan's
 whitespace/local-link checks passed. This gate verifies the existing application
 and repository conventions, not the proposed v3 path.
-The pre-existing uncommitted owning-spec review is preserved. Planning edits only
-this plan and the relevant architecture proposal; implementation has not started.
+At that planning checkpoint, the pre-existing owning-spec review was preserved;
+implementation had not started. The following evidence supersedes that status.
+
+## Implementation checkpoint — native construction blocker
+
+The user approved P0–P2 on 2026-11-03. P0 now has strict checkpoint-only parameters,
+seven pure fields, an independent surface random stream and literal reference
+vectors. Tests cover all numeric/inactive bounds, nonfinite inputs and arithmetic
+overflow, integer controls, analytic Wave values, physical rotation/scaling,
+seed independence and provisional endpoint behavior. Production dispatch still
+rejects version 3. These tests do not freeze the provisional formulas or curvature.
+
+P1 established an installed-kernel native route for **rectangular continuous-top
+capability fixtures**. A fixed-grid scalar B-spline top retains physical XY
+parameterization. Flanks derive from the same top boundary control points and one
+shared vertical scale curve. This avoids the gaps from independently fitted faces.
+Native sewing, closed-solid validation and explicit handle cleanup are exercised.
+Flat fixtures match an independent analytic profile-volume integral for straight,
+2.2 and 4 curvature. One curved Wave fixture passes native STEP round-trip, a second
+independent CAD reader and an independent STL reader, including millimeter placement.
+
+The current construction is **not** a general clipped-footprint generator. It has
+no certified global deviation bound, area mean, constrained planar fit, plinth,
+identification cuts or nonconvex containment. The full starter, 3MF/slicer checks,
+actual-CAD visual review and retained application budgets remain unverified.
+
+### Failed capability evidence
+
+`node scripts/qualify-wall-art-shape-surface.mjs` now includes regular cells and
+boundary cells by default: seven families × three locations × two top ratios ×
+three curvatures = **126 fixtures**. Each uses a 47.5 mm square, continuous top,
+20 mm minimum relief and 30 mm amplitude. Fixed fixture inputs and stable IDs are
+in each report. The script returns nonzero on any failed fixture or watchdog.
+
+Latest full run: **108 diagnostic passes, 18 rejections**, completed in **52.1 s**,
+with **506,224,640 bytes** sampled whole-process RSS. It returned exit code **1**.
+Log: `artifacts/shape-surface-native-checkpoint.log`; timestamped JSON reports live
+under `artifacts/wall-art-shape-surface/checkpoint/`. This is Node-process sampling,
+not an exact transient peak, browser measurement or production capacity claim.
+
+| Region | Maximum sampled top deviation | Result against proposed 0.00025 mm top allocation |
+| --- | --- | --- |
+| Spiral center, ratios 0.12 / 0.8 | 0.7710 / 5.2261 mm | Reject for all three side curvatures |
+| Ridges crease, ratio 0.8 at both boundary locations | 0.3851 mm | Reject for all three side curvatures |
+| Dome edge, ratios 0.12 / 0.8 | 0.002923 / 0.02173 mm | Reject for all three side curvatures |
+
+Off-grid samples can demonstrate these failures; they cannot certify a passing
+fixture over its complete domain. A CAD-valid solid alone does not establish
+fidelity to the intended field.
+
+An earlier Spiral run exceeded the literal 2 GB process cap **during meshing** a
+known poor fit. Stage instrumentation established this location; it was not a
+demonstrated fitting-memory failure. The meshing helper now rejects excessive or
+nonfinite sampled deviations before entering the mesher. Native regressions cover
+all three failed regions and a mesher sentinel proves this ordering. Earlier logs
+`artifacts/shape-surface-native-{boundaries,spiral-stages}.log` remain as failure
+evidence. A later 84-fixture boundary-only run completed with 18 rejections and
+505,196,544 bytes sampled RSS. No tolerance or budget was relaxed.
+
+**Gate result:** P1 is incomplete and P2 has not passed. Per the explicit stop rule
+above, revise the native construction before continuing; do not treat these
+diagnostics as a reduced-scope visual checkpoint.
+
+| Acceptance coverage | Evidence at this checkpoint |
+| --- | --- |
+| AC-1/2/11 — fields and independent seeds | Pure numeric/seed/scaling regressions pass; actual seven-family native coverage fails at the listed regions. |
+| AC-3/4 — means, planes and shape | Straight/curved rectangular volume checks pass. Means, constrained planes, full starter and general native boundaries are unverified. |
+| AC-5 — bare material and identification | Zero-relief/no-plinth parameter rejection passes. Native floor checks and Map-only ID behavior are unimplemented. |
+| AC-6 — exports | One continuous Wave STEP passes two CAD readers and STL passes an independent reader. Full matrix, 3MF and slicer remain unverified. |
+| AC-7/9/10 — UI, upgrades and files | Existing application regressions only; no v3 UI, migration or file support. Tests confirm production rejects v3. |
+| AC-8 — bounded work | Diagnostic watchdog and known-bad-fit pre-mesh rejection exist; production counters, cancellation, retained designs and full phase-03 budgets remain unqualified. |
+
+### Construction revision — approved
+
+Keep all seven approved appearances, parameter ranges, native STEP requirements
+and existing time/memory limits. Replace a smooth patch across nonsmooth regions
+with a bounded piecewise native construction. On 2026-11-03 the user approved this
+revision: “approved. if needed do a pr before continuing”. R1–R3 may proceed;
+the complete P2 visual/contract review still gates P3–P7. A checkpoint PR preserves
+the initial investigation and failed-case evidence before revised construction.
+
+| Step | Work and owned files | Required evidence before proceeding |
+| --- | --- | --- |
+| R1 — Boundary-aware numerical domains | `geometry/surface-sampling.ts`, `surface-fit.ts` and focused field/native tests | Explicit Dome circle, Ridges crest/trough curves and Spiral center/join domains. Bound subdivision and error over each domain, including between samples. Preserve the current field formulas; any smoothing or visible change returns for review. |
+| R2 — Shared-edge native patches | `geometry/relief-v3.ts` and isolated `tests/support/` fixture helpers | Construct and trim native patches with shared edges; assemble one solid. Put the Spiral origin on patch boundaries rather than fitting one smooth Cartesian patch across it. Count patches/control points/operations before allocation. All 18 failed fixtures must pass an independent domain-error check, solid/mesh checks and exports within the existing budgets. A finer grid alone is not proof. |
+| R3 — Resume the rest of P1, then P2 | Existing P1/P2 file scopes and qualification runner | Add area means, constrained planes, actual clipped/nonconvex parts, plinth and identification floor checks. Deliver the complete starter/family/mode/export visual matrix already required above. Stop for actual visual and contract approval before P3. |
+
+This revision deliberately establishes whether the nonsmooth fields can be built
+before expanding the assembly and UI work. If a domain cannot be bounded or built
+within the limits, report that exact failure rather than accepting sampled-only
+accuracy, hiding a family or using a faceted STEP substitute.
+
+### Verification of this implementation checkpoint
+
+Targeted command:
+`node --test tests/wall-art-shape-surface.test.mjs tests/wall-art-shape-native.test.mjs`
+passed **12 tests** after the pre-mesh rejection fix. The deliberately failing
+126-fixture qualification is separate from regression success: tests verify known
+rejection and old application behavior, not completion of P1/P2.
+
+Full `npm run check` passed on 2026-11-03: scaffold validation, both typechecks,
+production build, **99 Node tests** and **70 browser tests** (2.4 minutes for the
+browser suite). Output: `artifacts/phase03-implementation-check.log`. Existing
+bundle-size and `node:module` externalization warnings remain; the WebGL error in
+the browser log belongs to the intentional failure-recovery fixture. These passes
+do not resolve the native qualification failure above. `git diff --check` also
+passed. The later revision approval permits the checkpoint PR and R1–R3 work;
+production integration and new dependencies remain outside that approval.

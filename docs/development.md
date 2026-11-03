@@ -484,6 +484,52 @@ directory after its owning tab's lock disappears. The app still uses its v1 expo
 path. Portable regressions live in `tests/stream-three-mf.test.mjs` and the
 development-only `tests/browser/export-storage.spec.ts`.
 
+## Phase-03 native investigation
+
+P0 provides checkpoint-only v3 parameter validation and seven pure surface fields.
+The application still uses the supported v1/v2 paths. The current P1 native route
+is an isolated rectangular capability experiment, not the phase-03 generator.
+Its failed gate and proposed construction revision are recorded in the
+[phase-03 plan](plans/wall-art-shape-surface.md#implementation-checkpoint--native-construction-blocker).
+
+```sh
+node --test tests/wall-art-shape-surface.test.mjs tests/wall-art-shape-native.test.mjs
+node scripts/qualify-wall-art-shape-surface.mjs
+node scripts/qualify-wall-art-shape-surface.mjs --boundaries --family=spiral
+npm run check
+```
+
+The qualification command defaults to 126 fixed fixtures, including nonsmooth
+boundary regions. It currently exits **1** with 18 deviation rejections; this is
+the recorded construction failure, not an installation error. `--boundaries`
+restricts the matrix to the center and Dome-edge locations; `--family` selects one
+of the seven family names. A passing subset is not full qualification. Every
+report sets `checkpointComplete: false` until a separate complete P2 exists.
+
+Reports use timestamped names under ignored
+`artifacts/wall-art-shape-surface/checkpoint/`. They include fixed diagnostic
+parameters, stable fixture IDs, native stage, sampled residuals, triangle counts,
+volume agreement and elapsed time. The supervisor terminates the worker after
+120 seconds or a sampled whole-process RSS above 2,000,000,000 bytes. Node RSS
+includes controller and worker; it is not exact peak or browser memory. Keep
+failed reports when changing the construction; do not average failures away.
+
+For diagnosis, break in `tests/support/shape-surface-native.mjs` at top interpolation,
+shared flank control-net construction, sewing, solid validation and
+`meshRectangleSurface`. The last function rejects bad sampled fits **before**
+meshing. An earlier bad Spiral interpolant exhausted memory in the mesher; its
+stage trace is retained in the plan evidence. Off-grid sampled residuals can reject
+a fit but cannot prove a global error bound. Kernel validity is a separate check.
+
+The numeric tests pin provisional random words for surface seeds 1/5000/9999,
+physical-scale and rotation examples, inactive validation and old-version dispatch.
+Native regressions compare profile volume with an independent integral, reimport
+a curved Wave STEP through two CAD readers, check STL placement, and reproduce
+all three failed regions without entering the mesher. These regressions run in
+the ordinary gate. No production debug controls, user-design logging or external
+service is needed. Full starter visuals, 3MF/slicer evidence and general clipped
+part construction remain pending; the capability tests do not replace them.
+
 ## Impeccable design tooling
 
 Impeccable is installed project-locally in `.opencode/skills/impeccable/` with an

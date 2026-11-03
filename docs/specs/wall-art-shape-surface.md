@@ -1,6 +1,6 @@
 # Wall art 03 — shape and surface relief
 
-Status: **Product decisions D1–D18 and UI decisions SHAPE-UI-D1/D2 recorded. Technical contracts and actual-CAD visual review remain pending. No technical-plan or implementation approval.**
+Status: **P0 implemented; P1 native construction gate failed; P2 visual review pending (2026-11-03). Product/UI decisions remain recorded.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
 
@@ -11,7 +11,8 @@ Collaboration mode for this review: **Guided questions**. Follow the suite's
 resolve only their stated scope. The product-decision round is complete. The later
 [UI review](#ui-review-decisions--2026-11-03) resolves hierarchy and specified
 control ranges/increments. Technical contracts, curvature numbers and actual-CAD
-visual results still require review; no technical plan or implementation is approved.
+visual results still require review. The later implementation approval below
+authorizes the bounded native checkpoint only.
 
 ### Confirmed product decisions
 
@@ -75,10 +76,18 @@ Phase 03 still needs its own measured correctness, retention and export evidence
   qualify phase 03. Keep large-count throughput unpromised.
 
 The [technical implementation plan](../plans/wall-art-shape-surface.md) is now
-prepared and awaiting user review. It proposes bounded P0–P2 native-CAD work,
-followed by an explicit visual/contract approval stop before production integration.
-The technical proposals and curvature remain provisional. Publishing these documents
-does not approve the plan or authorize implementation.
+approved for P0–P2 by the user's 2026-11-03 implementation request. Bounded native-CAD
+investigation precedes the technical freeze; it ends at an explicit visual/contract
+approval stop before P3–P7 production integration. The technical proposals and
+curvature remain provisional. Production startup and public saved-file dispatch
+remain on the existing versions during this investigation.
+
+The [native construction checkpoint](../plans/wall-art-shape-surface.md#implementation-checkpoint--native-construction-blocker)
+records 18 rejected Spiral/Ridges/Dome boundary fixtures out of 126. The current
+smooth-patch route does not meet the proposed deviation limit at those regions.
+P1 remains incomplete; the user approved its boundary-aware construction revision
+on 2026-11-03 under the plan's failed-gate rule. Neither diagnostic passes nor the new
+regressions approve curvature, formulas, global error bounds or the P2 visuals.
 
 ## Problem, flow and scope
 
@@ -96,8 +105,9 @@ appearance has been qualified. Imported relief images, movement, colour tools an
 print-bed packing remain with their existing later phases.
 
 All formulas here are original **Printametric proposals**, not an existing algorithm
-contract. Implementation planning must freeze sample fixtures and native-CAD
-construction tolerances before approval. Do not accept a mesh-only implementation.
+contract. The approved P0–P2 investigation must establish sample fixtures and
+native-CAD construction tolerances for review before production integration.
+Do not accept a mesh-only implementation.
 
 ## Parameters
 
