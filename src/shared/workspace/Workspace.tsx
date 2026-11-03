@@ -50,7 +50,12 @@ export function Workspace({ content, title, headingRef, notices, availability, p
     <details className="settings-drawer" open={preferences.settingsOpen} onToggle={event => {
       if (event.currentTarget.open !== preferences.settingsOpen) onChange('settingsOpen', event.currentTarget.open);
     }}>
-      <summary aria-invalid={Boolean(errors.settingsOpen)} aria-describedby={errors.settingsOpen ? 'settings-error' : undefined}>Workspace settings</summary>
+      <summary aria-invalid={Boolean(errors.settingsOpen)} aria-describedby={errors.settingsOpen ? 'settings-error' : undefined}
+        onClick={event=>{
+          // Native toggle arrives in a later task. Commit pointer/keyboard
+          // activation now so an immediate recovery action sees the closed state.
+          event.preventDefault();onChange('settingsOpen',!preferences.settingsOpen);
+        }}>Workspace settings</summary>
       <div className="settings-content">
         <WorkspaceDisplay {...display} tipsRef={tips} backgroundRef={background} availability={availability} />
         <section className="settings-group" aria-label="Model availability">

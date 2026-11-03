@@ -1336,3 +1336,30 @@ geometry tolerance or state assertion was relaxed.
 
 Publication is stacked on the still-open phase-01 branch/PR #18. Local verification
 does not establish remote CI success; the PR reports that status separately.
+
+### PR #19 recovery fixes — 2026-11-03
+
+Both review findings reproduced with controlled worker ports. A pending v1 edit
+could finish while v2 generation hid legacy callbacks, leaving retained parameters
+and native export CAD out of sync after v2 failure. Version switching now retires
+nonmatching or busy legacy heaps. Revert rebuilds the retained v1 definition and
+original bytes when necessary; preview refresh and export require matching CAD.
+
+The second finding submitted a queued edit during STEP completion, before the
+legacy client retired its heap. The outer queue now runs in a microtask after
+retirement. A newer submission replaces the old queued edit. Deterministic tests
+check the destination heap, accepted parameters/digest, byte identity and export.
+
+The failed Ubuntu run `41613555177` exposed a separate delayed-toggle race in
+collapsed error recovery. A same-task close/recover browser regression reproduces
+the lost focus. Summary activation now updates controlled drawer state directly;
+the existing keyboard path and same-task path both retain and focus the invalid Gap
+value. The regressions failed before their fixes and passed in targeted local runs.
+
+The follow-up `npm run check` under Node 24.15.0 passed scaffold validation, both
+typechecks, the production build, **85 Node tests and all 70 browser tests**.
+Node tests took 84.3 seconds; production/development browser tests took 2.6 minutes.
+This includes the same-task drawer regression in both themes and both projects.
+The recovered invalid field was also inspected in a 320 px dark-theme production
+capture at `artifacts/pr19-recovery-dark-320.png`; focus and the original `99` draft
+remain visible in the open drawer.
