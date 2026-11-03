@@ -85,3 +85,35 @@ test('a newer submission wins over the deferred post-STEP edit queue',async()=>{
     assert.equal(ports[1].messages.findLast(m=>m.type==='generate').parameters.width,400);
   }finally{client.dispose();}
 });
+
+test('committing accepted values during export cancels an older queued edit',async()=>{
+  const h=harness(),{client,ports,definition,bytes}=h;
+  try{
+    const accepted=client.snapshot.accepted;
+    client.export('stl');
+    client.submit({...definition,parameters:{...definition.parameters,width:300}});
+    client.clearError(); // The editor's accepted-digest shortcut after restoring A.
+    ports[0].reply({type:'exported',revision:accepted.result.revision,format:'stl',bytes:new Uint8Array([1])});
+    await flush();
+    assert.equal(ports[0].messages.filter(m=>m.type==='generate').length,1);
+    assert.deepEqual(client.snapshot.accepted.definition,definition);
+    assert.equal(client.snapshot.accepted.originalBytes,bytes);
+    client.export('stl');assert.equal(ports[0].messages.at(-1).type,'export');
+    assert.equal(client.snapshot.exporting,'stl');
+  }finally{client.dispose();}
+});
+
+test('correcting a failed legacy edit clears its matching CAD error and enables export',()=>{
+  const h=harness(),{client,ports,definition,bytes}=h;
+  try{
+    client.submit({...definition,parameters:{...definition.parameters,width:300}});
+    ports[0].reply({type:'failed',code:'CAD',message:'Controlled edit failure'});
+    assert.equal(client.snapshot.error.code,'CAD');
+    client.clearError(); // Correct the fields to the accepted values, then Enter.
+    client.export('stl');
+    assert.equal(client.snapshot.error,null);
+    assert.equal(client.snapshot.exporting,'stl');
+    assert.equal(ports[0].messages.at(-1).type,'export');
+    assert.equal(client.snapshot.accepted.originalBytes,bytes);
+  }finally{client.dispose();}
+});
