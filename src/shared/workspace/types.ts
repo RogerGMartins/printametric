@@ -1,0 +1,20 @@
+// Tool-independent display contracts. These types contain no shell or browser state.
+export type PreviewBackground = 'plain' | 'grid';
+
+export interface WorkspaceDisplayPreferences {
+  readonly showWorkspaceTips: boolean;
+  readonly previewBackground: PreviewBackground;
+  readonly settingsOpen: boolean;
+}
+
+export interface WorkspaceContent {
+  readonly heading: string;
+  readonly description: string;
+  readonly unavailableSections: readonly {
+    readonly heading: string;
+    readonly description: string;
+  }[];
+}
+
+export type DisplayField = keyof WorkspaceDisplayPreferences;
+export type DisplayErrors = Readonly<Partial<Record<DisplayField, string>>>;
