@@ -75,8 +75,10 @@ does not rescale the heights of every other part. Nonfinite evaluation rejects.
 
 For each base footprint choose its area centroid if interior; otherwise the
 deterministic maximum-inscribed-circle center with lexicographic tie break. That
-anchor must be stable in exported metadata. Phase 02's convex built-ins simplify
-this; phase 09 must qualify concave/hole-containing cells separately.
+anchor must be stable in exported metadata. Phase 02 already includes nonconvex
+radial annular sectors; do not assume every built-in footprint is convex. Reuse its
+qualified containment/neck checks. Phase 09 extends qualification to imported concave
+and hole-containing cells. Phase 02 retains X-only taper; homothetic taper stays here.
 
 Define each cell's scalar mean `M` by area-weighted deterministic quadrature over
 its base footprint, with error ≤0.001 normalized units. At a top location, normalized

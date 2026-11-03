@@ -2,6 +2,8 @@
 import { PARAMETER_NAMES, type Parameters } from './parameters.ts';
 import { DesignError, LIMITS } from './budget.ts';
 import { exactObject, validateParameters } from './validation.ts';
+import { validateDesignDefinition, type DesignDefinition } from './definition.ts';
+import { PARAMETER_NAMES_V2 } from './parameters-v2.ts';
 
 const envelopeKeys = ['format', 'formatVersion', 'modelSchemaVersion', 'generatorVersion', 'seed', 'parameters'];
 const geometryKeys = PARAMETER_NAMES.filter(name => name !== 'seed');
@@ -16,7 +18,7 @@ export function validateDefinition(value: unknown): Parameters {
   return validateParameters({ ...parameters, seed: object.seed });
 }
 
-export function parseDesign(bytes: Uint8Array): Parameters {
+function decodeDesign(bytes: Uint8Array): unknown {
   if (bytes.byteLength > LIMITS.fileBytes) throw new DesignError('FILE_SIZE', 'The design file exceeds 1 MiB.');
   let value: unknown;
   try { value = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
@@ -30,7 +32,27 @@ export function parseDesign(bytes: Uint8Array): Parameters {
     }
   };
   inspect(value, 0);
-  return validateDefinition(value);
+  return value;
+}
+
+/** Strict generator-1 entry point retained for compatibility callers. */
+export function parseDesign(bytes: Uint8Array): Parameters { return validateDefinition(decodeDesign(bytes)); }
+
+export function parseVersionedDesign(bytes: Uint8Array): DesignDefinition {
+  const object = exactObject(decodeDesign(bytes), envelopeKeys);
+  if (object.format !== 'printametric-wall-art' || object.formatVersion !== 1) throw new DesignError('VERSION', 'Only wall-art format 1 is supported.');
+  const keys = object.modelSchemaVersion === 2 && object.generatorVersion === 2 ? PARAMETER_NAMES_V2 : PARAMETER_NAMES;
+  const parameters = exactObject(object.parameters, keys.filter(name => name !== 'seed'));
+  return validateDesignDefinition({ modelSchemaVersion: object.modelSchemaVersion, generatorVersion: object.generatorVersion,
+    parameters: { ...parameters, seed: object.seed } });
+}
+
+export function serializeVersionedDesign(value: DesignDefinition): Uint8Array<ArrayBuffer> {
+  const definition = validateDesignDefinition(value);
+  if (definition.generatorVersion === 1) return serializeDesign(definition.parameters);
+  const { seed, ...parameters } = definition.parameters;
+  return new TextEncoder().encode(JSON.stringify({ format: 'printametric-wall-art', formatVersion: 1,
+    modelSchemaVersion: 2, generatorVersion: 2, seed, parameters }, null, 2) + '\n');
 }
 
 export function serializeDesign(value: Parameters): Uint8Array<ArrayBuffer> {

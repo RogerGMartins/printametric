@@ -98,7 +98,7 @@ legend { font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
 .wall-art-controls h3 { font-size: 13px; margin-top: 24px; }
 .parameter-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,160px),1fr)); gap: 16px; margin-top: 16px; }
 .parameter-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.parameter-field input { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--boundary); border-radius: 4px; background: var(--surface); color: var(--text); caret-color: var(--accent); font-variant-numeric: tabular-nums; }
+.parameter-field input,.parameter-field select,.part-lookup input { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--boundary); border-radius: 4px; background: var(--surface); color: var(--text); caret-color: var(--accent); font-variant-numeric: tabular-nums; }
 .parameter-field input[aria-invalid=true] { border-color: var(--error); }
 .parameter-field small { color: var(--secondary); }
 .parameter-field input:disabled,button:disabled { cursor: default; color: var(--secondary); background: var(--preview); border-color: var(--line); }
@@ -113,10 +113,35 @@ legend { font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
 .workspace:has(.model-preview) .workspace-notices { max-width: min(420px,calc(100% - 48px)); }
 .notice[aria-label="Model status"] { padding: 8px 12px; }
 .notice[aria-label="Model status"] p:first-child { margin-top: 0; }
+.preview-layer { position: absolute; inset: 0; }
+.preview-layer[hidden] { display: none; }
+.preview-mode { position: absolute; right: 24px; top: 102px; z-index: 1; display: flex; gap: 6px; }
+.preview-mode button[aria-pressed="true"] { background: var(--selected); color: var(--accent); border-color: var(--accent); font-weight: 650; }
+.workspace:has(.numbered-plan) .workspace-notices { max-height: 144px; }
+.numbered-plan { position: absolute; inset: 160px 0 0; overflow: auto; padding: 16px 24px 24px; }
+.plan-drawing { display: block; width: 100%; height: max(280px,45vh); }
+.part-detail { display: block; width: 100%; height: 180px; margin-top: 16px; }
+.layout-advanced { margin: 24px 0; }
+.layout-advanced > summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
+.plan-part { fill: var(--surface); stroke: var(--boundary); stroke-width: .45; }
+.plan-part.selected { fill: var(--selected); stroke: var(--accent); stroke-width: .9; }
+.plan-part text { fill: var(--text); stroke: none; font-variant-numeric: tabular-nums; }
+.plan-excluded { fill: none; stroke: var(--error); stroke-width: .6; stroke-dasharray: 1.5 1; }
+.plan-excluded text { fill: var(--error); stroke: none; }
+.part-lookup { max-width: 700px; margin: 16px auto; padding: 16px; background: var(--surface); border: 1px solid var(--boundary); }
+.part-lookup p { line-height: 1.6; }
+.part-lookup label { display: grid; gap: 6px; max-width: 130px; }
+.part-identity { overflow-wrap: anywhere; font-size: 12px; color: var(--secondary); }
+.layout-policies { margin-top: 24px; }
+.layout-policies label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.layout-policies p { max-width: 75ch; }
 @media (width <960px) {
   /* Keep controls above the model. Tab and touch scrolling reach offscreen actions. */
-  .camera-actions { top: 42px; right: 16px; max-width: calc(100% - 32px); flex-wrap: nowrap; justify-content: start; overflow-x: auto; padding: 4px; }
+  .workspace:has(.model-preview) .workspace-notices { max-height: 108px; }
+  .camera-actions { top: 126px; right: 16px; max-width: calc(100% - 32px); flex-wrap: nowrap; justify-content: start; overflow-x: auto; padding: 4px; }
   .camera-actions button { flex: none; }
+  .preview-mode { top: 190px; right: 16px; }
+  .numbered-plan { inset: 246px 0 0; padding: 16px; }
 }
 .support-dialog { width: min(640px,calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 24px; overflow: auto; overflow-wrap: anywhere; color: var(--text); background: var(--surface); border: 1px solid var(--boundary); border-radius: 4px; }
 .support-dialog::backdrop { background: rgb(0 0 0 / 55%); }
