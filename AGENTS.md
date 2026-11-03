@@ -10,6 +10,22 @@ and the owner's commercial-hosting rights.
 ## Engineering
 
 - Prefer the smallest working vertical slice and installed dependencies.
+- Apply KISS (keep it simple): favor direct, readable code, clear names, small
+  focused functions, and explicit data flow. Add abstractions or dependencies only
+  for a current need; avoid speculative frameworks and premature optimization.
+- Separate the application shell (`src/app/`), each tool (`src/tools/<tool>/`),
+  and tool-independent code (`src/shared/`). Follow the dependency rules in
+  docs/architecture.md; keep tool-specific behavior with its tool.
+- Comment module purpose and non-obvious behavior, constraints, units, and reasons
+  for decisions. Explain public contracts where types alone are insufficient.
+  Keep comments current; do not narrate obvious statements or leave dead code.
+- Make failures easy to reproduce and diagnose: explicit error paths, useful
+  context, testable logic, and documented debugging steps. Keep debug fixtures out
+  of production and never log secrets or full user designs by default.
+- Maintain concise technical documentation with code changes: architecture and
+  data flow in docs/architecture.md, setup/test/debug steps in docs/development.md,
+  and tool-specific contracts beside their feature documentation. Use diagrams
+  when they clarify behavior; link to the source of truth instead of duplicating it.
 - Follow docs/architecture.md: TypeScript, React, Vite, and Three.js/React Three
   Fiber. Keep printable geometry independent of the UI and renderer.
 - Keep geometry deterministic and independent of UI state. Use millimeters,
@@ -26,18 +42,45 @@ and the owner's commercial-hosting rights.
 
 ## Collaboration
 
+### Writing and visual explanations (all agents)
+
+Use clear technical English inspired by ASD-STE100, about 80% of its strictness.
+Do not claim formal compliance. Use short sentences, active voice, familiar
+words, and one main idea per sentence. Use the same term for the same concept.
+Keep necessary technical names, code identifiers, units, and precise constraints.
+Define unfamiliar terms. Avoid jargon, idioms, filler, and long paragraphs.
+
+Use a diagram, wireframe, or image when it explains a flow, layout, structure, or
+relationship more clearly than prose. Prefer simple Markdown/Mermaid or text
+diagrams when sufficient. Include a short text explanation for accessibility.
+Do not add decorative visuals or repeat the full diagram in prose. Do not invoke
+billable image generation without explicit permission.
+
 Use built-in build/plan for routine work. Use specifier, frontend, geometry, qa,
 and reviewer agents
 when requested or when the user explicitly asks for delegated work. Do not
 spawn agents automatically. Load skills only when their descriptions match.
-Use /spec, /design (UI changes), /implement, /verify, /review, and /ship for the
-development lifecycle. Invoking a specialist command explicitly requests that
+Use /spec, /design (UI changes), /plan-implementation, /implement, /verify, /review,
+and /ship for the development lifecycle. Planning writes the technical plan and
+stops for user review; implementation requires approval of that plan. Invoking a
+specialist command explicitly requests that
 agent for its task; it does not authorize a nested fan-out of other agents.
 When delegation is requested, build owns integration and assigns disjoint file
 scopes against the same spec. Handoffs include acceptance IDs, contracts, changed
 files, verification evidence, and blockers. Only build edits shared dependency
 manifests during parallel work. Do not reset another agent's or the user's work.
 Only commit, push, create PRs, or deploy when explicitly requested.
+
+For wall-art work, follow the active decision review workflow in
+`docs/specs/wall-art.md#active-decision-review`. Ask for unresolved decisions when
+reviewing, planning or implementing the affected spec. Reuse recorded answers and
+update affected specs when the user makes a decision.
+
+When a user request matches an available command, invoke that command with the
+requested scope; do not require the user to type it or merely read its prompt as
+a substitute. Use the command's configured agent and preserve approval gates and
+task boundaries. If command invocation is unavailable, explain the limitation
+before using a fallback. Do not invoke the same command again from its own run.
 
 ## Code Review Rules
 

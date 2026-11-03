@@ -7,7 +7,10 @@ const require = createRequire(import.meta.url);
 for (const args of [
   ['scripts/check-scaffold.mjs'],
   [join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--noEmit'],
-  ['--test'],
+  [join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--project', 'tsconfig.app.json'],
+  [join(dirname(require.resolve('vite/package.json')), 'bin/vite.js'), 'build'],
+  ['--test', 'tests/*.test.mjs'],
+  [join(dirname(require.resolve('@playwright/test/package.json')), 'cli.js'), 'test'],
 ]) {
   const result = spawnSync(process.execPath, args, { stdio: 'inherit' });
   if (result.error) throw result.error;

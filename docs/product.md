@@ -8,15 +8,23 @@ downloadable print kit. The owner will self-host the official service and may
 monetize it through ads or paid features. Local personal use remains possible.
 The source is public under a restrictive personal-use license, not open source.
 
-## First vertical slice (proposed)
+## MVP delivery order
+
+Follow the [MVP roadmap and checklist](mvp-roadmap.md): define and build the
+website foundation, then the wall-art generator, editor, build-plate preparation,
+and self-hosted launch. Create feature specs as each milestone starts.
+
+## First generator
 
 1. One rectangular panel and one deterministic blade pattern.
-2. Controls for panel dimensions, spacing, height, thickness, angle, and seed.
-   Define supported ranges and printer-related tolerances in the feature spec.
+2. Controls for panel dimensions, spacing, height, thickness, top width ratio, and
+   seed. The [core spec](specs/wall-art-core.md) fixes the approved starter, ranges
+   and tolerances. Version 1 uses equal-height upright blades and an inert seed.
+   Angle controls belong to the later movement phase.
 3. Interactive 3D preview with clear units and parameter validation.
 4. Export STEP, binary STL, and standard 3MF from the same canonical CAD model.
    Keep CAD solids for STEP and use their controlled tessellation for preview
-   and mesh exports. Prove all three formats on a small model before editor work.
+   and mesh exports. Verify all three formats during generator implementation.
 5. Save/load a versioned JSON design locally and reproduce its geometry.
 
 Preview updates follow valid parameter changes. STEP/STL/3MF compilation and file
@@ -33,19 +41,25 @@ slicer. Standard 3MF model export is required; slicer-specific project settings
 and filament/plate presets are a separate future scope. A visual preview is not
 evidence that geometry or an exported file is valid.
 
-## Subsequent milestones
+## Print preparation and launch (within MVP)
 
 - Multi-piece kits, stable numbering, assembly map, colour grouping, and packing
   against configurable build-plate dimensions.
+- Self-hosted deployment and usage documentation.
+
+## After MVP
+
 - More patterns and outlines; evaluate slicer-specific 3MF project integration.
-- A simple tool catalogue and shared editor controls when a second tool exists.
-- Self-hosted deployment, then monetization with privacy and layout considered.
+- A second tool and shared editor controls when needed. The initial website
+  opens directly into the first tool; add a catalogue when it becomes useful.
+- Monetization with privacy and layout considered.
 
 ## Decisions still needed
 
 The application stack and geometry boundaries are selected in
-[architecture.md](architecture.md). Remaining decisions: initial parameter ranges and print tolerances;
-mounting mechanism; hosting target/domain; monetization format. Accounts,
+[architecture.md](architecture.md). Core ranges and modeled minima are approved;
+physical print trials are separate. Remaining decisions: mounting mechanism;
+hosting target/domain; monetization format. Accounts,
 billing, ad networks, databases, and a plugin framework are not initial-slice
 requirements. Validate the custom license with legal counsel before commercial
 launch, especially contribution rights and generated-output restrictions.
