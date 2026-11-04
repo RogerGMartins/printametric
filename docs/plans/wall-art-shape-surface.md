@@ -1,6 +1,6 @@
 # Wall art 03 — technical implementation plan
 
-Status: **R3 has bounded rectangular field/mode checks, general flat-footprint checks, and three exported 100-part starters. R3 remains in progress; the full P2 checkpoint is not complete (2026-11-03).**
+Status: **R3 has seven-family contour moments, native flat/sloping footprint checks, anchor/floor probes and three exported 100-part starters. R3 remains in progress; the full P2 checkpoint is not complete (2026-11-04).**
 
 Requirements: [phase-03 spec](../specs/wall-art-shape-surface.md), decisions
 D1–D18 and SHAPE-UI-D1/D2, AC-1–11 and ST-1–4. Shared boundaries:
@@ -11,6 +11,11 @@ Earlier boundary failures and their construction revisions are recorded below.
 No production phase-03 generator or full visual checkpoint has been qualified.
 
 ## Approval and sequence
+
+On 2026-11-04, after reviewing this plan's current checkpoint and remaining scope,
+the user said “approved continue”. This authorizes continued R3 implementation,
+starting with bounded native-contour Spiral moments. It does not replace the full
+P2 visual/contract decision or authorize P3–P7, publication or delegation.
 
 The user requested an **early native-CAD visual checkpoint before committing to
 final curvature and surface construction**. Use two implementation stages:
@@ -1020,3 +1025,66 @@ identification/anchor coverage, combined construction-error accounting, complete
 family/mode assembly views and retained-design/browser budgets remain R3 work.
 This extension adds no production dispatch, dependency or saved-format change.
 Architecture, product/roadmap and README need no update for this isolated slice.
+
+### R3 progress — Spiral contour moments
+
+The user's subsequent approval continues R3 after the published/reviewed checkpoint
+at `7638e86`. It does not approve full P2 or begin P3–P7. This extension integrates
+Spiral over actual native rational contours, including concave and origin-touching
+domains. All seven families now have bounded contour-moment routes; exhaustion
+still rejects, so this is not an arbitrary-parameter throughput guarantee.
+
+The radial Green primitive uses finite polynomial/exponential integrals inside the
+center envelope and a decaying correction outside it. Linear, C1 and C2 centers
+remain explicit diagnostic arguments; linear remains the default. Integer angular
+modes avoid a branch discontinuity. Whole-chart complex bounds control Gauss
+remainder; origin and envelope-join charts have separate error bounds. Geometry
+and integration share 65,536 evaluations and 4,096 chart creations, with depth 8.
+Each exponential integral has at most 32 Taylor terms or a short recurrence.
+Floating-point/libm assumptions remain explicit rather than a formal proof.
+
+Tight fitting initially exhausted its arithmetic allowance. Exact line determinants
+and the actual radial primitive's decay tightened the estimate without increasing
+the allowance or work limits. A circle exactly on the center join exposed loose
+Cartesian radius bounds; positive rational Bernstein coefficient ratios now bound
+the complete squared radius. Failed diagnostic logs remain in
+`artifacts/phase03-r3-spiral-planes*.log` and `phase03-r3-spiral-contours.log`.
+The latter also records an under-resolved independent polar oracle; increasing
+its independent sample resolution met the unchanged comparison tolerance.
+
+Pure checks compare rectangular integrals, centered-circle angular identities,
+an asymmetric disk crossing the envelope join, and an off-center disk at the
+1e-8 plane-fitting precision. They cover arms 1/5/16, low/high density, phase,
+rotation, reversed/rescaled rational spans, anchor invariance, explicit center
+modes and bounded rejection. The join fixtures explicitly use a 150 mm reference
+length, placing the join at 1.5 mm rather than relying on the 500 mm default.
+Independent sampled oracles supplement, rather than replace, acceptance bounds.
+
+Twenty provisional-C2 native sloping fixtures pass across four outlines and five
+layouts. Existing flat fixtures now evaluate all seven families, including linear
+Spiral. Native validity, closed canonical meshes, fitting uncertainty, volume,
+triangle/pole caps and source placement remain checked. The ellipse/radial fixture
+also passes native STEP and independent STL checks in the portable test suite.
+
+Local `--spiral` export evidence is under
+`artifacts/wall-art-shape-surface/spiral-contour-export/`. Native STEP reimport passes;
+the independent STEP reader produces 3,964 valid triangles with relative native
+volume error 0.000105943. OrcaSlicer imports the standard 3MF and re-exports 2,334
+valid STL triangles with relative volume error 0.000164764. World placement and
+millimeter scale pass. The slicer's existing exclude-triangles message remains;
+success is based on the checked output file. Independent STEP retains its separate
+500,000-triangle diagnostic cap; canonical geometry stays under 100,000 per part.
+No whole-family assembly, browser-capacity or physical-print claim follows.
+
+`npm run check:awake` passed scaffold validation, both typechecks, production build,
+**145 Node tests** in 68.9 seconds and **70 browser tests** in 2.1 minutes. The gate
+includes the corrected join fixtures and complete native contour matrix. Log:
+`artifacts/phase03-r3-spiral-check.log`. `git diff --check` passed. The user then
+requested updating PR #22 with this verified checkpoint and continuing R3.
+
+Remaining R3 work:
+general continuous native tops, broader material/identification/anchor coverage,
+combined construction-error accounting, complete family/mode assembly views and
+retained-design/browser budgets. The full P2 review remains required. Architecture,
+product/roadmap and README need no change for this isolated numerical capability;
+the spec status and development diagnostics are updated here.

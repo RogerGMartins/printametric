@@ -59,7 +59,7 @@ test('signed fans integrate a non-star-shaped domain without certifying its tape
   const a = rectangleSurfaceMoments(p, { minX: 0, maxX: 40, minY: 0, maxY: 10 });
   const b = rectangleSurfaceMoments(p, { minX: 0, maxX: 10, minY: 10, maxY: 40 });
   near(result.area, 700, 1e-8); near(result.mean, (400 * a.mean + 300 * b.mean) / 700, result.error + a.error + b.error);
-  assert.throws(() => contourSurfaceMoments({ ...p, family: 'spiral' }, shape, anchor), /entire harmonic/);
+  assert.throws(() => contourSurfaceMoments({ ...p, family: 'spiral' }, shape, anchor, undefined, 'unknown'), /Unknown Spiral-center/);
   assert.throws(() => contourSurfaceMoments(p, [{ ...shape[0], weights: [1, 0] }], anchor), /Invalid rational/);
   assert.throws(() => contourSurfaceMoments(p, shape, [Infinity, 0]), /Invalid bounded/);
   assert.throws(() => contourSurfaceMoments({ ...p, width: 80, height: 80, density: 12 }, circle(0, 0, 2000), [0, 0]), /work exhausted|could not be bounded/);

@@ -29,15 +29,15 @@ for (const layout of LAYOUTS) {
   try {
     // The flat matrix covers every field on every selected contour. Plane runs
     // exercise their own field rather than repeating that entire mean matrix.
-    const families = workerData.planar ? [workerData.family ?? 'wave'] : ['wave', 'dunes', 'random', 'ring', 'ridges', 'dome'];
+    const families = workerData.planar ? [workerData.family ?? 'wave'] : ['wave', 'dunes', 'random', 'ring', 'ridges', 'dome', 'spiral'];
     const moments = families.map(family => nativeFootprintMoments(kernel, base,
-      { ...DEFAULT_PARAMETERS_V3, family, rotation: 37, phase: .29, surfaceSeed: 5000, width: 160, height: 150 }));
+      { ...DEFAULT_PARAMETERS_V3, family, rotation: 37, phase: .29, surfaceSeed: 5000, width: 160, height: 150 }, { spiralCenter: workerData.spiralCenter ?? 'linear' }));
     for (const m of moments) {
       if (m.error > .00025 / 30 || m.evaluations > 65536 || Math.abs(m.u) > m.error + 1e-7 || Math.abs(m.v) > m.error + 1e-7) throw Error('Native contour centroid/moment certificate failed.');
     }
     const ratio = workerData.planar ? .8 : .4, concavity = 2.2, baseThickness = 10;
     const plane = workerData.planar ? nativeFootprintMoments(kernel, base,
-      { ...DEFAULT_PARAMETERS_V3, family: workerData.family ?? 'wave', rotation: 37, phase: .29, width: 160, height: 150 }, { ratio, plane: true }) : undefined;
+      { ...DEFAULT_PARAMETERS_V3, family: workerData.family ?? 'wave', rotation: 37, phase: .29, width: 160, height: 150 }, { ratio, plane: true, spiralCenter: workerData.spiralCenter ?? 'linear' }) : undefined;
     const topHeight = 30 + 30 * (plane ? plane.fitted.coefficients[0] : moments[0].mean);
     candidate = plane ? buildPlanarFootprint(kernel, base, { ratio, concavity, baseThickness,
       top: [topHeight, 30 * plane.fitted.coefficients[1] / plane.scale, 30 * plane.fitted.coefficients[2] / plane.scale] })

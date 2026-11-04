@@ -120,7 +120,7 @@ export function nativeFootprintMoments(kernel, base, input, options = {}) {
     const anchor = options.anchor ?? base.centroid;
     if (anchor.length !== 2 || anchor.some(v => !Number.isFinite(v) || Math.abs(v) > 4000)) throw Error('Invalid moment anchor.');
     const spans = prepared.spans.map(s => ({ ...s, points: s.points.map(point => point.map((v, i) => anchor[i] + ratio * (v - anchor[i]))) }));
-    const moments = contourSurfaceMoments(p, spans, anchor, options.plane ? 1e-8 : undefined);
+    const moments = contourSurfaceMoments(p, spans, anchor, options.plane ? 1e-8 : undefined, options.spiralCenter ?? 'linear');
     // A tube around the approximating boundary bounds the possible area change.
     // Rational derivative hulls bound its length; no sampled perimeter estimate.
     let lengthBound = 0;

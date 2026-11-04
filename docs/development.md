@@ -641,18 +641,21 @@ The full P2 visual/export review and production integration remain pending.
 ### R3 contour, anchor and bare-identification probes
 
 ```sh
-node --test tests/wall-art-contour-moments.test.mjs tests/wall-art-footprint-native.test.mjs tests/wall-art-bare-identification.test.mjs tests/wall-art-native-anchor.test.mjs
+node --test tests/wall-art-contour-moments.test.mjs tests/wall-art-spiral-contour.test.mjs tests/wall-art-footprint-native.test.mjs tests/wall-art-bare-identification.test.mjs tests/wall-art-native-anchor.test.mjs
 ```
 
-`surface-contour-moments.ts` integrates Wave/Dunes/Random/Ring/Ridges/Dome on native
+`surface-contour-moments.ts` integrates all seven surface families on native
 rational contours, including concave footprints. Harmonic fields use signed fans;
 Ridges and Dome use Green boundary integrals with bounded weak second derivatives
 across creases and the disk edge. Their family-specific contour modules share
 real rational-curve derivative helpers. Whole-chart bounds and 65,536 combined
-geometry/field evaluations limit work. Unsupported Spiral domains reject.
+geometry/field evaluations limit work. Spiral uses analytic radial primitives,
+whole-chart Gauss bounds and explicit origin/envelope-join remainders. Its center
+mode remains an argument: `linear` by default, or explicit `smooth-c1`/`smooth-c2`
+for the investigation. Tight native plane fixtures select provisional C2.
 `surface-contour-plane.ts` fits area-weighted planes and certifies their complete
 boundary constraints. Native footprint probes use four outline families and five
-layouts, with Wave/Ridges/Dome planes; curved sloping caps also pass native STEP
+layouts, with Wave/Ridges/Dome/Spiral planes; curved sloping caps also pass native STEP
 and independent STL readers. The Ridges periodic primitive removes cancellation
 without changing the field. Dome uses control-hull bounds to distinguish interior,
 exterior and disk-crossing curves. Work exhaustion remains a visible rejection.
@@ -673,6 +676,12 @@ These helpers remain isolated tests, not production generator-3 dispatch. Curren
 evidence and remaining scope are in the [contour checkpoint](plans/wall-art-shape-surface.md#r3-progress--contours-planes-anchors-and-bare-identification).
 The [Ridges/Dome extension](plans/wall-art-shape-surface.md#r3-progress--ridges-and-dome-contour-moments)
 records independent area oracles, native matrices and export evidence.
+The [Spiral extension](plans/wall-art-shape-surface.md#r3-progress--spiral-contour-moments)
+adds curved center/join and high-arm checks. Break in
+`surface-spiral-contour-moments.ts` at radius bounds, radial primitive evaluation
+and chart rejection to distinguish arithmetic, depth and work exhaustion. The
+radius-ratio certificate handles a contour exactly on the center-envelope join;
+the tighter radial-decay bound supports plane fitting without changing tolerances.
 
 ## Impeccable design tooling
 

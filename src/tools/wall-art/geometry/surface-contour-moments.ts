@@ -4,15 +4,17 @@
  * harmonic fields. Ring's cos(k*sqrt(x²+y²)) is also entire: its power series has
  * no square-root branch and grows at most exp(k*|Im(x,y)|). Tensor Gauss remainder
  * bounds use complex disks with a proven
- * nonzero rational denominator. Ridges and Dome use separate Green boundary integrals
- * after these charts certify the geometric moments; both share the work budget.
- * Spiral still requires separate boundary treatment.
+ * nonzero rational denominator. Ridges, Dome and Spiral use separate Green boundary
+ * integrals after these charts certify geometric moments, sharing the work budget.
  * Floating allowances assume ordinary libm accuracy, as in rectangular moments. */
 import { DesignError } from '../model/budget.ts';
 import { validateParametersV3 } from '../model/validation-v3.ts';
 import { createSurfaceField } from './surface-fields.ts';
 import { ridgeContourMoments } from './surface-ridge-contour-moments.ts';
 import { domeContourMoments } from './surface-dome-contour-moments.ts';
+import { spiralContourMoments } from './surface-spiral-contour-moments.ts';
+import { validateSpiralCenter, type SpiralCenter } from './spiral-center.ts';
+import { contourComplexEnvelope as envelope } from './surface-contour-derivatives.ts';
 
 export interface ContourSpan {
   readonly points: readonly (readonly [number, number])[];
@@ -38,20 +40,6 @@ const weights = [.1012285362903763, .2223810344533745, .3137066458778873, .36268
 // Gauss-8 remainder after Cauchy's 16! derivative bound, on a unit interval.
 const gauss = 40320 ** 4 / (17 * 20922789888000 ** 2);
 const maximum = (a: number[]) => Math.max(...a.map(Math.abs));
-/** Bounds polynomial values/derivatives on every complex disk of radius rho
- * centered on [0,1]. Bernstein forward differences bound real derivatives;
- * the finite Taylor expansion is exact, including high-degree nearly-flat arcs. */
-function envelope(coefficients: number[], rho: number) {
-  const n = coefficients.length - 1, magnitude = maximum(coefficients);
-  let row = coefficients, binomial = 1, variation = 0, derivative = 0;
-  for (let j = 1; j <= n; j++) {
-    row = row.slice(1).map((x, i) => x - row[i]!); binomial *= (n - j + 1) / j;
-    variation += binomial * maximum(row) * rho ** j;
-    derivative += j * binomial * maximum(row) * rho ** (j - 1);
-  }
-  const rounding = 4096 * Number.EPSILON * Math.max(1, magnitude) * (1 + 2 * rho) ** n;
-  return { value: magnitude + variation + rounding, variation: variation + rounding, derivative: derivative + n * rounding };
-}
 function at(h: readonly HPoint[], t: number): HPoint {
   let row = h.map(p => [...p]);
   while (row.length > 1) row = row.slice(1).map((p, i) => p.map((v, k) => row[i]![k]! * (1 - t) + v * t));
@@ -68,10 +56,11 @@ function divide(h: readonly HPoint[]): [HPoint[], HPoint[]] {
 
 /** Caller supplies spans of a validated, closed native face in assembly mm.
  * Native contour approximation/closure errors remain a separate explicit budget.
- * This function validates numeric/work bounds; it does not infer native topology. */
-export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpan[], anchor: readonly [number, number], tolerance?: number): ContourMoments {
+ * This function validates numeric/work bounds; it does not infer native topology.
+ * Spiral center modes are explicit diagnostic arguments, not saved parameters. */
+export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpan[], anchor: readonly [number, number], tolerance?: number, spiralCenter: SpiralCenter = 'linear'): ContourMoments {
   const p = validateParametersV3(input);
-  if (!['wave', 'dunes', 'random', 'ring', 'ridges', 'dome'].includes(p.family)) throw new DesignError('SURFACE_DOMAIN', 'This contour integrator requires an entire harmonic field, Ridges or Dome.');
+  validateSpiralCenter(spiralCenter);
   if (anchor.length !== 2 || !anchor.every(x => Number.isFinite(x) && Math.abs(x) <= 4000) || !spans.length || spans.length > 2048) throw new DesignError('SURFACE_DOMAIN', 'Invalid bounded contour.');
   let poles = 0, scale = 0;
   const initial = spans.map(span => {
@@ -90,7 +79,7 @@ export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpa
   if (!Number.isFinite(scale) || scale < .001 || scale > 8000) throw new DesignError('SURFACE_DOMAIN', 'Invalid contour extent.');
   if (tolerance !== undefined && (!Number.isFinite(tolerance) || tolerance <= 0)) throw new DesignError('SURFACE_DOMAIN', 'Invalid moment precision.');
   const field = createSurfaceField(p), target = Math.min(.001, .00025 / Math.max(p.depth, 1), tolerance ?? Infinity);
-  const geometricOnly = p.family === 'ridges' || p.family === 'dome';
+  const geometricOnly = p.family === 'ridges' || p.family === 'dome' || p.family === 'spiral';
   const k = geometricOnly ? 0 : 2 * Math.PI * p.density / Math.min(p.width, p.height) * (p.family === 'random' ? 1.5 : p.family === 'ring' ? 2 : 1);
   let evaluations = 0, created = 0;
   function chart(h: HPoint[], direction: number, a: number, b: number, depth: number): Chart {
@@ -148,6 +137,7 @@ export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpa
         mean: normalized[6]!, uMean: normalized[7]!, vMean: normalized[8]!, error: resultError, evaluations });
       if (p.family === 'ridges') return ridgeContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created);
       if (p.family === 'dome') return domeContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created);
+      if (p.family === 'spiral') return spiralContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created, spiralCenter);
       return result;
     }
     // At most 1,024 evaluated charts fit the field-work cap. A direct scan keeps

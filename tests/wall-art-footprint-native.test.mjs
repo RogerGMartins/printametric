@@ -7,10 +7,10 @@ import { loadKernel } from './support/wall-art-kernel.mjs';
 import { buildFlatFootprint, radialCurveSign } from './support/shape-surface-footprint-native.mjs';
 import { meshBoundarySurface } from './support/shape-surface-boundary-mesh.mjs';
 
-for (const [planar, family] of [[false, 'wave'], [true, 'wave'], [true, 'ridges'], [true, 'dome']]) test(`native homothetic ${family} ${planar ? 'sloping' : 'flat'} tops cover layouts and reject proven protruding sections`, { timeout: 120_000 }, async t => {
+for (const [planar, family] of [[false, 'wave'], [true, 'wave'], [true, 'ridges'], [true, 'dome'], [true, 'spiral']]) test(`native homothetic ${family} ${planar ? 'sloping' : 'flat'} tops cover layouts and reject proven protruding sections`, { timeout: 120_000 }, async t => {
   for (const outline of OUTLINES) {
     const rows = await new Promise((resolve, reject) => {
-      const worker = new Worker(new URL('./support/shape-surface-footprint-probe.mjs', import.meta.url), { workerData: { outline, planar, family } });
+      const worker = new Worker(new URL('./support/shape-surface-footprint-probe.mjs', import.meta.url), { workerData: { outline, planar, family, spiralCenter: family === 'spiral' ? 'smooth-c2' : 'linear' } });
       let result; const timer = setTimeout(() => { worker.terminate(); reject(Error('Native outline fixture exceeded 30 seconds.')); }, 30_000);
       worker.once('message', value => { result = value; }); worker.once('error', reject);
       worker.once('exit', code => { clearTimeout(timer); code === 0 && result ? resolve(result) : reject(Error(`Native outline worker exited ${code}.`)); });
