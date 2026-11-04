@@ -55,6 +55,16 @@ installation, reopen terminals/OpenCode and confirm `node --version`, then run
   `npm run test:browser:install` to install Chromium and required OS libraries.
   Repeat browser installation after a Playwright upgrade. No MCP service or model
   credentials are needed for these tests.
+- On Windows laptops, `npm run check:awake` runs the same gate while holding a
+  temporary system/display keep-awake request. It restores the thread's previous
+  execution state on exit; it does not change the power plan or deadlines. Use it
+  for unattended local verification: Modern Standby can suspend native work and
+  cause unrelated Node/browser timeouts. Explicit Sleep or lid closure still wins.
+  The wrapper uses built-in Windows PowerShell and
+  [SetThreadExecutionState](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate).
+  To diagnose a suspected suspension, inspect System events from
+  `Microsoft-Windows-Kernel-Power` (Modern Standby entry 506 / exit 507) and compare
+  their timestamps with the failed run. CI continues to use `npm run check`.
 - To debug startup, open the dev URL and the browser's Sources panel, find
   `src/main.tsx` or `src/app/App.tsx`, set a breakpoint, and reload. Check the
   browser console and Vite terminal for failures. StrictMode can render twice
@@ -625,6 +635,42 @@ Retained starter views and independent 3MF/slicer evidence are linked in the
 [R3 progress checkpoint](plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter).
 These local HTML/scripts are evidence, not application routes or CI dependencies.
 The full P2 visual/export review and production integration remain pending.
+
+### R3 contour, anchor and bare-identification probes
+
+```sh
+node --test tests/wall-art-contour-moments.test.mjs tests/wall-art-footprint-native.test.mjs tests/wall-art-bare-identification.test.mjs tests/wall-art-native-anchor.test.mjs
+```
+
+`surface-contour-moments.ts` integrates Wave/Dunes/Random/Ring/Ridges/Dome on native
+rational contours, including concave footprints. Harmonic fields use signed fans;
+Ridges and Dome use Green boundary integrals with bounded weak second derivatives
+across creases and the disk edge. Their family-specific contour modules share
+real rational-curve derivative helpers. Whole-chart bounds and 65,536 combined
+geometry/field evaluations limit work. Unsupported Spiral domains reject.
+`surface-contour-plane.ts` fits area-weighted planes and certifies their complete
+boundary constraints. Native footprint probes use four outline families and five
+layouts, with Wave/Ridges/Dome planes; curved sloping caps also pass native STEP
+and independent STL readers. The Ridges periodic primitive removes cancellation
+without changing the field. Dome uses control-hull bounds to distinguish interior,
+exterior and disk-crossing curves. Work exhaustion remains a visible rejection.
+
+`nativeFootprintMoments` accepts an explicit anchor and top-domain ratio. Its fitted
+coefficients use that anchor. `buildAnchoredPlanarFootprint` instead accepts physical
+slopes relative to the source centroid and returns the local solid with its required
+world translation. Do not substitute the original centroid for that translation.
+`shape-surface-anchor.mjs` bounds native-distance search at 4,096 samples; exhaustion
+rejects. These numerical constants remain checkpoint proposals for P2 review.
+
+`shape-surface-bare-identification.mjs` checks cutter prisms against actual material.
+A proven missing floor omits both marks. If no prism proves failure but a residue
+is ambiguous, generation rejects; native-operation failures also propagate. The
+tests cover below/at/above-floor slabs, sloping material and retained source solids.
+Callers must separately establish bare-material validity before identification.
+These helpers remain isolated tests, not production generator-3 dispatch. Current
+evidence and remaining scope are in the [contour checkpoint](plans/wall-art-shape-surface.md#r3-progress--contours-planes-anchors-and-bare-identification).
+The [Ridges/Dome extension](plans/wall-art-shape-surface.md#r3-progress--ridges-and-dome-contour-moments)
+records independent area oracles, native matrices and export evidence.
 
 ## Impeccable design tooling
 

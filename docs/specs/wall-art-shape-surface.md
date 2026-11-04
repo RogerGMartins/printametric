@@ -1,6 +1,6 @@
 # Wall art 03 — shape and surface relief
 
-Status: **R3 in progress: rectangular fields/modes, flat native footprints and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-03). Product/UI decisions remain recorded.**
+Status: **R3 in progress: rectangular fields/modes, six-family contour moments, native flat/sloping footprints, anchor/floor probes and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-04). Product/UI decisions remain recorded.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
 
@@ -12,8 +12,14 @@ a completed P2 checkpoint.
 
 The [R3 progress checkpoint](../plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter)
 records the implemented subsets, rejected containment case, starter views and
-independent exports. General clipped integration, nonrectangular curved tops,
-anchor fallback and no-plinth identification remain incomplete. Review images
+independent exports. The [contour and identification checkpoint](../plans/wall-art-shape-surface.md#r3-progress--contours-planes-anchors-and-bare-identification)
+adds bounded capability evidence for native sloping caps, anchor fallback and
+no-plinth cuts. The [Ridges and Dome contour checkpoint](../plans/wall-art-shape-surface.md#r3-progress--ridges-and-dome-contour-moments)
+adds bounded crease/disk-edge integration and native planar-top evidence.
+The [shared-gate timing investigation](../plans/wall-art-shape-surface.md#shared-gate-resolution--windows-idle-standby)
+identified Windows idle standby; the complete gate passes with a scoped keep-awake request.
+Spiral clipped integration, nonrectangular continuous tops and
+complete identification/retention qualification remain incomplete. Review images
 are evidence for a later decision, not implicit acceptance of curvature settings.
 
 ## Guided decision review — 2026-11-03

@@ -810,3 +810,213 @@ Targeted moments, profile, footprint, domain and mode checks pass. Full
 **124 Node tests** and **70 browser tests** (2.1 minutes for the browser suite).
 Output: `artifacts/phase03-r3-check.log`. `git diff --check` passed. These checks
 cover the implemented capability paths, not the remaining full P2 requirements.
+
+### R3 progress — contours, planes, anchors and bare identification
+
+After publication of `2b21017` to PR #22, the approved investigation continued with
+the following capability slices. PR checks passed on Ubuntu and Windows for that
+published commit; its separate Windows push job was cancelled. The evidence below
+belongs to subsequent local work until another checkpoint is published.
+
+- **Native contour moments:** Wave, Dunes, Random and Ring use signed radial fans
+  over rational Bézier boundaries. Gauss remainder/complex-domain bounds control
+  refinement. Contour approximation contributes a separate area-error allowance.
+  Concave-domain integration does not establish taper containment. Work remains
+  capped at 65,536 field evaluations, 4,096 chart creations/poles and depth 8.
+  Ordinary floating-point/libm assumptions remain explicit. Dome/Ridges/Spiral
+  contour integration rejects instead of using an uncertified approximation.
+- **Native sloping caps:** area-weighted plane fitting uses the actual domain
+  moments, bounded constraint exchange and whole-boundary rational certificates.
+  A relaxed objective bounds fitting error; uncertainty above 0.0002 mm rejects.
+  Exact affine pole transforms make native planar caps with curved trim. Flank
+  bounds reject folding. Twenty outline/layout combinations pass native-solid and
+  canonical-mesh checks. A curved ellipse/radial cap passes native STEP volume
+  and independent STL triangle/placement checks. Additional local two-reader STEP
+  and 3MF/slicer evidence is recorded below.
+- **Anchor fallback:** keep an interior area centroid; otherwise bound the largest
+  inscribed-circle radius using native signed distances and deterministic search.
+  Proposed constants are 0.0000001 mm distance error, 0.0005 mm radius tolerance,
+  0.000001 mm candidate tie tolerance, 4,096 samples and depth 24. Exhaustion rejects.
+  The outside-centroid L fixture repeats its result, bounds the known radius and
+  retains world placement for a sloping cap. An independent area-moment check
+  corrected the fixture's supplied centroid from `[36,36]` to `[33,33]`.
+  Source metadata stays unchanged; the returned solid carries its selected-anchor
+  translation. Numerical tie selection remains a P2 contract-review item.
+- **Bare identification:** a temporary reference prism supplies only the existing
+  2D glyph placement. Every number/arrow prism is checked against the real solid
+  through the requested cut depth plus 1.2 mm. One proven missing prism omits both
+  marks with `residual-floor`; failed 2D placement uses `glyph-fit`. Without a proven
+  failure, ambiguous residues reject. Operational CAD failures always propagate.
+  No reference prism is fused to the part. Tests cover valid engraving, narrow tops,
+  invalid bare material, disabled marks, native failure and unchanged source solids.
+  Slab offsets of −0.1/−0.01 mm below the floor produce Map-only ID; the exact floor
+  and +0.01 mm engrave. The −0.001 mm fixture rejects as uncertain. Sloping material
+  also proves a missing floor despite its taller edge. This is capability evidence,
+  not complete bare-material validation for arbitrary continuous tops.
+
+The original 40 native footprint selections now use actual Wave area means for
+stepped heights: 39 accepted meshes and one proven intermediate-taper rejection.
+All four supported fields have bounded means on those selections. Pure regressions
+compare independent rectangular and polar integrals, orientation and concave area;
+they reject invalid coordinates, weights and exhausted work. The circular plane
+oracle checks both inactive and active constraints.
+
+An early ellipse integration exhausted work with a coarse polynomial bound. Exact
+finite Taylor bounds tightened that estimate without raising limits. A plane case
+initially exceeded its height-error allocation; refining the numerical interior
+margin resolved it without changing the acceptance allocation. Failed diagnostic
+logs remain under `artifacts/phase03-r3-contour-*.log`.
+
+Combined contour/footprint/identification/anchor regressions passed nine tests in
+18.0 seconds before the additional floor-boundary regression. The extended floor
+and anchor checks then passed three tests. Logs: `artifacts/phase03-r3-combined.log`
+and `artifacts/phase03-r3-floor-anchor-boundaries.log`.
+
+Local export probes cover the curved sloping cap and a valid bare Map-only part.
+Both STEP files pass native solid/volume checks and an independent CAD reader's
+mesh, placement and volume checks. Independent STEP meshes contain 2,816 / 332
+triangles with relative volume errors 0.000088529 / 0.000680764. OrcaSlicer imports
+their standard 3MF files and re-exports actual 2,060 / 484-triangle STL files. Those
+files pass closed-mesh, winding, world-placement and volume checks; relative volume
+errors are 0.000172246 / 0.000437896. Their source Z is already zero, and placement
+is preserved. Orca logs its existing exclude-triangles message but exits zero;
+success is based on the checked output files. Evidence is under
+`artifacts/wall-art-shape-surface/contour-export/`, with `step-reader-evidence.json`
+and `slicer-evidence.json`. The local script is
+`artifacts/phase03-r3-contour-export.mjs`. No physical print is claimed.
+
+Full `npm run check` passed scaffold validation, both typechecks, production build,
+**132 Node tests and 70 browser tests** (2.1 minutes for the browser suite).
+Log: `artifacts/phase03-r3-contour-check.log`. Existing build warnings remain;
+the WebGL error is from the deliberate failure-recovery test. `git diff --check`
+passed. These checks cover this capability slice, not complete P2 acceptance.
+
+Remaining R3 work includes Dome/Ridges/Spiral nonrectangular moments, general
+continuous native tops, broader identification/material/anchor coverage, combined
+error accounting, full family/mode assembly views and retained-design/browser
+budgets. The full P2 review and P3–P7 approval gate still apply. Architecture,
+product/roadmap and README need no change for these isolated capability probes;
+the spec status and development diagnostics are updated here.
+
+### R3 progress — Ridges and Dome contour moments
+
+The user requested continued approved R3 work on 2026-11-04, then requested a PR
+update and resolution of the verification issue. This extends the previous
+checkpoint in PR #22. The full P2 review still gates production integration.
+
+Ridges and Dome now integrate actual native rational contours, including concave
+domains. Green boundary integrals provide area means and first moments. Their
+primitives have continuous first derivatives and bounded weak second derivatives
+across field creases or the disk edge. Composite midpoint remainder bounds cover
+whole intervals; agreement of sampled grids is not the acceptance rule. Shared
+rational derivative helpers bound the native curves without polygon substitution.
+Geometric and field stages share the existing 65,536 evaluation and 4,096 chart
+creation limits. Arithmetic/libm assumptions remain explicit; exhaustion rejects.
+
+- Ridges uses periodic triangular-wave primitives. Subtracting terms whose closed
+  boundary integrals vanish reduces cancellation without changing the field,
+  phase or surface seed. The initial nonperiodic form exhausted work during tight
+  planar fitting; `artifacts/phase03-r3-ridge-planes.log` preserves that failure.
+- Dome uses radial fluxes for `max(0,1-r²)`. Control-hull bounds distinguish curves
+  inside, outside or crossing its disk. Constant line determinants retain signed
+  cancellation rather than charging every short edge for its coordinate box.
+  Initial square/triangle plane probes exceeded 65,536 evaluations. The tighter
+  bounds resolved them without increasing limits or relaxing precision. Failed
+  logs remain `phase03-r3-dome-planes.log` and `phase03-r3-dome-planes-bounded.log`.
+
+Pure regressions compare rectangular closed forms, independent disk-area slices,
+exact centered Dome disks, concave decompositions, world moments across anchors,
+reversed/rationally rescaled curves and deterministic repeats. Ridges covers
+density 0.2/12, phase endpoints, seed endpoints and 200 mm amplitude; Dome covers
+inside/on/outside/crossing disk boundaries and 200 mm amplitude. Excess precision
+and work still reject. Native probes now evaluate all six supported fields on the
+40 selected clipped footprints. Plane matrices add **20 Ridges and 20 Dome cases**
+to the existing 20 Wave cases. Each uses the same native containment, fitted-height,
+solid/mesh and independent volume checks. Dome can legitimately produce a flat
+plane on a symmetric footprint; each outline matrix also requires a sloping case.
+The Dome-only matrix passed in 27.0 seconds; this is diagnostic timing, not a
+capacity tier (`artifacts/phase03-r3-dome-planes-flux.log`).
+
+Ellipse/radial planes pass native STEP volume and independent STL placement checks
+in the regression matrix. Additional local Ridges/Dome files pass a second STEP
+reader and 3MF import/re-export through OrcaSlicer. Actual slicer output files are
+checked for closed meshes, winding, volume and unchanged millimeter placement;
+an exit code alone is not acceptance. Evidence is under
+`artifacts/wall-art-shape-surface/{ridge,dome}-contour-export/`, including
+`step-reader-evidence.json` and `slicer-evidence.json`. The ignored local script
+`artifacts/phase03-r3-contour-export.mjs` selects `--ridges` or `--dome`. No physical
+print or full-family assembly qualification is claimed.
+
+| Representative plane | Independent STEP triangles / relative volume error | Slicer STL triangles / relative volume error |
+| --- | --- | --- |
+| Ridges | 3,428 / 0.000104076 | 2,110 / 0.000159599 |
+| Dome | 4,686 / 0.000088978 | 2,762 / 0.000198705 |
+
+The independent STEP reader retains its separate 500,000-triangle diagnostic
+ceiling; generated canonical parts remain capped at 100,000. Orca again logs its
+exclude-triangles message; the checked files establish this round-trip result.
+
+#### Shared-gate blocker — 2026-11-04
+
+The first full `npm run check` for this extension passed scaffold validation, both typechecks and the
+production build, then stopped at Node tests: **136 passed, one failed and two
+were cancelled out of 139**. The flat-footprint outline worker exceeded its
+30-second watchdog. The existing v2 rectangle/triangular and rectangle/radial
+export cases also exceeded their 30-second test limits. Browser tests did not run
+in that gate. Log: `artifacts/phase03-r3-ridge-dome-check.log`.
+
+At that point the failure had not been attributed to a cause. Isolating the two existing
+export cases reproduced a passing triangular case followed by a radial timeout.
+A fresh-process trace of the unchanged radial fixture completed its native build,
+STEP readers and mesh exports in about three seconds. The same trace after a
+triangular worker exceeded 30 seconds, including when the first worker exited
+naturally. This is evidence of a sequence-dependent slowdown, not proof of its
+owner or a geometry defect. The ignored diagnostic is
+`artifacts/diagnose-radial-export.mjs`; traces are
+`phase03-r3-{radial-stage-trace,two-worker-stage-trace,natural-exit-stage-trace}.log`
+under `artifacts/`. A combined two-file isolation run also reached its shell's
+120-second limit; it is not a completed test run.
+
+A separate browser run completed 42 passing tests and recorded two 30-second
+camera-test failures before the shell stopped it at 300 seconds. Zoom in timed
+out while filling Seed; Zoom out timed out while pressing its button. The suite
+is incomplete, not a browser pass. Log:
+`artifacts/phase03-r3-ridge-dome-browser.log`; failure traces are in `test-results/`.
+Neither test deadlines nor geometry/error limits were increased. The targeted
+native and export evidence above remained valid, but publication was blocked
+on a passing shared gate. `git diff --check` passed. The resolution follows.
+
+#### Shared-gate resolution — Windows idle standby
+
+The subsequent investigation reproduced intermittent native timeouts even with
+two test files, and then with serial files. Limiting concurrency alone did not
+resolve them. During the serial probe, an existing v2 export reported 835.8 seconds
+despite a 30-second test deadline. Windows System events identify Modern Standby
+entry at **19:48:04 on 2026-11-04** (event 506, Idle Timeout) and exit at **20:01:55**
+(event 507, keyboard input). That suspension matches the long elapsed interval.
+Earlier short slowdowns were not individually attributed; no geometry defect was
+established by those timing failures.
+
+With a temporary system/display keep-awake request, the unchanged full gate passed:
+scaffold validation, both typechecks, production build, **139 Node tests** in 77.2
+seconds and **70 browser tests** in 2.4 minutes. This includes the previously failing
+native and camera tests. Log: `artifacts/phase03-awake-check.log`. No timeout,
+geometry/error budget, test concurrency or assertion was relaxed.
+
+`npm run check:awake` now provides that opt-in Windows setup using the existing
+gate entry point. Its PowerShell thread restores the previous execution state in
+`finally`; process exit also releases the request. It changes no persistent power
+setting and does not override explicit user sleep. Normal `npm run check` and CI
+keep their existing behavior. The development guide records usage and diagnosis.
+
+The committed wrapper was then verified through `npm run check:awake`: the same
+complete gate passed again, with **139 Node tests** in 109.3 seconds and **70 browser
+tests** in 4.8 minutes. Log: `artifacts/phase03-publish-check.log`. Timing remains
+machine-dependent; both runs preserve the existing individual deadlines. The
+earlier failed logs remain available. `git diff --check` passed before publication.
+
+Spiral nonrectangular moments, general continuous native tops, broader material/
+identification/anchor coverage, combined construction-error accounting, complete
+family/mode assembly views and retained-design/browser budgets remain R3 work.
+This extension adds no production dispatch, dependency or saved-format change.
+Architecture, product/roadmap and README need no update for this isolated slice.

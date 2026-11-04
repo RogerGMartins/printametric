@@ -1,14 +1,18 @@
-/** Isolated R3 flat-top capability for native footprints. Positive rational
+/** Isolated R3 flat/sloping-top capability for native footprints. Positive rational
  * Bernstein weights and a whole-boundary radial-tangent certificate establish
  * a star-shaped footprint about its area centroid before homothetic tapering.
  * A failed certificate rejects; it does not silently move the anchor or clip
- * protruding sections. General anchor selection and sloping tops remain separate. */
+ * protruding sections. The explicit anchor wrapper preserves source metadata. */
 import { Blueprint, Curve2D, Drawing, cast, deserializeDrawing, deserializeShape } from 'replicad';
 import { validateSolid } from '../../src/shared/geometry/kernel.ts';
 import { nativeBoolean, nativeExtrude, nativeScale, nativeTranslate, requireSolid } from '../../src/tools/wall-art/geometry/native-operations.ts';
 import { classifySpan } from '../../src/tools/wall-art/geometry/layouts/span.ts';
 import { fitPowerProfile } from '../../src/tools/wall-art/geometry/surface-fit.ts';
 import { meshWithNativeVertices } from './shape-surface-vertex-mesh.mjs';
+import { contourSurfaceMoments } from '../../src/tools/wall-art/geometry/surface-contour-moments.ts';
+import { validateParametersV3 } from '../../src/tools/wall-art/model/validation-v3.ts';
+import { fitContourPlane } from '../../src/tools/wall-art/geometry/surface-contour-plane.ts';
+import { selectNativeAnchor } from './shape-surface-anchor.mjs';
 
 const choose = (n, k) => { let value = 1; for (let i = 1; i <= k; i++) value = value * (n - i + 1) / i; return value; };
 const product = (a, b) => Array.from({ length: a.length + b.length - 1 }, (_, k) => {
@@ -45,12 +49,8 @@ export function radialCurveSign(points, weights, direction = 1) {
   return prove(residual, 0);
 }
 
-export function buildFlatFootprint(kernel, base, { ratio, concavity, baseThickness, topHeight }) {
-  if (![ratio, concavity, baseThickness, topHeight, ...base.centroid].every(Number.isFinite) || ratio < .1 || ratio > 1 || concavity < 1 || concavity > 4 ||
-    baseThickness < 0 || baseThickness > 40 || topHeight <= baseThickness || topHeight < 1.2 || topHeight > 360) throw Error('Invalid flat footprint parameters.');
-  const resources = [], own = object => { resources.push(object); return object; };
-  let solid;
-  try {
+/** Both integration and construction consume the same bounded native contour. */
+function prepareFootprint(kernel, base, own, containment) {
     const restored = own(deserializeShape(base.nativeFace));
     let local = own(nativeTranslate(kernel, restored, -base.centroid[0], -base.centroid[1], 0)), maximumContourApproximationMm = 0;
     const initialEdges = local.edges.map(own);
@@ -75,7 +75,7 @@ export function buildFlatFootprint(kernel, base, { ratio, concavity, baseThickne
     }
     const wires = local.wires.map(own);
     if (wires.length !== 1) throw Error('Flat footprint requires one simple native boundary.');
-    const curves = []; let sign, radius = 0, boundaryPoles = 0;
+     const curves = [], spans = []; let sign, radius = 0, boundaryPoles = 0;
     for (const edge of wires[0].edges.map(own)) {
       const envelope = own(kernel.BRep_Tool.Curve(edge.wrapped));
       const trimmed = own(new kernel.Geom_TrimmedCurve(envelope.returnValue, envelope.First, envelope.Last, true, true));
@@ -96,18 +96,94 @@ export function buildFlatFootprint(kernel, base, { ratio, concavity, baseThickne
           try { points.push([point.X(), point.Y()]); radius = Math.max(radius, Math.hypot(point.X(), point.Y())); } finally { point.delete(); }
           weights.push(refined.Weight(offset + i + 1));
         }
-        const current = radialCurveSign(points, weights, direction);
-        if (sign !== undefined && sign !== current) throw Error('Footprint centroid cannot contain every homothetic section.');
-        sign = current;
+         if (containment) {
+           const current = radialCurveSign(points, weights, direction);
+           if (sign !== undefined && sign !== current) throw Error('Footprint centroid cannot contain every homothetic section.');
+           sign = current;
+         }
+         spans.push({ points: points.map(p => [p[0] + base.centroid[0], p[1] + base.centroid[1]]), weights, direction });
       }
       curves.push(curve);
     }
-    if (!curves.length || !Number.isFinite(radius) || radius > 4000) throw Error('Invalid bounded footprint.');
+     if (!curves.length || !Number.isFinite(radius) || radius > 4000) throw Error('Invalid bounded footprint.');
+     return { local, curves, spans, radius, maximumContourApproximationMm };
+}
+
+/** Supported field moments over a real native contour, including signed fans for
+ * non-star-shaped parts. Does not approve that contour for homothetic tapering. */
+export function nativeFootprintMoments(kernel, base, input, options = {}) {
+  const p = validateParametersV3(input), resources = [], own = object => { resources.push(object); return object; };
+  try {
+    const prepared = prepareFootprint(kernel, base, own, false);
+    const ratio = options.ratio ?? 1;
+    if (!Number.isFinite(ratio) || ratio < .1 || ratio > 1) throw Error('Invalid integration-domain ratio.');
+    const anchor = options.anchor ?? base.centroid;
+    if (anchor.length !== 2 || anchor.some(v => !Number.isFinite(v) || Math.abs(v) > 4000)) throw Error('Invalid moment anchor.');
+    const spans = prepared.spans.map(s => ({ ...s, points: s.points.map(point => point.map((v, i) => anchor[i] + ratio * (v - anchor[i]))) }));
+    const moments = contourSurfaceMoments(p, spans, anchor, options.plane ? 1e-8 : undefined);
+    // A tube around the approximating boundary bounds the possible area change.
+    // Rational derivative hulls bound its length; no sampled perimeter estimate.
+    let lengthBound = 0;
+    for (const span of prepared.spans) {
+      const n = span.points.length - 1, maxW = Math.max(...span.weights), w = span.weights.map(v => v / maxW), minW = Math.min(...w);
+      const x = span.points.map((v, i) => (v[0] - span.points[0][0]) * w[i]), y = span.points.map((v, i) => (v[1] - span.points[0][1]) * w[i]);
+      const magnitude = values => Math.max(...values.map(Math.abs));
+      const derivative = values => magnitude(values.slice(1).map((v, i) => n * (v - values[i])));
+      const dw = derivative(w), dx = (derivative(x) + magnitude(x) * dw) / minW ** 2, dy = (derivative(y) + magnitude(y) * dw) / minW ** 2;
+      lengthBound += Math.hypot(dx, dy);
+    }
+    const e = prepared.maximumContourApproximationMm, areaError = ratio ** 2 * (2 * lengthBound * e + prepared.spans.length * Math.PI * e * e);
+    const error = moments.error + 4 * areaError / (moments.area - areaError);
+    if (!Number.isFinite(error) || areaError >= moments.area || error > Math.min(.001, .00025 / Math.max(p.depth, 1))) throw Error('Native contour approximation exhausts the moment error allocation.');
+    if (Math.abs(moments.area - base.area * ratio ** 2) > areaError + moments.area * moments.error + 1e-6) throw Error('Integrated contour area disagrees with its native source.');
+    const fitted = options.plane ? fitContourPlane({ ...moments, error }, spans, anchor) : undefined;
+    if (fitted && fitted.error * p.depth > .0002) throw Error(`Native plane uncertainty exceeds its height error allocation: ${fitted.error * p.depth} mm; moment ${error}; objective gap ${fitted.objectiveGap}.`);
+    return Object.freeze({ ...moments, error, fitted, anchor: [...anchor], maximumContourApproximationMm: e });
+  } finally { for (const resource of resources.reverse()) resource[Symbol.dispose] ? resource[Symbol.dispose]() : resource.delete(); }
+}
+
+export function buildFlatFootprint(kernel, base, { ratio, concavity, baseThickness, topHeight }) {
+  return buildPlanarFootprint(kernel, base, { ratio, concavity, baseThickness, top: [topHeight, 0, 0] });
+}
+
+/** Select the prescribed anchor without changing source layout metadata. `top`
+ * remains expressed about the source area centroid. The returned translation
+ * must accompany this local solid when constructing a canonical Part. */
+export function buildAnchoredPlanarFootprint(kernel, base, options) {
+  const face = deserializeShape(base.nativeFace);
+  let anchor;
+  try { anchor = selectNativeAnchor(kernel, face, base.centroid); } finally { face.delete(); }
+  const [height, sx, sy] = options.top;
+  const shiftedHeight = height + sx * (anchor.point[0] - base.centroid[0]) + sy * (anchor.point[1] - base.centroid[1]);
+  const result = buildPlanarFootprint(kernel, { ...base, centroid: anchor.point }, { ...options, top: [shiftedHeight, sx, sy] });
+  return { ...result, anchorCertificate: anchor, translation: [...anchor.point, 0] };
+}
+
+/** top=[height at centroid, dz/dx, dz/dy] in local physical millimeters. */
+export function buildPlanarFootprint(kernel, base, { ratio, concavity, baseThickness, top }) {
+  const [topHeight, slopeX, slopeY] = top;
+  if (![ratio, concavity, baseThickness, topHeight, ...base.centroid].every(Number.isFinite) || ratio < .1 || ratio > 1 || concavity < 1 || concavity > 4 ||
+    top.length !== 3 || ![slopeX, slopeY].every(Number.isFinite) || baseThickness < 0 || baseThickness > 40 || topHeight <= baseThickness || topHeight < 1.2 || topHeight > 360) throw Error('Invalid planar footprint parameters.');
+  const resources = [], own = object => { resources.push(object); return object; };
+  let solid;
+  try {
+    const { local, curves, radius, maximumContourApproximationMm } = prepareFootprint(kernel, base, own, true);
     const topFace = own(nativeScale(kernel, local, ratio));
     if (classifySpan(kernel, topFace).below) throw Error('Tapered top is narrower than 1.2 mm.');
     const profile = fitPowerProfile(concavity, .0002 / (radius * Math.max(1 - ratio, .000001)));
     const coefficients = [...profile.coefficients].reverse().map(value => ratio + (1 - ratio) * value), degree = coefficients.length - 1;
     if (Math.min(...coefficients) <= 0 || Math.max(...coefficients) > 1) throw Error('Native profile cannot certify contained scale factors.');
+    const tilt = ratio * radius * Math.hypot(slopeX, slopeY), centralHeight = topHeight - baseThickness;
+    if (topHeight - tilt < 1.2 || centralHeight <= tilt || topHeight + tilt > 360) throw Error('Planar footprint violates its height bounds.');
+    const derivatives = coefficients.slice(1).map((v, i) => degree * (v - coefficients[i]));
+    const prove = (sizes, slopes, from, to, depth) => {
+      const lower = Math.min(...sizes), contraction = Math.max(0, ...slopes.map(v => -v));
+      if (lower > 0 && centralHeight - tilt - to * contraction * tilt / lower > 1e-10) return;
+      if (depth === 8) throw Error('Planar footprint cannot certify unfolded flanks.');
+      const [s0, s1] = split(sizes), [d0, d1] = split(slopes), mid = (from + to) / 2;
+      prove(s0, d0, from, mid, depth + 1); prove(s1, d1, mid, to, depth + 1);
+    };
+    prove(coefficients, derivatives, 0, 1, 0);
     const sections = []; const divide = (values, a, b, depth) => {
       if (depth === 2) { sections.push({ values, a, b }); return; }
       const [left, right] = split(values), mid = (a + b) / 2; divide(left, a, mid, depth + 1); divide(right, mid, b, depth + 1);
@@ -115,7 +191,28 @@ export function buildFlatFootprint(kernel, base, { ratio, concavity, baseThickne
     divide(coefficients, 0, 1, 0);
     const poles = curves.reduce((sum, curve) => sum + curve.NbPoles() * (degree + 1) * sections.length, 0);
     if (poles > 4096) throw Error('Flat footprint exceeds the 4096-pole budget.');
-    const faces = [own(nativeTranslate(kernel, local, 0, 0, baseThickness)), own(nativeTranslate(kernel, topFace, 0, 0, topHeight))];
+    let cap;
+    if (slopeX === 0 && slopeY === 0) cap = own(nativeTranslate(kernel, topFace, 0, 0, topHeight));
+    else {
+      // Affine pole transformation preserves rational curves exactly. The cap
+      // remains an actual plane trimmed by those curves, not a faceted proxy.
+      const list = own(new kernel.NCollection_List_TopoDS_Shape());
+      for (const curve of curves) {
+        const copy = own(kernel.GeomConvert.CurveToBSplineCurve(own(new kernel.Geom_TrimmedCurve(curve, curve.FirstParameter(), curve.LastParameter(), true, true))));
+        for (let i = 1; i <= copy.NbPoles(); i++) {
+          const point = copy.Pole(i), x = ratio * point.X(), y = ratio * point.Y(), next = new kernel.gp_Pnt(x, y, topHeight + slopeX * x + slopeY * y);
+          try { copy.SetPole(i, next); } finally { point.delete(); next.delete(); }
+        }
+        const edge = own(new kernel.BRepBuilderAPI_MakeEdge(copy)); if (!edge.IsDone()) throw Error('Planar top boundary construction failed.');
+        list.Append(own(edge.Edge()));
+      }
+      const wire = own(new kernel.BRepBuilderAPI_MakeWire()); wire.Add(list);
+      if (!wire.IsDone()) throw Error('Planar top boundary is not connected.');
+      const face = own(new kernel.BRepBuilderAPI_MakeFace(own(wire.Wire()), true));
+      if (!face.IsDone()) throw Error('Native sloping cap is not planar.');
+      cap = own(cast(own(face.Face())));
+    }
+    const faces = [own(nativeTranslate(kernel, local, 0, 0, baseThickness)), cap];
     const doubles = values => { const a = own(new kernel.NCollection_Array1_double(1, values.length)); values.forEach((value, i) => a.SetValue(i + 1, value)); return a; };
     const integers = values => { const a = own(new kernel.NCollection_Array1_int(1, values.length)); values.forEach((value, i) => a.SetValue(i + 1, value)); return a; };
     const v = doubles([0, 1]), vm = integers([degree + 1, degree + 1]);
@@ -125,7 +222,8 @@ export function buildFlatFootprint(kernel, base, { ratio, concavity, baseThickne
         const boundary = curve.Pole(i);
         try { for (let j = 0; j <= degree; j++) {
           const t = section.a + (section.b - section.a) * j / degree;
-          const point = new kernel.gp_Pnt(boundary.X() * section.values[j], boundary.Y() * section.values[j], baseThickness + (topHeight - baseThickness) * t);
+          const topZ = topHeight + ratio * (slopeX * boundary.X() + slopeY * boundary.Y());
+          const point = new kernel.gp_Pnt(boundary.X() * section.values[j], boundary.Y() * section.values[j], baseThickness + (topZ - baseThickness) * t);
           try { net.SetValue(i, j + 1, point); weights.SetValue(i, j + 1, curve.Weight(i)); } finally { point.delete(); }
         } } finally { boundary.delete(); }
       }

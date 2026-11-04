@@ -7,10 +7,10 @@ import { loadKernel } from './support/wall-art-kernel.mjs';
 import { buildFlatFootprint, radialCurveSign } from './support/shape-surface-footprint-native.mjs';
 import { meshBoundarySurface } from './support/shape-surface-boundary-mesh.mjs';
 
-test('native homothetic flat tops cover layouts and reject proven protruding sections', { timeout: 120_000 }, async t => {
+for (const [planar, family] of [[false, 'wave'], [true, 'wave'], [true, 'ridges'], [true, 'dome']]) test(`native homothetic ${family} ${planar ? 'sloping' : 'flat'} tops cover layouts and reject proven protruding sections`, { timeout: 120_000 }, async t => {
   for (const outline of OUTLINES) {
     const rows = await new Promise((resolve, reject) => {
-      const worker = new Worker(new URL('./support/shape-surface-footprint-probe.mjs', import.meta.url), { workerData: { outline } });
+      const worker = new Worker(new URL('./support/shape-surface-footprint-probe.mjs', import.meta.url), { workerData: { outline, planar, family } });
       let result; const timer = setTimeout(() => { worker.terminate(); reject(Error('Native outline fixture exceeded 30 seconds.')); }, 30_000);
       worker.once('message', value => { result = value; }); worker.once('error', reject);
       worker.once('exit', code => { clearTimeout(timer); code === 0 && result ? resolve(result) : reject(Error(`Native outline worker exited ${code}.`)); });
@@ -19,9 +19,17 @@ test('native homothetic flat tops cover layouts and reject proven protruding sec
     assert.ok(rows.length >= 5 && rows.length <= 10);
     for (const row of rows) {
       if (row.status === 'rejected-protrusion') assert.ok(row.outsideArea > 1e-6);
-      else assert.ok(row.poles <= 4096 && row.triangles <= 100_000 && row.volumeError <= .001 && row.maximumVertexAdjustmentMm <= 1e-7);
+      else {
+        assert.ok(row.poles <= 4096 && row.triangles <= 100_000 && row.volumeError <= .001 && row.maximumVertexAdjustmentMm <= 1e-7);
+        if (planar) {
+          assert.ok(row.planeError * 30 <= .0002);
+          if (family !== 'dome') assert.ok(Math.hypot(...row.planeCoefficients.slice(1)) > 1e-4);
+        }
+      }
     }
     assert.equal(new Set(rows.filter(row => row.status === 'valid').map(row => row.layout)).size, 5);
+    if (planar) assert.ok(rows.some(row => row.status === 'valid' && Math.hypot(...row.planeCoefficients.slice(1)) > 1e-4));
+    if (planar && outline === 'ellipse') assert.deepEqual(rows.find(row => row.layout === 'radial').exportReaders, ['native-step', 'independent-stl']);
     t.diagnostic(`${outline}: ${rows.filter(row => row.status === 'valid').length} valid parts; ${rows.filter(row => row.status === 'rejected-protrusion').length} proven containment rejections.`);
   }
 });
