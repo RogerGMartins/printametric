@@ -55,6 +55,8 @@ installation, reopen terminals/OpenCode and confirm `node --version`, then run
   `npm run test:browser:install` to install Chromium and required OS libraries.
   Repeat browser installation after a Playwright upgrade. No MCP service or model
   credentials are needed for these tests.
+  CI allows 20 minutes for the complete job, including cold browser installation;
+  individual test deadlines and application generation limits remain separate.
 - On Windows laptops, `npm run check:awake` runs the same gate while holding a
   temporary system/display keep-awake request. It restores the thread's previous
   execution state on exit; it does not change the power plan or deadlines. Use it
