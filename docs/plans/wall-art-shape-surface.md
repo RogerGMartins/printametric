@@ -1088,3 +1088,141 @@ combined construction-error accounting, complete family/mode assembly views and
 retained-design/browser budgets. The full P2 review remains required. Architecture,
 product/roadmap and README need no change for this isolated numerical capability;
 the spec status and development diagnostics are updated here.
+
+### R3 progress — continuous native footprints
+
+After publishing the Spiral checkpoint at `1dc362e`, the user requested continued
+R3 work. Its Ubuntu/Windows PR and push checks all passed. The user subsequently
+requested publishing the continuous-top work and Spiral fix before continuing;
+full P2 still gates P3–P7.
+
+The boundary-aware native builder now accepts a real phase-02 footprint. It selects
+the prescribed anchor, certifies star-shaped containment and top span, then trims
+bounded spline patches against the scaled native face. Shared trimmed edges define
+the curved flanks. Optional plinths retain the actual base contour. Native contour
+approximation, top/flank error, control-net and canonical mesh limits remain
+explicit. The returned solid is local to the chosen anchor and carries its required
+world translation; source layout metadata is retained. The older rectangular
+comparison keeps its original coordinates and regression fixtures.
+
+Twenty continuous Wave parts pass across four outlines and five layouts. A blended
+ellipse/radial case also passes, using the real base-area mean. Independent field
+volume combines top-domain moments, a separately converged native-boundary integral
+and the analytic side-profile integral. A default non-adaptive native volume
+estimate initially missed the tighter comparison; adaptive native integration at
+1e-9 meets the unchanged 0.0001 relative field-volume threshold. Canonical mesh
+qualification retains its separate 0.001 volume threshold. Failed evidence remains
+in `artifacts/phase03-r3-continuous-matrix.log`.
+
+The representative continuous Wave cap passes native and independent STEP readers
+and portable STL placement checks. Local 3MF/slicer re-export also passes: the
+independent STEP mesh has 9,414 triangles and relative native-volume error
+0.000220870; the slicer STL has 3,620 triangles and error 0.000696354. World placement
+and millimeter scale are preserved. Evidence is under
+`artifacts/wall-art-shape-surface/continuous-contour-export/`. The slicer's existing
+exclude-triangles message is not used as success evidence; the actual file is
+checked. No physical-print or whole-family assembly qualification is claimed.
+
+General continuous-family support is **not complete**. An ellipse/radial Spiral
+fixture exceeds the existing 4,096-pole budget after trimming and flank construction,
+at both investigated top ratios. A regression retains its rejection before export.
+Logs: `artifacts/phase03-r3-continuous-spiral.log` and
+`phase03-r3-continuous-spiral-narrow.log`. This needs bounded control-net work, not
+an increased budget. Broader bare-material/identification/anchor checks, combined
+construction-error accounting, full family/mode views and retained-design/browser
+qualification remain pending.
+
+#### Native test file concurrency and final verification
+
+The first full local keep-awake run still hit native fixture deadlines: 136 of 148
+Node tests passed, six failed and six were cancelled. Build/typechecks passed;
+browsers were not reached. With two concurrent Node test files, 146 passed and two
+existing export tests timed out. With one file, all 148 passed in 566.0 seconds,
+including the new native/export checks. Logs are
+`artifacts/phase03-r3-continuous-check.log`, `phase03-continuous-two-files-awake.log`
+and `phase03-continuous-one-file-awake.log`. These results do not attribute every
+earlier slowdown to one cause or establish a throughput guarantee.
+
+The shared gate and `npm test` now explicitly select one Node test file at a time.
+Each native fixture retains its own worker lifetime and deadline. This bounds
+file-level heap multiplication instead of inheriting a CPU-count-based default.
+Application worker policy, geometry limits, browser workers, test timeouts and
+assertions are unchanged.
+
+The first complete serial gate passed all 148 Node tests but timed out in one
+existing cross-tab export-cleanup browser check; 69 browser tests passed. That
+test passed in isolation. No reproducible storage defect was established, and
+its timeout/assertions remain unchanged. Logs: `phase03-r3-continuous-serial-check.log`
+and `phase03-continuous-storage-repro.log` under `artifacts/`.
+
+The final `npm run check:awake` passed scaffold validation, both typechecks,
+production build, **148 Node tests** in 245.1 seconds and **70 browser tests**.
+Log: `artifacts/phase03-r3-continuous-final-check.log`. `git diff --check` passed.
+This verifies the current local slice and runner change, not the remaining full
+P2 requirements. Architecture/product/roadmap/README need no change for this
+isolated slice; the spec status and development diagnostics are updated.
+
+### Spiral control-net blocker — resolved for the retained fixtures
+
+On 2026-11-05 the user requested: “ok continue and solve the blocker”. This
+authorizes the bounded R3 fix, not full P2 acceptance or production integration.
+
+The retained ellipse/radial Spiral at top ratio 0.8 had 1,078 top control points
+and 18 free boundary edges. Native intersection curves retained 23–72 points on
+early edges; multiplying these by the 13-row side profile exceeded 4,096 points
+by edge seven. The old compact route only handled a constant transverse XY
+coordinate, so it could not reduce these curved boundaries effectively.
+
+The footprint route now tries bounded degree-5/7/9/12 candidates parameterized
+by a monotone XY coordinate. Both the transverse XY coordinate and height are
+compared with every original native Bézier span. Polynomial-composition residual
+bounds cover complete intervals, including candidate-segment crossings. The
+combined Euclidean error must fit the existing boundary allowance, tightened by
+the top ratio to include its amplification at the flank base. Failed certificates
+retain the original curve. Rational curves remain exact. The rectangular route
+retains its degree-12 strategy and existing canonical meshes.
+
+No field, side profile, saved parameter, error allocation or geometry budget was
+changed. The part still rejects if its final native control net exceeds 4,096.
+The unreduced original construction now supplies that regression, alongside the
+successful compact construction.
+
+| Top ratio | Native control points | Canonical triangles | Boundary comparisons | Relative CAD/field volume error |
+| --- | ---: | ---: | ---: | ---: |
+| 0.8 | 2,872 | 18,286 | 6,284 | 0.000000002381 |
+| 0.4 | 1,361 | 6,092 | 4,062 | 0.000000005221 |
+
+Both cases pass native validity, closed-mesh/winding/volume checks, the independent
+field-volume oracle, native STEP reimport and independent STL placement checks.
+The 20 continuous Wave fixtures, blended fixture, original invalid-linear-Spiral
+mesh rejection and two C2 center export regressions also pass. The broad straight
+C2 mesh remains 98,886 triangles. A separate exact polynomial-curve oracle checks
+the curved reducer's coordinates, unchanged source, uncertainty rejection and
+65,536-comparison work limit. Targeted result: nine tests passed in 51.4 seconds;
+log `artifacts/phase03-r3-spiral-boundary-regressions.log`.
+
+Additional exports pass two STEP readers and actual 3MF-to-STL slicer re-export:
+
+| Top ratio | Independent STEP triangles / relative volume error | Slicer STL triangles / relative volume error |
+| --- | --- | --- |
+| 0.8 | 34,596 / 0.000058220 | 18,286 / 0.000306836 |
+| 0.4 | 14,242 / 0.000158141 | 6,092 / 0.000565705 |
+
+Millimeter scale and world placement pass. The separate 500,000-triangle STEP
+reader ceiling does not change canonical limits. Evidence is under
+`artifacts/wall-art-shape-surface/continuous-spiral-contour-export/` and
+`continuous-spiral-narrow-contour-export/`. The slicer's existing exclude-triangles
+message is retained; success is based on its checked output files. No physical
+print or arbitrary-family qualification is claimed.
+
+The failed count trace remains in `artifacts/phase03-r3-spiral-pole-diagnosis.log`;
+successful traces are `phase03-r3-spiral-compact-boundary.log` and
+`phase03-r3-spiral-compact-narrow.log`. This resolves the retained control-net
+blocker. Broader family/material/identification coverage, combined error accounting,
+full family/mode views and retained-design/browser qualification still gate P2.
+Architecture/product/roadmap/README need no change for this isolated fix.
+Full `npm run check:awake` passed scaffold validation, both typechecks, production
+build, **150 Node tests** in 259.6 seconds and **70 browser tests** in 2.6 minutes.
+Log: `artifacts/phase03-r3-spiral-blocker-check.log`. `git diff --check` passed.
+The user requested updating PR #22 with this verified checkpoint before continuing.
+Publication resolves the specified blocker, not the remaining P2 approval work.

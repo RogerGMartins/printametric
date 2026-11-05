@@ -1,6 +1,6 @@
 # Wall art 03 — shape and surface relief
 
-Status: **R3 in progress: rectangular fields/modes, seven-family contour moments, native flat/sloping footprints, anchor/floor probes and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-04). Product/UI decisions remain recorded.**
+Status: **R3 in progress: rectangular fields/modes, seven-family contour moments, native flat/sloping footprints, continuous Wave and representative Spiral footprints, anchor/floor probes and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-05). Product/UI decisions remain recorded.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
 
@@ -20,8 +20,10 @@ The [shared-gate timing investigation](../plans/wall-art-shape-surface.md#shared
 identified Windows idle standby; the complete gate passes with a scoped keep-awake request.
 The [Spiral contour checkpoint](../plans/wall-art-shape-surface.md#r3-progress--spiral-contour-moments)
 adds bounded center/join integration and explicit provisional-C2 planar fixtures.
-Nonrectangular continuous tops and
-complete identification/retention qualification remain incomplete. Review images
+The [continuous footprint checkpoint](../plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
+adds native Wave caps on clipped contours. The [compact-boundary checkpoint](../plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
+resolves the two retained Spiral control-net failures within the existing limits.
+General continuous-family coverage and complete identification/retention qualification remain incomplete. Review images
 are evidence for a later decision, not implicit acceptance of curvature settings.
 
 ## Guided decision review — 2026-11-03

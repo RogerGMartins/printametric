@@ -4,7 +4,7 @@
  * curves remain exact. This is not a sampled-distance test. Caller owns result. */
 import { reparameterizeBoundaryCurve } from './shape-surface-boundary-reparameterize.mjs';
 
-export function reduceBoundaryCurve(kernel, original, tolerance = 1e-7, work = { comparisons: 0 }) {
+export function reduceBoundaryCurve(kernel, original, tolerance = 1e-7, work = { comparisons: 0 }, curved = false) {
   function snapshot(curve) {
     const points = [];
     for (let i = 1; i <= curve.NbPoles(); i++) { const point = curve.Pole(i); try { points.push([point.X(), point.Y(), point.Z()]); } finally { point.delete(); } }
@@ -22,7 +22,7 @@ export function reduceBoundaryCurve(kernel, original, tolerance = 1e-7, work = {
   if (original.IsRational()) return { curve: null, boundMm: 0, originalPoles: original.NbPoles() };
   const source = snapshot(original);
   if (source.points.length > 4096 || source.knots.length > 4096) throw Error('Native boundary curve exceeds its bounded reduction input.');
-  const reparameterized = reparameterizeBoundaryCurve(kernel, original, source, restore, tolerance, work);
+  const reparameterized = reparameterizeBoundaryCurve(kernel, original, source, restore, tolerance, work, curved);
   if (reparameterized) return reparameterized;
   let best = null, boundMm = 0;
   try {

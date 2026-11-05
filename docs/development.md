@@ -164,7 +164,11 @@ npm run test:browser -- --project=development --grep "collapsed rejected input"
 ```
 
 `npm test` explicitly selects `tests/*.test.mjs`, so Node does not discover
-Playwright specs. `npm run test:browser` expects an up-to-date `dist/`; the full
+Playwright specs. It and the shared gate run one Node test file at a time. Native
+CAD fixtures already create bounded worker heaps; CPU-count-based file concurrency
+multiplies those heaps and competes with fixture deadlines. Worker isolation and
+individual timeouts remain unchanged. `npm run test:browser` expects an up-to-date
+`dist/`; the full
 `npm run check` always rebuilds it. To step through a browser test, append `--debug`
 to a targeted command. Inspect the failed assertion and retained DOM snapshot in
 `test-results/`; open `npx playwright show-report` or use
@@ -682,6 +686,43 @@ adds curved center/join and high-arm checks. Break in
 and chart rejection to distinguish arithmetic, depth and work exhaustion. The
 radius-ratio certificate handles a contour exactly on the center-envelope join;
 the tighter radial-decay bound supports plane fitting without changing tolerances.
+
+### R3 continuous native footprints
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-curved-boundary.test.mjs tests/wall-art-continuous-footprint.test.mjs
+npm run check:awake
+```
+
+`buildBoundarySurface` in `tests/support/shape-surface-boundary-native.mjs` accepts
+an optional native `footprint`. That route selects the bounded anchor, checks
+homothetic containment and top span, trims native spline caps to the scaled native
+face, and builds flanks from their shared boundaries. Its result is local to the
+selected anchor; use the returned `translation` for preview/export placement.
+The existing rectangular comparison keeps its world-coordinate contract.
+
+The Wave matrix covers all twenty outline/layout combinations. A mixed stepped/
+continuous fixture uses the actual area mean. An independent volume oracle combines
+area moments, native boundary integration and the analytic side profile. It uses
+adaptive native volume integration; the default native volume estimate was not
+accurate enough for the oracle's tighter comparison. The curved Wave fixture also
+passes native STEP and independent STL readers in the portable suite.
+
+The two retained Spiral fixtures now fit the unchanged 4,096-pole limit. Compact
+boundary candidates use a monotone XY coordinate and certify both remaining
+coordinates over every native Bézier span. The allowed boundary error includes
+amplification at the wider flank base. Rational or uncertified candidates retain
+the original curve; an excessive final control net still rejects before export.
+The unreduced Spiral fixture exercises that rejection. Diagnose top trimming,
+free-edge reduction and flank pole accounting through the builder's stage callback.
+`shape-surface-boundary-reparameterize.mjs` owns candidate selection and complete-
+curve residual checks; `shape-surface-curve-residual.mjs` bounds the polynomial
+composition, rather than accepting a sampled match. General family qualification
+remains incomplete. See the [Spiral resolution](plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
+for the measured control nets and exports.
+See the [continuous checkpoint](plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
+for measured export evidence, the Node file-concurrency investigation and remaining
+material/error/retention qualification. These helpers are isolated capability code.
 
 ## Impeccable design tooling
 

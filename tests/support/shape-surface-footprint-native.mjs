@@ -49,8 +49,10 @@ export function radialCurveSign(points, weights, direction = 1) {
   return prove(residual, 0);
 }
 
-/** Both integration and construction consume the same bounded native contour. */
-function prepareFootprint(kernel, base, own, containment) {
+/** Both integration and construction consume the same bounded native contour.
+ * `own` registers every returned native wrapper with the caller's resource scope.
+ * The returned face is local to base.centroid; spans remain in assembly mm. */
+export function prepareFootprint(kernel, base, own, containment) {
     const restored = own(deserializeShape(base.nativeFace));
     let local = own(nativeTranslate(kernel, restored, -base.centroid[0], -base.centroid[1], 0)), maximumContourApproximationMm = 0;
     const initialEdges = local.edges.map(own);
