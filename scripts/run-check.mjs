@@ -9,7 +9,9 @@ for (const args of [
   [join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--noEmit'],
   [join(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--project', 'tsconfig.app.json'],
   [join(dirname(require.resolve('vite/package.json')), 'bin/vite.js'), 'build'],
-  ['--test', 'tests/*.test.mjs'],
+  // Native CAD fixtures already own bounded worker lifetimes. CPU-count-based
+  // file parallelism multiplies those heaps and makes their deadlines contend.
+  ['--test', '--test-concurrency=1', 'tests/*.test.mjs'],
   [join(dirname(require.resolve('@playwright/test/package.json')), 'cli.js'), 'test'],
 ]) {
   const result = spawnSync(process.execPath, args, { stdio: 'inherit' });

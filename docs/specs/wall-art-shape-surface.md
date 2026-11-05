@@ -1,8 +1,30 @@
 # Wall art 03 — shape and surface relief
 
-Status: **Product decisions D1–D18 and UI decisions SHAPE-UI-D1/D2 recorded. Technical contracts and actual-CAD visual review remain pending. No technical-plan or implementation approval.**
+Status: **R3 in progress: rectangular fields/modes, seven-family contour moments, native flat/sloping footprints, continuous Wave and representative Spiral footprints, anchor/floor probes and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-05). Product/UI decisions remain recorded.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
+
+The approved center comparison has [measured results and native views](../plans/wall-art-shape-surface.md#center-comparison-results--formula-not-selected).
+The linear field remains the default. C2 is approved as the provisional direction;
+the [bounded construction checkpoint](../plans/wall-art-shape-surface.md#c2-construction-checkpoint--triangle-blocker-resolved)
+resolves its remaining triangle failure. This is not final formula acceptance or
+a completed P2 checkpoint.
+
+The [R3 progress checkpoint](../plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter)
+records the implemented subsets, rejected containment case, starter views and
+independent exports. The [contour and identification checkpoint](../plans/wall-art-shape-surface.md#r3-progress--contours-planes-anchors-and-bare-identification)
+adds bounded capability evidence for native sloping caps, anchor fallback and
+no-plinth cuts. The [Ridges and Dome contour checkpoint](../plans/wall-art-shape-surface.md#r3-progress--ridges-and-dome-contour-moments)
+adds bounded crease/disk-edge integration and native planar-top evidence.
+The [shared-gate timing investigation](../plans/wall-art-shape-surface.md#shared-gate-resolution--windows-idle-standby)
+identified Windows idle standby; the complete gate passes with a scoped keep-awake request.
+The [Spiral contour checkpoint](../plans/wall-art-shape-surface.md#r3-progress--spiral-contour-moments)
+adds bounded center/join integration and explicit provisional-C2 planar fixtures.
+The [continuous footprint checkpoint](../plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
+adds native Wave caps on clipped contours. The [compact-boundary checkpoint](../plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
+resolves the two retained Spiral control-net failures within the existing limits.
+General continuous-family coverage and complete identification/retention qualification remain incomplete. Review images
+are evidence for a later decision, not implicit acceptance of curvature settings.
 
 ## Guided decision review — 2026-11-03
 
@@ -11,7 +33,8 @@ Collaboration mode for this review: **Guided questions**. Follow the suite's
 resolve only their stated scope. The product-decision round is complete. The later
 [UI review](#ui-review-decisions--2026-11-03) resolves hierarchy and specified
 control ranges/increments. Technical contracts, curvature numbers and actual-CAD
-visual results still require review; no technical plan or implementation is approved.
+visual results still require review. The later implementation approval below
+authorizes the bounded native checkpoint only.
 
 ### Confirmed product decisions
 
@@ -75,10 +98,25 @@ Phase 03 still needs its own measured correctness, retention and export evidence
   qualify phase 03. Keep large-count throughput unpromised.
 
 The [technical implementation plan](../plans/wall-art-shape-surface.md) is now
-prepared and awaiting user review. It proposes bounded P0–P2 native-CAD work,
-followed by an explicit visual/contract approval stop before production integration.
-The technical proposals and curvature remain provisional. Publishing these documents
-does not approve the plan or authorize implementation.
+approved for P0–P2 by the user's 2026-11-03 implementation request. Bounded native-CAD
+investigation precedes the technical freeze; it ends at an explicit visual/contract
+approval stop before P3–P7 production integration. The technical proposals and
+curvature remain provisional. Production startup and public saved-file dispatch
+remain on the existing versions during this investigation.
+
+The [native construction checkpoint](../plans/wall-art-shape-surface.md#implementation-checkpoint--native-construction-blocker)
+records 18 rejected Spiral/Ridges/Dome boundary fixtures out of 126. The current
+smooth-patch route does not meet the proposed deviation limit at those regions.
+P1 remains incomplete; the user approved its boundary-aware construction revision
+on 2026-11-03 under the plan's failed-gate rule. Neither diagnostic passes nor the new
+regressions approve curvature, formulas, global error bounds or the P2 visuals.
+
+The approved revision's [later checkpoint](../plans/wall-art-shape-surface.md#revised-construction-checkpoint--spiral-tessellation-blocker)
+records bounded numerical patches and valid native solids in 36 cases, with 33
+valid meshes and three narrow Spiral-center mesh failures. R2 remains incomplete;
+R3/P2 have not passed. The subsequent smoother-center comparison was approved;
+its results are linked above. Selecting a replacement formula still requires review. Existing appearance decisions
+and geometry/export limits remain in force.
 
 ## Problem, flow and scope
 
@@ -96,8 +134,9 @@ appearance has been qualified. Imported relief images, movement, colour tools an
 print-bed packing remain with their existing later phases.
 
 All formulas here are original **Printametric proposals**, not an existing algorithm
-contract. Implementation planning must freeze sample fixtures and native-CAD
-construction tolerances before approval. Do not accept a mesh-only implementation.
+contract. The approved P0–P2 investigation must establish sample fixtures and
+native-CAD construction tolerances for review before production integration.
+Do not accept a mesh-only implementation.
 
 ## Parameters
 

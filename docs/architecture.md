@@ -358,9 +358,10 @@ current route is the implementation described here.
 
 ### Phase-03 shape and surface — proposal
 
-**Pending approval of the [phase-03 technical plan](plans/wall-art-shape-surface.md).**
+**P0–P2 investigation approved; production integration remains proposed.** See the
+[phase-03 technical plan](plans/wall-art-shape-surface.md).
 The [owning spec](specs/wall-art-shape-surface.md) records product/UI decisions;
-actual native surfaces and curvature are not yet qualified. Approval starts a
+actual native surfaces and curvature are not yet qualified. The user approved a
 bounded headless investigation, followed by an explicit native-CAD visual stop
 before production integration. The plan owns tasks and proposed numerical methods.
 

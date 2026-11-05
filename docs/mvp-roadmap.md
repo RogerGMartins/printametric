@@ -66,6 +66,13 @@ numbered contour lookup and disk-backed exports. Its
 512 parts is a completed measured case; 4000 is a hard ceiling, not guaranteed
 throughput. Generator 1 remains reproducible and upgrade requires confirmation.
 
+Phase 03's [reviewed shape/surface scope](specs/wall-art-shape-surface.md) is planned,
+not shipped. Its [P0–P2 implementation](plans/wall-art-shape-surface.md) is approved:
+validate independent surface fields, test native construction and exports, then
+stop for actual-CAD visual/contract review. This feature-specific checkpoint is
+required before production integration despite the earlier general feasibility
+decision below.
+
 - [ ] Define the first panel/pattern, backing and mounting, parameter ranges,
   clearances, tolerances, and generation budgets.
 - [ ] Implement validated deterministic CAD generation with explicit seeds.
