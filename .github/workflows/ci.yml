@@ -32,7 +32,7 @@ jobs:
       - run: npm ci
       - run: npm run test:browser:install
       - run: npm run check
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: browser-failure-${{ matrix.os }}
