@@ -15,14 +15,29 @@ async function probe(workerData) {
   } finally { await worker.terminate(); }
 }
 
-test('continuous Wave tops use real clipped contours and preserve independent field volume', { timeout: 120_000 }, async t => {
+for (const family of ['wave', 'dunes', 'ring', 'dome', 'ridges', 'random']) test(`continuous ${family} tops use real clipped contours and preserve independent field volume`, { timeout: 120_000 }, async t => {
   for (const outline of OUTLINES) {
-    const rows = await probe({ outline });
+    const rows = await probe({ outline, family });
     assert.equal(rows.length, 5);
     for (const row of rows) assert.ok(row.poles <= 4096 && row.triangles <= 100_000 && row.volumeError <= .001 && row.fieldVolumeError < .0001);
     if (outline === 'ellipse') assert.deepEqual(rows.find(row => row.layout === 'radial').exportReaders, ['native-step', 'independent-stl']);
     t.diagnostic(`${outline}: ${rows.length} continuous native parts.`);
   }
+});
+
+test('compact Spiral charts retain irregular and off-center layout geometry', { timeout: 30_000 }, async () => {
+  const rows = await probe({ outline: 'rectangle', family: 'spiral' });
+  assert.equal(rows.length, 5);
+  for (const row of rows) assert.ok(row.poles <= 4096 && row.triangles <= 100_000 && row.volumeError <= .001 && row.fieldVolumeError < .0001);
+});
+
+test('phase-aligned Spiral center fits the unchanged native tessellation budget', { timeout: 30_000 }, async t => {
+  const [row] = await probe({ outline: 'ellipse', layout: 'hexagonal', family: 'spiral' });
+  assert.ok(row.poles <= 4096 && row.triangles <= 100_000 && row.boundaryComparisons <= 65_536);
+  assert.ok(row.maximumBoundaryReductionMm / .8 <= .00001);
+  assert.ok(row.volumeError <= .001 && row.fieldVolumeError < .0001);
+  assert.deepEqual(row.exportReaders, ['native-step', 'independent-stl']);
+  t.diagnostic(`${row.poles} poles, ${row.triangles} triangles, field-volume error ${row.fieldVolumeError}.`);
 });
 
 test('continuous curved Spiral fits the unchanged control-net budget with certified boundaries', { timeout: 120_000 }, async t => {

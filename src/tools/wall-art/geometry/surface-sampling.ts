@@ -15,6 +15,9 @@ export interface BoundaryPatch {
   readonly kind: 'polar-inner' | 'polar-outer' | 'ridge-strip' | 'cartesian';
   readonly u: readonly [number, number];
   readonly v: readonly [number, number];
+  /** Polar theta = u + angularTwist*v before field rotation; omitted means zero.
+   * v is the field's normalized radius (2*physical radius/reference length). */
+  readonly angularTwist?: number;
   readonly degreeU: number;
   readonly degreeV: number;
   /** u-major XYZ Bernstein control points, in assembly millimeters. */
@@ -30,8 +33,9 @@ const linear = (a: number, b: number): BoundedCurve => ({ coefficients: [a, b], 
 
 /** Parameter rectangle is an enclosing chart domain, not a clipped part. Work is
  * bounded before pole allocation. This API accepts only continuous top requests. */
-export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCenter: SpiralCenter = 'linear'): readonly BoundaryPatch[] {
+export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCenter: SpiralCenter = 'linear', compactSpiral = false): readonly BoundaryPatch[] {
   validateSpiralCenter(spiralCenter);
+  if (typeof compactSpiral !== 'boolean') throw new DesignError('SURFACE_DOMAIN', 'Invalid Spiral chart strategy.');
   const p = validateParametersV3(input);
   if (p.stepBlend !== 0 || p.planarTops) throw new DesignError('SURFACE_DOMAIN', 'Patch construction requires a continuous top request.');
   if (![box.minX, box.maxX, box.minY, box.maxY].every(Number.isFinite) || box.minX >= box.maxX || box.minY >= box.maxY || Math.max(...Object.values(box).map(Math.abs)) > 4000) throw new DesignError('SURFACE_DOMAIN', 'Invalid bounded surface rectangle.');
@@ -46,7 +50,7 @@ export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCen
     return fitSine(start, end, frequency, offset, degree);
   };
   function append(kind: BoundaryPatch['kind'], u: readonly [number, number], v: readonly [number, number], degreeU: number, degreeV: number,
-    point: (i: number, j: number) => readonly [number, number, number], positionErrorMm: number, heightErrorMm: number, lipschitz: number) {
+    point: (i: number, j: number) => readonly [number, number, number], positionErrorMm: number, heightErrorMm: number, lipschitz: number, angularTwist = 0) {
     const count = (degreeU + 1) * (degreeV + 1);
     if (patches.length >= SURFACE_DOMAIN_LIMITS.patches || poles + count > SURFACE_DOMAIN_LIMITS.poles) throw new DesignError('SURFACE_BUDGET', 'Boundary-domain patch/control-point budget exhausted.');
     const coordinates: number[] = [];
@@ -58,7 +62,7 @@ export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCen
     const physicalHeightErrorMm = heightErrorMm + p.depth * lipschitz * positionErrorMm;
     if (!Number.isFinite(physicalHeightErrorMm) || physicalHeightErrorMm > SURFACE_DOMAIN_LIMITS.heightErrorMm) throw new DesignError('SURFACE_DOMAIN_ERROR', 'Whole-domain surface error exceeds its investigation allocation.');
     poles += count;
-    patches.push({ id: `r1-${p.family}-${patches.length}`, kind, u, v, degreeU, degreeV, poles: coordinates, positionErrorMm, heightErrorMm, physicalHeightErrorMm });
+    patches.push({ id: `r1-${p.family}-${patches.length}`, kind, u, v, degreeU, degreeV, poles: coordinates, positionErrorMm, heightErrorMm, physicalHeightErrorMm, ...(angularTwist ? { angularTwist } : {}) });
   }
   if (['wave', 'dunes', 'random'].includes(p.family)) {
     const terms: { x: number; y: number; phase: number; amplitude: number }[] = [];
@@ -122,6 +126,7 @@ export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCen
     const angles = corners.map(v => { let angle = Math.atan2(v[1], v[0]); while (angle - centerAngle > Math.PI) angle -= tau; while (angle - centerAngle < -Math.PI) angle += tau; return angle; });
     const angleMin = minRadius === 0 ? -Math.PI : Math.min(...angles), angleMax = minRadius === 0 ? Math.PI : Math.max(...angles);
     const join = p.family === 'spiral' ? .02 : p.family === 'dome' ? 1 : 0, radii = [minRadius, ...(minRadius < join && join < maxRadius ? [join] : []), maxRadius];
+    const centeredCompact = p.family === 'spiral' && spiralCenter === 'smooth-c2' && compactSpiral && minRadius === 0;
     // C2 uses narrower angular charts with lower degree. This preserves the field
     // and its interval certificate while reducing polar mesher refinement. Keep
     // the original linear/C1 construction reproducible for comparison.
@@ -133,12 +138,36 @@ export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCen
     const lipschitz = p.family === 'dome' ? 4 / length : p.family === 'ring' ? tau * p.density / length : Math.hypot(centerSlope + tau * p.density, centerSlope * p.spiralArms) / length;
     for (let band = 0; band < radii.length - 1; band++) {
       const start = radii[band]!, end = radii[band + 1]!, inner = end <= join;
-      const segments = p.family !== 'dome' ? Math.max(1, Math.ceil(tau * p.density * (end - start) / 1.2)) : 1;
+      // The clipped-footprint investigation uses fewer radial joins with a higher
+      // degree. Every patch still passes the same whole-domain error certificate.
+      // Keep the rectangular comparison's original tessellation reproducible.
+      const radialDegree = p.family === 'spiral' && compactSpiral && !inner ? 12 : 6;
+      const radialSpan = radialDegree === 12 ? 8 : 1.2;
+      const segments = p.family !== 'dome' ? Math.max(1, Math.ceil(tau * p.density * (end - start) / radialSpan)) : 1;
       if (segments * sectors + patches.length > SURFACE_DOMAIN_LIMITS.patches) throw new DesignError('SURFACE_BUDGET', 'Too many polar domains.');
       for (let radial = 0; radial < segments; radial++) for (let sector = 0; sector < sectors; sector++) {
         const u = [angleMin + (angleMax - angleMin) * sector / sectors, angleMin + (angleMax - angleMin) * (sector + 1) / sectors] as const;
         const v = [start + (end - start) * radial / segments, start + (end - start) * (radial + 1) / segments] as const;
-        const degreeV = p.family === 'dome' ? 2 : 6 + (inner ? (spiralCenter === 'linear' ? 1 : spiralCenter === 'smooth-c1' ? 3 : 5) : 0);
+        if (centeredCompact) {
+          // Follow constant Spiral phase: theta=eta+tau*d*r/arms. Height then
+          // varies only with eta outside the center envelope. This changes chart
+          // coordinates, not the field, and avoids diagonal UV refinement.
+          const twist = tau * p.density / p.spiralArms, degree = 9;
+          const ca = sine(...u, 1, rotation + Math.PI / 2, degreeU), sa = sine(...u, 1, rotation, degreeU);
+          const cr = multiplyLinear(sine(...v, twist, Math.PI / 2, degree - 1), ...v);
+          const sr = multiplyLinear(sine(...v, twist, 0, degree - 1), ...v);
+          const h = sine(...u, p.spiralArms, tau * phase + Math.PI / 2, degreeU);
+          const envelope = elevateCurve(inner ? multiplySmoothCenter({ coefficients: [1], error: 0 }, v[0] / join, v[1] / join, 2) : { coefficients: [1], error: 0 }, degree);
+          const coordinateError = (angular: BoundedCurve, radial: BoundedCurve) => angular.error * (v[1] + radial.error) + radial.error;
+          const xyError = length / 2 * Math.hypot(coordinateError(ca, cr) + coordinateError(sa, sr), coordinateError(sa, cr) + coordinateError(ca, sr));
+          append(inner ? 'polar-inner' : 'polar-outer', u, v, degreeU, degree, (i, j) => [
+            length / 2 * (ca.coefficients[i]! * cr.coefficients[j]! - sa.coefficients[i]! * sr.coefficients[j]!),
+            length / 2 * (sa.coefficients[i]! * cr.coefficients[j]! + ca.coefficients[i]! * sr.coefficients[j]!),
+            baseline + p.depth / 2 * (1 + h.coefficients[i]! * envelope.coefficients[j]!),
+          ], xyError, p.depth / 2 * productError(h.error, envelope.error), lipschitz, twist);
+          continue;
+        }
+        const degreeV = p.family === 'dome' ? 2 : radialDegree + (inner ? (spiralCenter === 'linear' ? 1 : spiralCenter === 'smooth-c1' ? 3 : 5) : 0);
         const x = sine(u[0], u[1], 1, rotation + Math.PI / 2, degreeU), y = sine(u[0], u[1], 1, rotation, degreeU);
         const radius = elevateCurve(linear(...v), degreeV);
         let heightError = 0, heights: (i: number, j: number) => number;
@@ -151,7 +180,7 @@ export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCen
           heights = (_, j) => baseline + .5 * p.depth * (1 - cr.coefficients[j]!);
         } else {
           const ca = sine(u[0], u[1], p.spiralArms, tau * phase + Math.PI / 2, degreeU), sa = sine(u[0], u[1], p.spiralArms, tau * phase, degreeU);
-          let cr = sine(v[0], v[1], tau * p.density, Math.PI / 2, 6), sr = sine(v[0], v[1], tau * p.density, 0, 6);
+          let cr = sine(v[0], v[1], tau * p.density, Math.PI / 2, radialDegree), sr = sine(v[0], v[1], tau * p.density, 0, radialDegree);
           if (inner) {
             const envelope = spiralCenter === 'linear' ? multiplyLinear : (curve: BoundedCurve, start: number, end: number) => multiplySmoothCenter(curve, start, end, spiralCenter === 'smooth-c1' ? 1 : 2);
             cr = envelope(cr, v[0] / join, v[1] / join); sr = envelope(sr, v[0] / join, v[1] / join);

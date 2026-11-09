@@ -66,7 +66,7 @@ for (const layout of workerData.layout ? [workerData.layout] : LAYOUTS) {
     assert.ok(fieldVolumeError < .0001, `Native volume differs from the field oracle: ${fieldVolumeError}`);
     assert.deepEqual(base, saved);
     let exportReaders;
-    if (workerData.outline === 'ellipse' && layout === 'radial' && p.stepBlend === 0) {
+    if (workerData.outline === 'ellipse' && (layout === 'radial' || (layout === 'hexagonal' && p.family === 'spiral')) && p.stepBlend === 0) {
       const checked = validateMesh(mesh.mesh), part = { id: 'checkpoint-continuous-contour', mapNumber: 1,
         translation: candidate.translation, mesh: mesh.mesh, ...checked };
       const restored = own(await importSTEP(new Blob([await serializeSTEP([part], [candidate.solid])])));

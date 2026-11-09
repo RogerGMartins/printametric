@@ -60,9 +60,15 @@ export function buildBoundarySurface(kernel, parameters, { width = 47.5, origin 
     const [min, max] = footprint ? box.bounds : [[origin[0] - half, origin[1] - half], [origin[0] + half, origin[1] + half]];
     // Pad covering charts, then trim to the actual native footprint. No sampled
     // polygon replaces a curved contour. Offset approximation remains explicit.
-    const patches = createBoundaryPatches({ ...parameters, stepBlend: 0 }, { minX: min[0] - .00001, maxX: max[0] + .00001, minY: min[1] - .00001, maxY: max[1] + .00001 }, spiralCenter);
+    const patches = createBoundaryPatches({ ...parameters, stepBlend: 0 }, { minX: min[0] - .00001, maxX: max[0] + .00001, minY: min[1] - .00001, maxY: max[1] + .00001 }, spiralCenter, !!footprint);
     const physicalHeightErrorMm = (1 - parameters.stepBlend) * Math.max(...patches.map(p => p.physicalHeightErrorMm)) + parameters.depth * parameters.stepBlend * mean.error;
     if (physicalHeightErrorMm > .0002) throw Error('Blended surface exceeds the existing height-error allocation.');
+    // Every field is analytically in [0,1]. Transporting its complete-domain
+    // approximation/mean error bounds actual surface heights, even when a higher-
+    // degree Bernstein control hull extends far beyond the represented surface.
+    const lowerHeight = baseline + parameters.depth * parameters.stepBlend * mean.mean - physicalHeightErrorMm;
+    const upperHeight = baseline + parameters.depth * (parameters.stepBlend * mean.mean + 1 - parameters.stepBlend) + physicalHeightErrorMm;
+    const fieldHeightValid = lowerHeight > baseZ && lowerHeight >= 1.2 && upperHeight <= 360;
     let poles = patches.reduce((sum, patch) => sum + patch.poles.length / 3, 0);
     const clip = own(nativeExtrude(kernel, own(nativeTranslate(kernel, topFace, 0, 0, -1)), 500));
     for (const patch of patches) {
@@ -71,7 +77,7 @@ export function buildBoundarySurface(kernel, parameters, { width = 47.5, origin 
       for (let i = 0; i <= patch.degreeU; i++) for (let j = 0; j <= patch.degreeV; j++) {
         const offset = 3 * (i * (patch.degreeV + 1) + j), xyz = patch.poles.slice(offset, offset + 3);
         xyz[2] = baseline + parameters.depth * parameters.stepBlend * mean.mean + (1 - parameters.stepBlend) * (xyz[2] - baseline);
-        if (footprint && (xyz[2] - physicalHeightErrorMm <= baseZ || xyz[2] - physicalHeightErrorMm < 1.2 || xyz[2] + physicalHeightErrorMm > 360)) throw Error('Continuous footprint cannot certify its vertical material bounds.');
+        if (footprint && !fieldHeightValid && (xyz[2] - physicalHeightErrorMm <= baseZ || xyz[2] - physicalHeightErrorMm < 1.2 || xyz[2] + physicalHeightErrorMm > 360)) throw Error('Continuous footprint cannot certify its vertical material bounds.');
         const point = new kernel.gp_Pnt(...xyz);
         try { net.SetValue(i + 1, j + 1, point); } finally { point.delete(); }
       }
@@ -90,7 +96,7 @@ export function buildBoundarySurface(kernel, parameters, { width = 47.5, origin 
     for (const item of topShell.faces) faces.push(own(item));
     const freeEdges = topSewing.NbFreeEdges();
     progress(`top-sewn-${freeEdges}-boundary-edges`);
-    const profile = fitPowerProfile(parameters.concavity, .0002 / (radius * Math.max(1 - parameters.topRatio, .000001)));
+    const profile = fitPowerProfile(parameters.concavity, .0002 / (radius * Math.max(1 - parameters.topRatio, .000001)), !!footprint);
     const profileValues = [...profile.coefficients].reverse(), verticalDegree = profileValues.length - 1;
     progress(`control-net-top-${poles}-profile-degree-${verticalDegree}`);
     if (footprint && profileValues.some(value => {

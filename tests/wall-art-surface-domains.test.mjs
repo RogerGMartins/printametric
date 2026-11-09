@@ -41,8 +41,8 @@ test('Bernstein interpolation bounds the interval, including between interpolati
 });
 
 test('side profiles preserve straight/integer powers and bound the provisional 2.2 profile', () => {
-  for (const exponent of [1, 2, 2.2, 3, 4]) for (const ratio of [.12, .8]) {
-    const scale = 47.5 / 2 * Math.SQRT2 * (1 - ratio), curve = fitPowerProfile(exponent, .0002 / scale);
+  for (const compact of [false, true]) for (const exponent of [1, 2, 2.2, 3, 4]) for (const ratio of [.12, .8]) {
+    const scale = 47.5 / 2 * Math.SQRT2 * (1 - ratio), curve = fitPowerProfile(exponent, .0002 / scale, compact);
     assert.ok(curve.error * scale <= .0002);
     assert.equal(evaluateCurve(curve, 0), 0);
     assert.equal(evaluateCurve(curve, 1), 1);
@@ -53,6 +53,32 @@ test('side profiles preserve straight/integer powers and bound the provisional 2
   }
   assert.throws(() => fitPowerProfile(Infinity, .0001), /profile/);
   assert.throws(() => fitPowerProfile(2.2, 1e-14), /bounded/);
+  assert.throws(() => fitPowerProfile(2.2, .0001, 'compact'), /strategy/);
+});
+
+test('compact Spiral radial charts preserve the physical field and bounded coverage', () => {
+  const p = { ...DEFAULT_PARAMETERS_V3, width: 160, height: 150, family: 'spiral', stepBlend: 0, rotation: 37, phase: .29 };
+  for (const box of [{ minX: -55, maxX: -12, minY: -40, maxY: -3 }, { minX: -20, maxX: 20, minY: -20, maxY: 20 }]) {
+    const field = createSurfaceField(p, 'smooth-c2'), patches = createBoundaryPatches(p, box, 'smooth-c2', true);
+    assert.ok(patches.reduce((sum, patch) => sum + patch.poles.length / 3, 0) <= 4096);
+    for (const patch of patches) for (const u of [0, .13, .37, .81, 1]) for (const v of [0, .11, .41, .73, 1]) {
+      const [x, y, z] = evaluateBoundaryPatch(patch, u, v);
+      assert.ok(patch.physicalHeightErrorMm <= .0002);
+      assert.ok(Math.abs(z - p.baseThickness - p.minimumRelief - p.depth * field.evaluate(x, y)) <= patch.physicalHeightErrorMm);
+      const radius = patch.v[0] + v * (patch.v[1] - patch.v[0]);
+      const theta = patch.u[0] + u * (patch.u[1] - patch.u[0]) + (patch.angularTwist ?? 0) * radius + p.rotation * Math.PI / 180;
+      assert.ok(Math.hypot(x - 75 * radius * Math.cos(theta), y - 75 * radius * Math.sin(theta)) <= patch.positionErrorMm);
+    }
+    for (let i = 0; i < 13; i++) for (let j = 0; j < 13; j++) {
+      const x = box.minX + (box.maxX - box.minX) * (i + .5) / 13, y = box.minY + (box.maxY - box.minY) * (j + .5) / 13;
+      const radius = 2 * Math.hypot(x, y) / 150, theta = Math.atan2(y, x) - p.rotation * Math.PI / 180;
+      assert.ok(patches.some(patch => radius >= patch.v[0] - 1e-12 && radius <= patch.v[1] + 1e-12 && [-2 * Math.PI, 0, 2 * Math.PI].some(turn => {
+        const eta = theta - (patch.angularTwist ?? 0) * radius + turn;
+        return eta >= patch.u[0] - 1e-12 && eta <= patch.u[1] + 1e-12;
+      })));
+    }
+  }
+  assert.throws(() => createBoundaryPatches(p, { minX: -1, maxX: 1, minY: -1, maxY: 1 }, 'smooth-c2', 'compact'), /strategy/);
 });
 
 test('piecewise domains cover all formerly rejected regions with bounded physical-height error', () => {

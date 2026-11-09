@@ -1,6 +1,6 @@
 # Wall art 03 — shape and surface relief
 
-Status: **R3 in progress: rectangular fields/modes, seven-family contour moments, native flat/sloping footprints, continuous Wave and representative Spiral footprints, anchor/floor probes and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-05). Product/UI decisions remain recorded.**
+Status: **R3 in progress: rectangular fields/modes, seven-family contour moments, native flat/sloping footprints, six-family continuous matrices and representative Spiral footprints including the retained hexagonal center, anchor/floor probes and three exported 100-part starters have evidence. Full P2 and final formula acceptance remain pending (2026-11-09). Product/UI decisions remain recorded.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
 Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
 
@@ -23,7 +23,10 @@ adds bounded center/join integration and explicit provisional-C2 planar fixtures
 The [continuous footprint checkpoint](../plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
 adds native Wave caps on clipped contours. The [compact-boundary checkpoint](../plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
 resolves the two retained Spiral control-net failures within the existing limits.
-General continuous-family coverage and complete identification/retention qualification remain incomplete. Review images
+The [expanded continuous-family checkpoint](../plans/wall-art-shape-surface.md#r3-progress--expanded-continuous-families)
+adds five family matrices and compact Spiral charts. The [phase-aligned center checkpoint](../plans/wall-art-shape-surface.md#spiral-center-tessellation--phase-aligned-charts)
+resolves the retained hexagonal center's mesh-budget failure. General parameter/fragment coverage
+and complete identification/retention qualification remain incomplete. Review images
 are evidence for a later decision, not implicit acceptance of curvature settings.
 
 ## Guided decision review — 2026-11-03

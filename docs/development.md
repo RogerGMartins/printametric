@@ -701,7 +701,8 @@ face, and builds flanks from their shared boundaries. Its result is local to the
 selected anchor; use the returned `translation` for preview/export placement.
 The existing rectangular comparison keeps its world-coordinate contract.
 
-The Wave matrix covers all twenty outline/layout combinations. A mixed stepped/
+Wave, Dunes, Ring, Dome, Ridges and Random each cover twenty selected outline/layout
+cases. These select the largest eligible part, not every clipped fragment. A mixed stepped/
 continuous fixture uses the actual area mean. An independent volume oracle combines
 area moments, native boundary integration and the analytic side profile. It uses
 adaptive native volume integration; the default native volume estimate was not
@@ -718,7 +719,19 @@ free-edge reduction and flank pole accounting through the builder's stage callba
 `shape-surface-boundary-reparameterize.mjs` owns candidate selection and complete-
 curve residual checks; `shape-surface-curve-residual.mjs` bounds the polynomial
 composition, rather than accepting a sampled match. General family qualification
-remains incomplete. See the [Spiral resolution](plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
+remains incomplete. The optional compact chart/profile strategies keep complete-
+domain error certificates while reducing repeated control points. The footprint
+builder can also prove vertical bounds from the analytic field range plus its
+certified approximation error; high-degree control hulls alone can be too broad.
+The rectangular comparison retains its original strategies. Center-covering compact
+C2 Spiral charts now follow constant phase: `theta = u + angularTwist * v`, where
+`v` is normalized radius. `BoundaryPatch.angularTwist` documents that coordinate
+mapping. The physical field, meshing tolerances and triangle/node limits are unchanged.
+The retained hexagonal center now passes at 86,672 canonical triangles. Diagnose
+chart coordinates and their full-domain XY/height bounds in `surface-sampling.ts`.
+See the [phase-aligned center checkpoint](plans/wall-art-shape-surface.md#spiral-center-tessellation--phase-aligned-charts) and the
+[expanded family checkpoint](plans/wall-art-shape-surface.md#r3-progress--expanded-continuous-families).
+See the [Spiral resolution](plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
 for the measured control nets and exports.
 See the [continuous checkpoint](plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
 for measured export evidence, the Node file-concurrency investigation and remaining

@@ -78,15 +78,18 @@ export function interpolateCandidate(evaluate: (t: number) => number, degree: nu
 /** Checkpoint profile candidate with a complete-interval Taylor residual bound.
  * Elementary power calls use the same explicit floating allowance as trig fits.
  * Exhausted refinement rejects the candidate rather than claiming sampled accuracy. */
-export function fitPowerProfile(exponent: number, allowance: number): BoundedCurve {
+export function fitPowerProfile(exponent: number, allowance: number, compact = false): BoundedCurve {
   if (!Number.isFinite(exponent) || exponent < 1 || exponent > 4 || !Number.isFinite(allowance) || allowance <= 0) throw new DesignError('SURFACE_FIT', 'Invalid side-profile request.');
+  if (typeof compact !== 'boolean') throw new DesignError('SURFACE_FIT', 'Invalid side-profile strategy.');
   if (Number.isInteger(exponent)) return { coefficients: Array.from({ length: exponent + 1 }, (_, i) => i === exponent ? 1 : 0), error: 0 };
   function splitValues(values: readonly number[]) {
     let row = [...values]; const left = [row[0]!], right = [row.at(-1)!];
     while (row.length > 1) { row = row.slice(0, -1).map((v, i) => (v + row[i + 1]!) / 2); left.push(row[0]!); right.unshift(row.at(-1)!); }
     return [left, right] as const;
   }
-  for (const degree of [12, 16, 18]) {
+  // A lower-degree candidate is useful when many clipped boundaries share this
+  // profile. It must pass the same complete-interval residual proof below.
+  for (const degree of compact ? [8, 10, 12, 16, 18] : [12, 16, 18]) {
     const coefficients = interpolateCandidate(t => t ** exponent, degree);
     function verify(values: readonly number[], lower: number, upper: number, depth: number): number | null {
       const width = upper - lower, middle = (lower + upper) / 2;

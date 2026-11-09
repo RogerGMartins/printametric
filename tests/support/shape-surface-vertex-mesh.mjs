@@ -12,7 +12,8 @@ export function meshWithNativeVertices(kernel, solid, { tolerance, angularTolera
       let triangulation, transform;
       try {
         triangulation = kernel.BRep_Tool.Triangulation(face.wrapped, location, 0);
-        if (triangles.length / 3 + triangulation.NbTriangles() > 100_000 || vertices.length / 3 + triangulation.NbNodes() > 300_000) throw Error('Native vertex mesh exceeds its triangle/node budget.');
+        const triangleCount = triangles.length / 3 + triangulation.NbTriangles(), nodeCount = vertices.length / 3 + triangulation.NbNodes();
+        if (triangleCount > 100_000 || nodeCount > 300_000) throw Error(`Native vertex mesh exceeds its triangle/node budget: ${triangleCount} triangles, ${nodeCount} nodes.`);
         transform = location.Transformation();
         const endpoints = new Map();
         for (const edge of edges) {

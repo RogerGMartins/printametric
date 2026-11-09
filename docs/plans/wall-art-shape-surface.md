@@ -1226,3 +1226,138 @@ build, **150 Node tests** in 259.6 seconds and **70 browser tests** in 2.6 minut
 Log: `artifacts/phase03-r3-spiral-blocker-check.log`. `git diff --check` passed.
 The user requested updating PR #22 with this verified checkpoint before continuing.
 Publication resolves the specified blocker, not the remaining P2 approval work.
+
+### R3 progress — expanded continuous families
+
+After the requested publication at `9574f92`, PR #22 and its separate push CI passed
+on Ubuntu and Windows. Continued R3 work adds Dunes, Ring, Dome, Ridges and Random
+to the continuous native-footprint matrix. Together with Wave, this covers **120
+selected cases**: six fields, four outlines and five layouts. Selection uses the
+largest eligible base; some cells repeat across outlines. This is not coverage of
+every clipped fragment or parameter combination.
+
+The independent field-volume oracle, native validity, canonical mesh checks and
+ellipse/radial STEP/STL readers remain required. Initial family evidence is in
+`artifacts/phase03-r3-continuous-families-matrix.log`. The portable matrix now owns
+these checks. A mixed stepped/continuous Wave case remains covered separately.
+
+Spiral's irregular cells initially exhausted the control-net budget. The isolated
+footprint route now tries compact outer radial charts (degree 12, phase span up to
+8), side-profile degrees starting at 8, and additional certified boundary degrees.
+Every candidate must still meet the same complete-domain physical error, work and
+final control-net limits. Higher-degree control hulls can extend beyond actual
+surface heights; the builder also uses the analytic field range plus certified
+approximation/mean error to prove vertical bounds. The original rectangular
+comparison retains its prior strategies and canonical-mesh regressions.
+
+All five selected rectangular-layout Spiral cases now pass, including the irregular
+cell. The retained ellipse/radial fixtures at top ratios 0.8 / 0.4 use **826 / 616
+poles**, **18,710 / 6,410 canonical triangles** and **4,242 / 3,249 boundary
+comparisons**. Their independent field-volume errors are 0.0000000303 /
+0.0000000163. Disabling boundary reduction still exercises control-net rejection.
+The targeted Spiral extension passes four tests; log:
+`artifacts/phase03-r3-continuous-spiral-expanded.log`.
+
+A newly exercised **center-crossing ellipse/hexagonal Spiral** fits a valid native
+solid with 3,550 poles but rejects at the unchanged canonical triangle/node guard.
+It does not export. The portable regression retains that rejection. This case was
+not part of the two previously resolved fixtures, and general Spiral support is
+not qualified. Earlier failed chart, boundary and sewing experiments remain under
+`artifacts/phase03-r3-spiral-center-*.log`; no tolerance was increased to accept them.
+
+Representative continuous exports pass native STEP and an independent CAD reader,
+then standard 3MF import and actual STL re-export through OrcaSlicer:
+
+| Family | Independent STEP triangles / relative volume error | Slicer STL triangles / relative volume error |
+| --- | --- | --- |
+| Dunes | 7,406 / 0.000050266 | 2,568 / 0.000293517 |
+| Ring | 17,876 / 0.000063549 | 8,110 / 0.000289677 |
+| Dome | 6,582 / 0.000061619 | 2,318 / 0.000266060 |
+| Ridges | 8,292 / 0.000087274 | 3,274 / 0.000434475 |
+| Random | 5,396 / 0.000075580 | 1,824 / 0.000244408 |
+| Spiral | 40,004 / 0.000061209 | 18,710 / 0.000477264 |
+
+Closedness, winding, millimeter scale and world placement pass. The independent
+STEP reader retains its separate diagnostic ceiling; canonical limits are unchanged.
+Evidence is under `artifacts/wall-art-shape-surface/continuous-family-<family>-exports/`.
+Logs: `artifacts/phase03-r3-continuous-family-export-readers.log` and
+`artifacts/phase03-r3-continuous-family-slicer.log`. The slicer's existing
+exclude-triangles message remains; success depends on inspected output files.
+
+The first combined regression run passed 19 of 22 tests; three Spiral cases stopped
+at an overly broad control-hull height bound. The analytic field-range certificate
+resolved those rejections without changing material thresholds. Subsequent targeted
+Spiral checks pass. Full `npm run check:awake` then passed scaffold validation,
+both typechecks, the production build, **158 Node tests** in 345.4 seconds and
+**70 browser tests** in 2.3 minutes. Log:
+`artifacts/phase03-r3-expanded-family-check.log`. `git diff --check` passed.
+The user subsequently requested adding this continuation and the center fix below
+to PR #22 before continuing the phase.
+Full parameter/fragment coverage, the new center tessellation rejection, broader
+material/identification checks, combined error accounting, family/mode assembly
+views and retained-design/browser qualification still gate P2. Architecture,
+product/roadmap and README need no change for this isolated capability extension.
+
+### Spiral center tessellation — phase-aligned charts
+
+The user requested fixing the newly reported center case, then resumed that work
+on 2026-11-09. This continues approved R3; it does not approve P2 or production
+integration. The user then requested publishing the family extension and this fix
+to the existing PR before continuing R3.
+
+The retained ellipse/hexagonal fixture uses a 160×150 mm panel, continuous Spiral,
+five arms, density 2, rotation 37°, phase 0.29, top ratio 0.8, curvature 2.2 and
+explicit provisional C2. Its previous native solid had 3,550 control points.
+Inspection of all native face triangulations found **236,744 triangles**, mostly
+on the outer polar top patches, before canonical extraction rejected the budget.
+The mesher still used 0.05 mm linear and 5° angular tolerances. Splitting radial or
+angular charts, grading radial bands and exchanging UV axes did not resolve it.
+A rational-radius experiment exceeded its diagnostic deadline. Failed traces remain
+under `artifacts/phase03-r3-center-*.log`; none is accepted geometry/export evidence.
+
+The fix changes only the chart coordinates for center-covering compact C2 Spiral:
+
+```text
+theta = eta + (2*pi*density/arms) * r
+height = baseline + amplitude/2 * (1 + centerWeight(r) * cos(arms*eta + phaseAngle))
+```
+
+Here `r` is normalized radius and physical XY uses the rotated `theta`. Following
+constant phase removes diagonal radial/angular height variation from the parameter
+grid. The ideal map covers the same disk and preserves angular orientation at each
+positive radius. Degree-8 sine fits multiplied by radius give degree-9 XY curves;
+the existing quintic center envelope supplies height. Whole-domain sine/product
+bounds, XY-to-height transport and rounding still enforce the same 0.0002 mm
+physical-height allocation. `BoundaryPatch.angularTwist` records the mapping for
+coverage checks. Off-center and rectangular comparison routes retain their prior
+strategies. The field, limits, canonical mesh validation and meshing settings are
+unchanged; no decimation or proximity welding is introduced.
+
+The previously failing fixture now has **3,020 control points and 86,672 canonical
+triangles**, with mesh/native relative volume error **0.000630798**. The independent
+field-volume oracle differs from adaptive native volume by **3.1251e-8**. The targeted
+suite passed 17 tests, including all 120 selected six-family cases, the earlier
+Spiral layouts/ratios, original unreduced control-net rejection, physical field
+bounds and inverse chart coverage. Log: `artifacts/phase03-r3-phase-aligned-regressions.log`.
+
+Native STEP and independent STL checks are portable regressions. Additional local
+STEP import through the independent CAD reader passes with 147,170 diagnostic
+triangles and relative volume error 0.000141685. Its first raw read contained eight
+exactly collapsed triangles at the polar center; applying the existing exact-only
+normalization removes those zero-area records, then closed-mesh/winding/placement
+checks pass. No near-point repair is used. The independent reader's existing
+500,000-triangle diagnostic ceiling does not change the 100,000 canonical limit.
+OrcaSlicer imports the 3MF and re-exports 86,672 valid STL triangles, preserving
+millimeters and world placement; relative volume error is 0.000630798. Its existing
+exclude-triangles message remains, so success is based on the checked output file.
+Evidence: `artifacts/wall-art-shape-surface/continuous-spiral-center-phase-exports/`;
+logs `phase03-r3-center-phase-{export,readers,readers-normalized,slicer}.log` under
+`artifacts/`. No physical print or general parameter-range qualification is claimed.
+
+Full `npm run check:awake` passed scaffold validation, both typechecks, the production
+build, **158 Node tests** in 499.4 seconds and **70 browser tests** in 3.4 minutes.
+Log: `artifacts/phase03-r3-center-phase-check.log`. `git diff --check` passed. The
+user requested updating PR #22 with this verified fix and continuing the phase.
+Broader material/identification checks, combined error accounting, family/mode assembly views and retained-design
+qualification remain before P2. Architecture, product/roadmap and README need no
+change for this isolated correction; the spec and development diagnostics are updated.

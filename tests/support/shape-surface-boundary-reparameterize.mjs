@@ -47,7 +47,7 @@ export function reparameterizeBoundaryCurve(kernel, original, source, restore, t
       }
       samples.set(t, xyz); return xyz;
   }
-  const attempts = [1, 2, 4, 8].flatMap(count => (curved ? [5, 7, 9, 12] : [12]).map(degree => ({ count, degree })));
+  const attempts = [1, 2, 4, 8].flatMap(count => (curved ? [5, 7, 9, 10, 12, 14] : [12]).map(degree => ({ count, degree })));
   for (const { count, degree } of attempts) {
     if (count * degree + 1 >= source.points.length) continue;
     const segments = Array.from({ length: count }, (_, i) => {
