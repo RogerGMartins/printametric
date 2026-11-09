@@ -25,8 +25,10 @@ adds native Wave caps on clipped contours. The [compact-boundary checkpoint](../
 resolves the two retained Spiral control-net failures within the existing limits.
 The [expanded continuous-family checkpoint](../plans/wall-art-shape-surface.md#r3-progress--expanded-continuous-families)
 adds five family matrices and compact Spiral charts. The [phase-aligned center checkpoint](../plans/wall-art-shape-surface.md#spiral-center-tessellation--phase-aligned-charts)
-resolves the retained hexagonal center's mesh-budget failure. General parameter/fragment coverage
-and complete identification/retention qualification remain incomplete. Review images
+resolves the retained hexagonal center's mesh-budget failure. The [continuous identification checkpoint](../plans/wall-art-shape-surface.md#r3-progress--continuous-identification-and-final-solid-handoff)
+adds seven-family no-plinth engraving/Map-only cases and shape-anchor/export checks.
+General parameter/fragment coverage and complete material/retention qualification
+remain incomplete. Review images
 are evidence for a later decision, not implicit acceptance of curvature settings.
 
 ## Guided decision review — 2026-11-03

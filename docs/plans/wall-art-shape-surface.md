@@ -1361,3 +1361,78 @@ user requested updating PR #22 with this verified fix and continuing the phase.
 Broader material/identification checks, combined error accounting, family/mode assembly views and retained-design
 qualification remain before P2. Architecture, product/roadmap and README need no
 change for this isolated correction; the spec and development diagnostics are updated.
+
+### R3 progress — continuous identification and final-solid handoff
+
+After publishing the verified family/center checkpoint to PR #22 at `8cb24af`,
+all four Ubuntu/Windows PR/push CI checks passed. The user requested continued R3
+work, then requested updating PR #22 with the verified identification checkpoint
+below and continuing the phase. Full P2 and production integration remain gated.
+
+The isolated `identifyFootprintCandidate` adapter joins the native footprint builder
+to the existing plinth/bare identification routes. It first translates a source
+clone into the area-centroid frame used by the existing glyph search. It then
+returns the identified solid and glyph coordinates to the selected shape-anchor
+frame. Stable ID, map number, source metadata and world translation are preserved.
+The returned mesh callback references the final cut solid, so canonical preview,
+STL and 3MF cannot accidentally use the source callback's uncut geometry. STEP uses
+that same final native solid. The caller must establish material validity first;
+this adapter does not certify arbitrary input solids.
+
+Seven real ellipse/radial continuous-family fixtures each cover these outcomes:
+
+- Minimum relief 20 mm / amplitude 3 mm: engraved, with both native and canonical
+  volumes reduced by the cuts and native STEP/independent STL checks passing.
+- Minimum relief 1.3 mm / amplitude 0.1 mm: valid bare geometry with a proven
+  residual-floor failure. Both marks are omitted; Map-only ID, source identity,
+  native volume and the canonical mesh are retained.
+- Minimum relief 0.5 mm / amplitude 0.1 mm: vertical material checks reject before
+  identification. This is not converted to Map-only ID.
+
+These selected parts use top ratio 0.8, curvature 2.2 and explicit provisional C2
+for Spiral. The seven-family run passes in 48.7 seconds; each fresh worker retains
+its 30-second deadline. Engraved/Map-only operation counts are 25/19, under 4,096.
+Log: `artifacts/phase03-r3-continuous-identification.log`.
+
+A separate L-shaped source has an outside area centroid and an inscribed-circle
+shape anchor. The test reconstructs every four-digit glyph and arrow cutter from
+the returned identification coordinates and checks that those regions are absent
+from the final solid. Both plinth states pass. Injected native cut failure propagates
+and retains source bytes. Log: `artifacts/phase03-r3-identification-anchor.log`.
+
+Representative engraved and Map-only continuous Spiral exports pass native and
+independent STEP readers and 3MF import/STL re-export in OrcaSlicer:
+
+| State | Independent STEP triangles / relative volume error | Slicer STL triangles / relative volume error |
+| --- | ---: | ---: |
+| Engraved | 26,970 / 0.000078069 | 2,488 / 0.000327704 |
+| Map-only | 30,948 / 0.000344323 | 20,406 / 0.000730704 |
+
+The independent reader initially exceeded the unchanged 0.1% volume allowance on
+the thin Map-only piece (0.001054898). Refining its diagnostic chord tolerance from
+0.02 to 0.005 mm resolved that reader error. Canonical meshing and its 100,000-triangle
+limit are unchanged; the independent reader retains its separate 500,000 ceiling.
+No collapsed triangles were removed from these two reader meshes. Both slicer
+output files pass closed-mesh, winding, volume, millimeter and placement checks.
+Its existing exclude-triangles message is not treated as success evidence by itself.
+The artifact script uses portable diagnostic names and records the original stable
+IDs separately. Evidence is under
+`artifacts/wall-art-shape-surface/continuous-identified-exports/`; logs are
+`phase03-r3-identified-{export,readers,readers-diagnostic,readers-refined,slicer}.log`
+under `artifacts/`. No physical print is claimed.
+
+The first local full-gate attempt hit an existing Spiral fixture's 30-second timeout
+and then the outer command's 20-minute limit. Its interrupted child processes
+reported pipe/test failures; that run is not a pass. The isolated Spiral check
+then passed without source changes. Logs: `artifacts/phase03-r3-identified-check.log`
+and `artifacts/phase03-r3-identified-gate-timeout-repro.log`. The subsequent complete
+`npm run check:awake` passed scaffold validation, both typechecks, the production
+build, **166 Node tests** in 673.5 seconds and **70 browser tests** in 2.7 minutes.
+Log: `artifacts/phase03-r3-identified-final-check.log`. Only the outer command allowance
+was extended; fixture deadlines, geometry limits and CI configuration are unchanged.
+`git diff --check` passed. No new runtime changes followed this gate.
+
+General parameter/fragment material coverage, combined error accounting, family/mode assembly views and
+retained-design qualification remain before P2. Architecture, product/roadmap and
+README need no change for this isolated adapter; the spec and development diagnostics
+are updated here.

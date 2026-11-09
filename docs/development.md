@@ -737,6 +737,26 @@ See the [continuous checkpoint](plans/wall-art-shape-surface.md#r3-progress--con
 for measured export evidence, the Node file-concurrency investigation and remaining
 material/error/retention qualification. These helpers are isolated capability code.
 
+### R3 continuous identification
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-identified-footprint.test.mjs
+```
+
+`shape-surface-identified-footprint.mjs` accepts an already material-checked native
+candidate. It preserves the existing area-centroid-first identification search,
+then returns cuts and identification coordinates in the selected shape-anchor
+frame. Its mesh callback reads the **identified** solid; reusing the source callback
+would export the uncut part. Retain the returned translation for all formats.
+
+Seven continuous-family fixtures check successful no-plinth engraving and valid
+Map-only retention after a proven floor failure. Too-thin fixtures reject before
+identification. The fallback-anchor fixture checks four-digit glyph/arrow placement
+with and without a plinth, source retention and propagated native failures.
+These are bounded fixtures, not general material qualification. See the
+[identification handoff checkpoint](plans/wall-art-shape-surface.md#r3-progress--continuous-identification-and-final-solid-handoff)
+for reader/slicer evidence and remaining P2 work.
+
 ## Impeccable design tooling
 
 Impeccable is installed project-locally in `.opencode/skills/impeccable/` with an
