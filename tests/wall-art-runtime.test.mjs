@@ -6,6 +6,9 @@ import { readFile } from 'node:fs/promises';
 import { generateLayout } from '../src/tools/wall-art/geometry/layout-coordinator.ts';
 import { requestBatch } from '../src/tools/wall-art/geometry/batch-client.ts';
 import { DEFAULT_PARAMETERS_V2 } from '../src/tools/wall-art/model/parameters-v2.ts';
+import { DEFAULT_PARAMETERS_V3 } from '../src/tools/wall-art/model/parameters-v3.ts';
+import { proposeUpgradeV3 } from '../src/tools/wall-art/model/migrate-v3.ts';
+import { serializeVersionedDesign } from '../src/tools/wall-art/model/design-file.ts';
 import { DesignClient } from '../src/tools/wall-art/editor/design-client.ts';
 
 test('production native batches retain immutable accepted sources through edits and failed candidates',async()=>{
@@ -53,7 +56,7 @@ test('the 120-second watchdog also covers blocked initialization and preserves a
   t.mock.timers.tick(120000);await rejected;assert.equal(heaps,0);
 });
 
-test('versioned client pins export revisions, queues edits and retains archives after cancel and export failure',async()=>{
+for(const generatorVersion of [2,3])test(`generator ${generatorVersion} pins exports and preserves source ownership across edits, upgrade and failures`,async()=>{
   const module=await WebAssembly.compile(await readFile(new URL(import.meta.resolve('replicad-opencascadejs/wasm'))));
   const listeners=new Set(),downloads=[];
   let finishExport,rejectExport,captured,releaseCount=0,delayModule=false,finishModule;
@@ -70,20 +73,21 @@ test('versioned client pins export revisions, queues edits and retains archives 
   const wait=predicate=>predicate(client.snapshot)?Promise.resolve(client.snapshot):new Promise(resolve=>{
     const listener=state=>{if(predicate(state)){listeners.delete(listener);resolve(state);}};listeners.add(listener);
   });
-  const definition={modelSchemaVersion:2,generatorVersion:2,parameters:{...DEFAULT_PARAMETERS_V2,width:100,height:100,topRatio:1}};
+  const definition={modelSchemaVersion:generatorVersion,generatorVersion,parameters:{...(generatorVersion===2?DEFAULT_PARAMETERS_V2:DEFAULT_PARAMETERS_V3),width:100,height:100,topRatio:1}};
+  const relief=generatorVersion===2?'reliefHeight':'minimumRelief',originalBytes=serializeVersionedDesign(definition);
   try {
-    client.submit(definition);await wait(state=>state.status==='ready');
+    client.submit(definition,originalBytes);await wait(state=>state.status==='ready');
     const accepted=client.snapshot.accepted,original=accepted.layout.parts.map(item=>item.snapshot.bytes.slice());
     client.export('step');assert.equal(captured.snapshot,accepted.layout);
-    client.submit({...definition,parameters:{...definition.parameters,reliefHeight:21}});
+    client.submit({...definition,parameters:{...definition.parameters,[relief]:21}});
     assert.equal(client.snapshot.accepted,accepted);assert.equal(client.snapshot.status,'ready');
     finishExport({file:new File(['step'],'model.step'),revision:accepted.result.revision,format:'step',release:async()=>{releaseCount++;}});
     await wait(state=>state.accepted!==accepted&&state.status==='ready');
     assert.equal(downloads.length,1);assert.equal(downloads[0].revision,accepted.result.revision);
-    assert.equal(client.snapshot.accepted.definition.parameters.reliefHeight,21);
+    assert.equal(client.snapshot.accepted.definition.parameters[relief],21);
     assert.deepEqual(accepted.layout.parts.map(item=>item.snapshot.bytes),original);
     const replacement=client.snapshot.accepted;
-    delayModule=true;client.submit({...definition,parameters:{...definition.parameters,reliefHeight:22}});
+    delayModule=true;client.submit({...definition,parameters:{...definition.parameters,[relief]:22}});
     client.cancelGeneration();finishModule(module);
     await new Promise(resolve=>setImmediate(resolve));
     assert.equal(client.snapshot.accepted,replacement);assert.equal(client.snapshot.status,'ready');
@@ -96,12 +100,28 @@ test('versioned client pins export revisions, queues edits and retains archives 
     await wait(state=>state.exporting===null);
     assert.equal(downloads.length,1);assert.equal(releaseCount,1);assert.equal(client.snapshot.accepted,replacement);
     client.export('stl');
-    client.submit({...definition,parameters:{...definition.parameters,reliefHeight:23}});
+    client.submit({...definition,parameters:{...definition.parameters,[relief]:23}});
     client.clearError(); // Commit the accepted height again while export is active.
     finishExport({file:new File(['retained'],'retained.stl'),revision:replacement.result.revision,format:'stl',release:async()=>{}});
     await wait(state=>state.exporting===null);
     await new Promise(resolve=>setImmediate(resolve));
     assert.equal(client.snapshot.status,'ready');assert.equal(client.snapshot.accepted,replacement);
     assert.equal(downloads.length,2);assert.equal(downloads[1].revision,replacement.result.revision);
+    if(generatorVersion===2){
+      client.submit(definition,originalBytes);await wait(state=>state.status==='ready');
+      const source=client.snapshot.accepted,candidate=proposeUpgradeV3(source.definition);
+      delayModule=true;client.submit(candidate,null,true);client.cancelGeneration();finishModule(module);
+      await new Promise(resolve=>setImmediate(resolve));assert.equal(client.snapshot.accepted,source);assert.equal(client.snapshot.upgrade,null);
+      assert.equal(source.originalBytes,originalBytes);delayModule=false;
+      client.submit(candidate,null,true);await wait(state=>state.status==='ready');
+      assert.equal(client.snapshot.error,null);assert.equal(client.snapshot.accepted,source);
+      assert.equal(client.snapshot.upgrade.source,source);assert.equal(client.snapshot.upgrade.correspondence.length,4);
+      client.export('step');assert.equal(client.snapshot.exporting,null);
+      client.confirmUpgrade();assert.equal(client.snapshot.accepted.definition.generatorVersion,3);
+      assert.equal(client.snapshot.accepted.originalBytes,null);assert.equal(client.snapshot.upgrade,null);
+      assert.ok(!Object.hasOwn(client.snapshot.accepted.layout,'source'));
+      assert.ok(!Object.hasOwn(client.snapshot.accepted.layout,'correspondence'));
+      assert.equal(source.originalBytes,originalBytes);
+    }
   } finally {client.dispose();}
 });

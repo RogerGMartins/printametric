@@ -1,4 +1,4 @@
-/** Strict checkpoint-only boundary. No CAD or public file dispatch is enabled here. */
+/** Strict v3 parameter boundary before bounded layout enumeration and native work. */
 import { exactObject } from './validation.ts';
 import { DesignError } from './budget.ts';
 import { LAYOUTS, OUTLINES, type ParametersV2 } from './parameters-v2.ts';

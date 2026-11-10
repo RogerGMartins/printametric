@@ -3,7 +3,7 @@
  * clipped-footprint generator or a certified continuous-field approximation.
  * The caller owns the returned solid; every intermediate native object is freed.
  */
-import { cast, makePolygon } from 'replicad';
+import { cast, makePolygon, Shell } from 'replicad';
 import { validateSolid } from '../../src/shared/geometry/kernel.ts';
 
 /** Reject known approximation failures before the potentially expensive mesher.
@@ -97,7 +97,7 @@ export function buildRectangleSurface(kernel, { width, ratio, concavity, height,
     sewing.Perform();
     progress('faces-sewn');
     const shell = own(cast(own(sewing.SewedShape())));
-    if (shell.constructor.name !== 'Shell') throw Error(`Sewing produced ${shell.constructor.name}, not one shell.`);
+    if (!(shell instanceof Shell)) throw Error(`Sewing produced ${shell.constructor.name}, not one shell.`);
     const maker = own(new kernel.BRepBuilderAPI_MakeSolid(shell.wrapped));
     const raw = own(maker.Solid());
     if (!kernel.BRepLib.OrientClosedSolid(raw)) throw Error('Cannot orient the closed shell.');

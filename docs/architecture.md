@@ -356,43 +356,58 @@ the same canonical arrays. Tool controls remain in the Gridline bottom drawer.
 The following capacity-investigation sections preserve historical evidence; the
 current route is the implementation described here.
 
-### Phase-03 shape and surface — proposal
+### Phase-03 shape and surface — implementation
 
-**P0–P2 investigation approved; production integration remains proposed.** See the
+**Generator-3 production integration implemented and verified under the accepted bounded-generation contract.** See the
 [phase-03 technical plan](plans/wall-art-shape-surface.md).
 The [owning spec](specs/wall-art-shape-surface.md) records product/UI decisions;
-actual native surfaces and curvature are not yet qualified. The user approved a
-bounded headless investigation, followed by an explicit native-CAD visual stop
-before production integration. The plan owns tasks and proposed numerical methods.
+fixed native surface/curvature examples now have a
+[complete P2 review package](plans/wall-art-shape-surface.md#p2-review-package--ready-for-the-required-decision).
+The user accepted the visual/numerical contract on 2026-11-10 and approved the
+continuation. The plan owns tasks; the spec records the accepted construction and
+the limits of the conditional native-kernel accuracy contract.
 
-- Keep pure v3 fields, independent relief randomness, validation, migration and
-  native construction tool-local. Preserve exact v1/v2 routes and v2 layout random
-  streams. Extend exact definition dispatch to 3/3 only after the checkpoint.
-  Proposed JSON retains the format-1 six-key envelope with layout `seed` outside
+The isolated `tests/fixtures/surface-review/` route retains real worker-owned native
+solids and canonical arrays while using `WallArtPreview` for renderer/GPU overlap.
+It checks failed/cancelled candidates and exports from the accepted final solids.
+It is a qualification fixture, not a second editor or production version dispatch.
+Its small measured jobs do not qualify the 512/4,000-part tiers.
+
+- Pure v3 fields, independent relief randomness, validation, migration and native
+  construction stay tool-local. Exact v1/v2 routes and layout random streams remain
+  unchanged. Definition dispatch accepts only 1/1, 2/2 and 3/3.
+  JSON retains the format-1 six-key envelope with layout `seed` outside
   parameters and required `surfaceSeed` inside; no native data enters saved files.
-- Extend archive-backed batches/snapshots with explicit version tags and direct
-  part-builder dispatch. Reuse validated partition geometry without changing old
-  IDs in place. Freeze topology-key correspondence across upgrades. Surface edits
-  reuse footprints, not shaped CAD. No generic generator registry or second pool.
-- A v3 native builder produces final bare/engraved solids, their canonical mesh,
+- Archive-backed batches/snapshots have explicit version tags and direct part-builder
+  dispatch. Validated partition reuse creates v3 identity records without mutating
+  old records. Upgrades match lattice/component keys, not array positions. Surface
+  edits reuse footprints, not shaped CAD. Both versions use the same bounded pool.
+- `generate-v3.ts` produces final bare/engraved solids, their canonical mesh,
   actual bounds, stable anchor and identification reason. Tool metadata distinguishes
   floor-only Map-only ID from invalid material or failed CAD. Shared mesh/export
   writers remain independent of wall-art fields and generator versions.
 - `DesignClient` owns source-revision-bound upgrade previews for direct v1→v3 and
-  v2→v3. Retain the original export source until confirmation. Separate preserved
-  original-file provenance from current accepted JSON serialization after upgrade.
-  Budget accepted/candidate/export-pinned archives, native heaps and renderer copies
-  together. Stale completion cannot accept or dispose the wrong revision.
-- Keep existing disposable batches and disk-backed export leases. Validate any
-  v3-specific clearance certificate rather than assuming X-only v2 taper bounds
-  apply. Preserve approved limits; capacity must be measured for this geometry.
+  v2→v3. The original export source remains accepted until confirmation. Confirmation
+  drops preview provenance, releases the old source and starts canonical v3 JSON
+  serialization. Cancellation/failure retains original bytes and native archives.
+- Disposable batches and disk-backed export leases retain their existing lifecycle.
+  Accepted/candidate/export-pinned archives, native heaps and renderer copies share
+  the memory reservation. V3 clearance uses full native solids; it does not reuse
+  the v2 taper hull. `surface-work.ts` charges native constructor/operation requests
+  before execution and numeric routines charge field evaluation blocks before work.
+  Concurrent batches reserve disjoint remaining job allowances. Per-part and total
+  limits remain independent; a failed allowance rejects without accepting a partial job.
 - Gridline retains one outer drawer. Tool Surface/Shape/Layout/Files controls
   precede shared Display. App composes slots; shared Workspace knows no tool fields.
   Accepted/candidate/error metadata supplies UI truth, not renderer inference.
 
-No stack, dependency, hosting, storage service or license change is proposed.
-Implementation must replace this proposal with verified facts and checkpoint links;
-it must not label the investigation as shipped generator-3 support.
+The accepted native construction lives in typed `geometry/surface-*.ts` modules.
+Historical capability helpers re-export those modules for the retained qualification
+matrix; application code never imports tests. Shared exporters consume only final
+canonical arrays or archived native solids. `surface-error-ledger.ts` keeps the
+conditional native-kernel error contract explicit; it does not claim a formal global
+Boolean-error proof. The stack, hosting direction, storage service and license remain
+unchanged. Final integrated evidence belongs to the plan's P6 checkpoint.
 
 ### Generator-1 core implementation
 

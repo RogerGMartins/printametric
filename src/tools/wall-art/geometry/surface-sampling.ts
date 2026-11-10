@@ -33,7 +33,7 @@ const linear = (a: number, b: number): BoundedCurve => ({ coefficients: [a, b], 
 
 /** Parameter rectangle is an enclosing chart domain, not a clipped part. Work is
  * bounded before pole allocation. This API accepts only continuous top requests. */
-export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCenter: SpiralCenter = 'linear', compactSpiral = false): readonly BoundaryPatch[] {
+export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCenter: SpiralCenter = 'linear', compactSpiral = false, charge?: (count: number) => void): readonly BoundaryPatch[] {
   validateSpiralCenter(spiralCenter);
   if (typeof compactSpiral !== 'boolean') throw new DesignError('SURFACE_DOMAIN', 'Invalid Spiral chart strategy.');
   const p = validateParametersV3(input);
@@ -47,6 +47,7 @@ export function createBoundaryPatches(input: unknown, box: SurfaceBox, spiralCen
   const sine = (start: number, end: number, frequency: number, offset: number, degree: number) => {
     evaluations += degree + 1;
     if (evaluations > SURFACE_DOMAIN_LIMITS.evaluations) throw new DesignError('SURFACE_BUDGET', 'Boundary-domain evaluation budget exhausted.');
+    charge?.(degree + 1);
     return fitSine(start, end, frequency, offset, degree);
   };
   function append(kind: BoundaryPatch['kind'], u: readonly [number, number], v: readonly [number, number], degreeU: number, degreeV: number,

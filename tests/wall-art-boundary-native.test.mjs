@@ -1,12 +1,12 @@
 /** R2 capability regressions. A valid CAD shell is not sufficient for acceptance. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { importSTEP, measureVolume } from 'replicad';
+import { importSTEP } from 'replicad';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import initReader from 'occt-import-js';
 import { loadKernel } from './support/wall-art-kernel.mjs';
 import { buildBoundarySurface } from './support/shape-surface-boundary-native.mjs';
-import { meshBoundarySurface, removeCollapsedTriangles } from './support/shape-surface-boundary-mesh.mjs';
+import { measureBoundaryVolume, meshBoundarySurface, removeCollapsedTriangles } from './support/shape-surface-boundary-mesh.mjs';
 import { DEFAULT_PARAMETERS_V3 } from '../src/tools/wall-art/model/parameters-v3.ts';
 import { validateSolid } from '../src/shared/geometry/kernel.ts';
 import { validateMesh } from '../src/shared/geometry/validate-mesh.ts';
@@ -32,7 +32,7 @@ test('boundary-aware CAD patches survive meshing and native STEP/STL round trips
       const restored = await importSTEP(new Blob([bytes]));
       try {
         validateSolid(kernel, restored);
-        assert.ok(Math.abs(measureVolume(restored) - result.nativeVolume) / result.nativeVolume < .00001);
+        assert.ok(Math.abs(measureBoundaryVolume(restored).nativeVolume - result.nativeVolume) / result.nativeVolume < .00001);
       } finally { restored.delete(); }
       const stl = serializeSTL([part]), geometry = new STLLoader().parse(stl.buffer);
       try {
@@ -77,7 +77,7 @@ for (const fixture of [
     const bytes = await serializeSTEP([part], [candidate.solid]);
     assert.match(new TextDecoder().decode(bytes), /B_SPLINE_SURFACE/);
     const restored = await importSTEP(new Blob([bytes]));
-    try { validateSolid(kernel, restored); assert.ok(Math.abs(measureVolume(restored) - result.nativeVolume) / result.nativeVolume < .00001); }
+    try { validateSolid(kernel, restored); assert.ok(Math.abs(measureBoundaryVolume(restored).nativeVolume - result.nativeVolume) / result.nativeVolume < .00001); }
     finally { restored.delete(); }
     const reader = await initReader();
     const read = reader.ReadStepFile(bytes, { linearUnit: 'millimeter', linearDeflectionType: 'absolute_value', linearDeflection: .05, angularDeflection: Math.PI / 36 });

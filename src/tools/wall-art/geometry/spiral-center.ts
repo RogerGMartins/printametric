@@ -4,6 +4,8 @@
 import { DesignError } from '../model/budget.ts';
 
 export type SpiralCenter = 'linear' | 'smooth-c1' | 'smooth-c2';
+/** Frozen generator-3 field; the other modes remain historical diagnostic comparisons. */
+export const GENERATOR_3_SPIRAL_CENTER: SpiralCenter = 'smooth-c2';
 export function validateSpiralCenter(value: unknown): asserts value is SpiralCenter {
   if (value !== 'linear' && value !== 'smooth-c1' && value !== 'smooth-c2') throw new DesignError('SURFACE_FIELD', 'Unknown Spiral-center experiment.');
 }

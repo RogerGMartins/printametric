@@ -34,7 +34,7 @@ test('checkpoint parameter boundary validates every numeric and inactive field w
   assert.equal(validateParametersV3({ ...defaults, minimumRelief: 0, depth: 0 }).plinthEnabled, true);
 });
 
-test('checkpoint rejects malformed records and stays outside production version dispatch', () => {
+test('shape parameters reject malformed records and mixed model/generator pairs', () => {
   for (const name of PARAMETER_NAMES_V3) {
     const missing = { ...defaults }; delete missing[name];
     assert.throws(() => validateParametersV3(missing), { code: 'FIELDS' });
@@ -47,7 +47,8 @@ test('checkpoint rejects malformed records and stays outside production version 
   Object.defineProperty(accessor, 'surfaceSeed', { enumerable: true, get() { read = true; return 1; } });
   assert.throws(() => validateParametersV3(accessor), { code: 'FIELDS' }); assert.equal(read, false);
   for (const bad of [null, [], Object.create(defaults)]) assert.throws(() => validateParametersV3(bad));
-  for (const versions of [[3,3], [2,3], [3,2]]) assert.throws(() => validateDesignDefinition({
+  assert.deepEqual(validateDesignDefinition({ modelSchemaVersion: 3, generatorVersion: 3, parameters: defaults }).parameters, defaults);
+  for (const versions of [[2,3], [3,2]]) assert.throws(() => validateDesignDefinition({
     modelSchemaVersion: versions[0], generatorVersion: versions[1], parameters: defaults,
   }), { code: 'VERSION' });
 });

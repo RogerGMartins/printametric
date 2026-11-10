@@ -57,7 +57,7 @@ function exponentialMoment(z: number, power: number): Complex {
 
 interface Chart { points: Point[]; direction: number; depth: number; values: number[]; error: number; arithmetic: number }
 export function spiralContourMoments(p: ParametersV3, spans: readonly ContourSpan[], anchor: readonly [number, number],
-  geometry: ContourMoments, orientation: number, target: number, availableCharts: number, mode: SpiralCenter): ContourMoments {
+  geometry: ContourMoments, orientation: number, target: number, availableCharts: number, mode: SpiralCenter, charge?: (count: number) => void): ContourMoments {
   const length = Math.min(p.width, p.height), center = .01 * length, k = 4 * Math.PI * p.density / length;
   const phase = 2 * Math.PI * (p.phase % 1) - p.spiralArms * (p.rotation % 360) * Math.PI / 180;
   const polynomial = mode === 'linear' ? [[1, 1]] : mode === 'smooth-c1' ? [[2, 3], [3, -2]] : [[3, 10], [4, -15], [5, 6]];
@@ -136,6 +136,7 @@ export function spiralContourMoments(p: ParametersV3, spans: readonly ContourSpa
       analyticError = Math.min(analyticError, analytic + join);
     }
     const zero = centerError <= analyticError, values: [number, number, number] = [0, 0, 0];
+    if (!zero) charge?.(8);
     if (!zero) for (let i = 0; i < 8; i++) {
       const t = (nodes[i]! + 1) / 2, v = at(points, t), tangent = at(d, t);
       const x = v[0] / v[2], y = v[1] / v[2], r = Math.hypot(x, y);

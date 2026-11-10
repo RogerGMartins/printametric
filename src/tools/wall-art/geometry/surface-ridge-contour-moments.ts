@@ -17,7 +17,7 @@ function periodicPrimitive(s: number): readonly [number, number] {
 }
 
 export function ridgeContourMoments(p: ParametersV3, spans: readonly ContourSpan[], anchor: readonly [number, number],
-  geometry: ContourMoments, orientation: number, target: number, availableCharts: number): ContourMoments {
+  geometry: ContourMoments, orientation: number, target: number, availableCharts: number, charge?: (count: number) => void): ContourMoments {
   const length = Math.min(p.width, p.height), angle = p.rotation % 360 * Math.PI / 180;
   const c = Math.cos(angle), s = Math.sin(angle), d = p.density, frequency = 2 * Math.PI * d;
   const a0 = (c * anchor[0] + s * anchor[1]) / length, b0 = (-s * anchor[0] + c * anchor[1]) / length;
@@ -82,6 +82,7 @@ export function ridgeContourMoments(p: ParametersV3, spans: readonly ContourSpan
     const count = counts[index]!, n = chart.points.length - 1;
     const derivative = chart.points.slice(1).map((point, i) => point.map((v, j) => n * (v - chart.points[i]![j]!)) as unknown as Point);
     error += chart.second / (24 * count ** 2 * area);
+    charge?.(count);
     for (let i = 0; i < count; i++) {
       const t = (i + .5) / count, point = at(chart.points, t), tangent = at(derivative, t);
       const a = point[0] / point[2], b = point[1] / point[2];

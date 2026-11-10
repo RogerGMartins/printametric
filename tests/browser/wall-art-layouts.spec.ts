@@ -123,8 +123,8 @@ test('v1 bytes survive cancelled upgrades and invalid v2 imports; confirmation i
   await page.locator('.settings-drawer > summary').click();
   const original=Buffer.from('\n '+new TextDecoder().decode(serializeDesign({...DEFAULT_PARAMETERS,width:100,height:100,topRatio:1}))+'\n');
   await page.getByLabel('Load design JSON').setInputFiles({name:'original.json',mimeType:'application/json',buffer:original});
-  await expect(page.getByRole('button',{name:'Preview upgrade to generator 2'})).toBeEnabled();
-  await page.getByRole('button',{name:'Preview upgrade to generator 2'}).click();
+  await expect(page.getByRole('button',{name:'Preview upgrade to generator 3'})).toBeEnabled();
+  await page.getByRole('button',{name:'Preview upgrade to generator 3'}).click();
   await expect(page.getByRole('button',{name:'Confirm upgrade'})).toBeVisible({timeout:30000});
   await page.getByRole('button',{name:'Cancel upgrade',exact:true}).click();
   const saving=page.waitForEvent('download');await page.getByRole('button',{name:'Save design JSON',exact:true}).click();
@@ -132,11 +132,11 @@ test('v1 bytes survive cancelled upgrades and invalid v2 imports; confirmation i
   await page.getByLabel('Load design JSON').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{"format":"printametric-wall-art","formatVersion":1,"modelSchemaVersion":2,"generatorVersion":1,"seed":1,"parameters":{}}')});
   await expect(page.locator('#wall-art-error')).toBeVisible();await expect(page.getByLabel('Panel width (mm)')).toHaveValue('100');
   await page.getByRole('button',{name:'Revert to accepted design'}).click();
-  await expect(page.getByRole('button',{name:'Preview upgrade to generator 2'})).toBeEnabled();
-  await page.getByRole('button',{name:'Preview upgrade to generator 2'}).click();
+  await expect(page.getByRole('button',{name:'Preview upgrade to generator 3'})).toBeEnabled();
+  await page.getByRole('button',{name:'Preview upgrade to generator 3'}).click();
   await page.getByRole('button',{name:'Confirm upgrade'}).click();
   await expect(page.getByLabel('Outline',{exact:true})).toHaveValue('rectangle');
-  await page.locator('.layout-advanced > summary').click();
+  await page.getByText('Advanced layout and identification',{exact:true}).click();
   await expect(page.getByLabel('Engraving depth (mm)')).toHaveValue('0');
   await expect(page.getByLabel('Underside orientation mark')).not.toBeChecked();
 });

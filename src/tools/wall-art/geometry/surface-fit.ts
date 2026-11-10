@@ -97,10 +97,20 @@ export function fitPowerProfile(exponent: number, allowance: number, compact = f
       const second = first.slice(1).map((v, i) => (degree - 1) * (v - first[i]!) / width);
       const value = splitValues(values)[0].at(-1)!, slope = splitValues(first)[0].at(-1)!;
       const derivative = exponent * middle ** (exponent - 1);
-      const secondEnds = [lower, upper].map(t => exponent * (exponent - 1) * t ** (exponent - 2));
-      const secondBound = Math.max(Math.abs(Math.min(...second) - Math.max(...secondEnds)), Math.abs(Math.max(...second) - Math.min(...secondEnds)));
       const rounding = 8192 * Number.EPSILON * Math.max(1, ...coefficients.map(Math.abs));
-      const bound = Math.abs(value - middle ** exponent) + width / 2 * Math.abs(slope - derivative) + width * width / 8 * secondBound + rounding;
+      // At zero, t^p has an unbounded second derivative for 1<p<2. Its convex
+      // tangent remainder is still finite and reaches its maximum at an endpoint.
+      let remainder;
+      if (lower === 0 && exponent < 2) {
+        remainder = width * width / 8 * Math.max(...second.map(Math.abs)) + Math.max(
+          lower ** exponent - middle ** exponent + derivative * width / 2,
+          upper ** exponent - middle ** exponent - derivative * width / 2);
+      } else {
+        const secondEnds = [lower, upper].map(t => exponent * (exponent - 1) * t ** (exponent - 2));
+        const secondBound = Math.max(Math.abs(Math.min(...second) - Math.max(...secondEnds)), Math.abs(Math.max(...second) - Math.min(...secondEnds)));
+        remainder = width * width / 8 * secondBound;
+      }
+      const bound = Math.abs(value - middle ** exponent) + width / 2 * Math.abs(slope - derivative) + remainder + rounding;
       if (Number.isFinite(bound) && bound <= allowance) return bound;
       if (depth === 8) return null;
       const halves = splitValues(values), a = verify(halves[0], lower, middle, depth + 1); if (a === null) return null;

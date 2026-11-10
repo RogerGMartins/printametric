@@ -1,7 +1,7 @@
 /** Fresh native heap per family for real continuous no-plinth identification. */
 import { parentPort, workerData } from 'node:worker_threads';
 import assert from 'node:assert/strict';
-import { importSTEP, measureVolume } from 'replicad';
+import { importSTEP } from 'replicad';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { loadKernel } from './wall-art-kernel.mjs';
 import { DEFAULT_PARAMETERS_V3 } from '../../src/tools/wall-art/model/parameters-v3.ts';
@@ -9,7 +9,7 @@ import { layoutParametersV3 } from '../../src/tools/wall-art/model/validation-v3
 import { partitionLayout } from '../../src/tools/wall-art/geometry/layouts/partition.ts';
 import { buildBoundarySurface } from './shape-surface-boundary-native.mjs';
 import { identifyFootprintCandidate } from './shape-surface-identified-footprint.mjs';
-import { meshBoundarySurface } from './shape-surface-boundary-mesh.mjs';
+import { measureBoundaryVolume, meshBoundarySurface } from './shape-surface-boundary-mesh.mjs';
 import { validateMesh } from '../../src/shared/geometry/validate-mesh.ts';
 import { validateSolid } from '../../src/shared/geometry/kernel.ts';
 import { serializeSTEP } from '../../src/shared/export/step.ts';
@@ -42,7 +42,7 @@ for (const fixture of [{ minimumRelief: 20, depth: 3, status: 'engraved' }, { mi
     }
     const part = { id: result.id, mapNumber: result.mapNumber, translation: result.translation, mesh: after.mesh, ...checked };
     const restored = await importSTEP(new Blob([await serializeSTEP([part], [result.solid])]));
-    try { validateSolid(kernel, restored); assert.ok(Math.abs(measureVolume(restored) / after.nativeVolume - 1) < .00001); }
+    try { validateSolid(kernel, restored); assert.ok(Math.abs(measureBoundaryVolume(restored).nativeVolume / after.nativeVolume - 1) < .00001); }
     finally { restored.delete(); }
     const geometry = new STLLoader().parse(serializeSTL([part]).buffer);
     try {

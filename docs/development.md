@@ -197,15 +197,15 @@ verification and user-review status are in the [migration checkpoint](plans/grid
 
 ## Wall-art usage and debugging
 
-New sessions use generator 2. Outline and layout controls are in Workspace settings;
+New sessions use generator 3. Surface and Shape controls precede Layout and identification in Workspace settings;
 pitch, gap, seed and identification are in **Advanced layout and identification**.
 The **Numbered plan** shows native contours and excluded fragments, with a keyboard
 part-number lookup and enlarged selected contour. Exclusions require acknowledgment
 before export. Whole-cell overflow reports actual assembly dimensions.
 
-Generator-1 files retain original bytes and geometry until **Preview upgrade** and
+Generator-1/2 files retain original bytes and geometry until **Preview upgrade to generator 3** and
 **Confirm upgrade** complete. Cancelled or failed candidates retain the accepted
-design. Generator-2 exports use a leased temporary browser File: finish the download,
+design. Generator-2/3 exports use a leased temporary browser File: finish the download,
 then select **Release downloaded file**. Quota/API failures are visible. Browser
 storage is used only for explicit exports, not project persistence.
 
@@ -506,6 +506,42 @@ development-only `tests/browser/export-storage.spec.ts`.
 
 ## Phase-03 native investigation
 
+The investigation sections below preserve historical evidence. The application now
+dispatches generator 3 through typed production modules. Current integrated checks:
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-v3-*.test.mjs tests/wall-art-runtime.test.mjs tests/wall-art-version-races.test.mjs
+npm run test:browser -- --project=development tests/browser/wall-art-shape-surface.spec.ts
+npm run check:awake
+npm run build
+node scripts/qualify-shape-surface-app.mjs
+```
+
+The final command serves the existing production build on strict port 6973. It
+uses a disposable persistent Chromium profile for real application generation,
+retained replacement, disk-backed exports, cancellation, complex failed candidates
+and sampled aggregate memory. It records CPU/RAM/browser/Node, cold/warm times,
+actual accepted bounds and both-theme screenshots. The retained T6 extension enables
+genuine 200% zoom; its absence is recorded as unverified. It is a local Windows
+qualification command, not a portable CI prerequisite. Reports and downloads use
+timestamped `artifacts/wall-art-shape-surface/application-*` directories. Keep failed
+reports; successful starters do not qualify arbitrary 512/4,000-part designs.
+
+The [integrated qualification](plans/wall-art-shape-surface.md#integrated-production-qualification--2026-11-10)
+records the production starter, retained edits, failed complexity attempts and
+independent checks of its 100-part STEP/STL/3MF downloads and slicer outputs.
+Generator-3 part batches contain at most 16 parts to fit the existing native-memory
+reservation; partition and clearance batches retain their 32-item upper bound.
+
+Break in `generate-v3.ts` at top-mode dispatch, identification and final meshing.
+`surface-work.ts` charges native requests and field evaluations before work;
+`layout-coordinator.ts` reserves allowances across batches and retains accepted
+buffers. `design-client.ts` binds direct upgrades to their source revision and
+removes source provenance after confirmation. Percentage text conversion lives in
+`definition-drafts.ts`; it preserves accepted floating-point values without an
+extra multiply/divide rounding step. Inspect parameter names, revision IDs and
+bounded counters instead of logging complete user designs.
+
 P0 provides checkpoint-only v3 parameter validation and seven pure surface fields.
 The application still uses the supported v1/v2 paths. The current P1 native route
 is an isolated rectangular capability experiment, not the phase-03 generator.
@@ -756,6 +792,79 @@ with and without a plinth, source retention and propagated native failures.
 These are bounded fixtures, not general material qualification. See the
 [identification handoff checkpoint](plans/wall-art-shape-surface.md#r3-progress--continuous-identification-and-final-solid-handoff)
 for reader/slicer evidence and remaining P2 work.
+
+### R3 native assembly checks
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-surface-assembly.test.mjs tests/wall-art-boundary-native.test.mjs
+```
+
+`shape-surface-assembly.mjs` qualifies at most 32 already material-checked final
+parts in one diagnostic heap. It validates identity/placement before native work,
+uses native world bounds and full-solid distances, then checks shared aggregate
+canonical budgets. It does not reuse the v2 taper hull. Seven-part engraved and
+Map-only assemblies retain the previous sources while checking STEP and streamed
+STL/3MF. Overlap, insufficient clearance and invalid input reject before return.
+
+`measureBoundaryVolume` uses adaptive native integration before mesh comparison.
+The non-adaptive convenience API can exceed the 0.1% mesh-volume allowance on thin
+curved solids. Numerical integration uncertainty contributes to the comparison;
+the existing mesh tolerances and triangle limits remain unchanged. Diagnose the
+reference value before assuming that more mesh triangles will resolve a mismatch.
+See the [assembly checkpoint](plans/wall-art-shape-surface.md#r3-progress--native-assemblies-and-volume-reference)
+for independent field-volume evidence and remaining full-tier memory qualification.
+
+### R3 fractional side profiles
+
+Fractional side-profile diagnosis: run
+`node --test --test-concurrency=1 tests/wall-art-surface-domains.test.mjs tests/wall-art-planar-native.test.mjs`.
+For curvature between 1 and 2, `surface-fit.ts` uses a finite convex-tangent remainder
+on the interval touching zero. Other intervals retain their second-derivative bound.
+The tests exercise both profile strategies and all three native builders, including
+untapered parts and STEP round trips. Tight fits can still exhaust the existing
+degree/refinement budget; a finite endpoint bound is not a blanket range guarantee.
+
+### P2 native review package
+
+```sh
+node scripts/qualify-shape-surface-review.mjs
+node scripts/check-shape-surface-review.mjs <review-directory>
+node scripts/render-shape-surface-review.mjs <review-directory> <starter-1-directory> <starter-2.2-directory> <starter-4-directory>
+node scripts/check-shape-surface-review.mjs <review-directory> --slicer
+node scripts/profile-shape-surface-browser.mjs
+node --test --test-concurrency=1 tests/wall-art-surface-review.test.mjs
+npm run check:awake
+```
+
+The first command generates 42 fixed cases: 41 valid assemblies and one expected
+bare-material rejection. Optional positional fixture IDs select a diagnostic subset;
+a subset is not the complete review. Generate the three starters with
+`qualify-shape-surface-starter.mjs` as documented above. The renderer writes an HTML
+review sheet, matched front/side/isometric PNGs and independent browser 3MF checks.
+Before `--slicer`, import each valid assembly's 3MF into OrcaSlicer and export separate
+STLs to that same directory with `--arrange 0 --export-stls <directory>`. The checker
+validates the actual `obj_*_Part-*.stl` outputs, not the slicer's exit code alone.
+
+Fresh native workers keep each generated/read fixture under 120 seconds and a
+sampled 2 GB process cap. Reports include actual native-construction constructor
+counts and a conservative aggregate field-evaluation reservation; they are not
+production scheduler counters. The browser profiler builds in a separate process,
+serves strict port 6873, retains accepted native/canonical/renderer allocations during
+replacement, and checks invalid input, cancellation and final-solid downloads.
+It closes its browser and server on success or failure. Its Windows process sampler
+includes Chromium working sets and controller RSS; samples are not an exact peak.
+
+`shape-surface-error-ledger.mjs` separates analytic height, side-profile, contour,
+amplified boundary and stored native tolerances. Exact-method native consistency is
+checked, but a stored tolerance is not an independent global distance proof for
+Boolean/trim operations. The report explicitly keeps `formalKernelErrorProof: false`.
+The reviewed numerical contract must retain that distinction. The minified browser
+fixture also reproduces class renaming: native shell checks use `instanceof Shell`,
+not the constructor's display name.
+
+Current files, measurements and the required decision are in the
+[P2 package](plans/wall-art-shape-surface.md#p2-review-package--ready-for-the-required-decision).
+Generated files remain under ignored `artifacts/`; they are not CI prerequisites.
 
 ## Impeccable design tooling
 

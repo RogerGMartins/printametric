@@ -66,12 +66,13 @@ numbered contour lookup and disk-backed exports. Its
 512 parts is a completed measured case; 4000 is a hard ceiling, not guaranteed
 throughput. Generator 1 remains reproducible and upgrade requires confirmation.
 
-Phase 03's [reviewed shape/surface scope](specs/wall-art-shape-surface.md) is planned,
-not shipped. Its [P0–P2 implementation](plans/wall-art-shape-surface.md) is approved:
-validate independent surface fields, test native construction and exports, then
-stop for actual-CAD visual/contract review. This feature-specific checkpoint is
-required before production integration despite the earlier general feasibility
-decision below.
+Phase 03's [reviewed shape/surface scope](specs/wall-art-shape-surface.md) has its
+accepted native-CAD checkpoint and completed production integration. Fresh generator-3
+designs use stepped Wave; seven fields, shape controls, independent seeds and
+direct confirmed upgrades from v1/v2 are connected. The
+[implementation plan](plans/wall-art-shape-surface.md#integrated-production-qualification--2026-11-10) records the passing shared gate,
+100-part production/export qualification and remaining measured limits. This does not complete mounting, print preparation
+or hosting, and does not convert the 4,000-part ceiling into a throughput promise.
 
 - [ ] Define the first panel/pattern, backing and mounting, parameter ranges,
   clearances, tolerances, and generation budgets.

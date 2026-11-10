@@ -57,12 +57,12 @@ export function Workspace({ content, title, headingRef, notices, availability, p
           event.preventDefault();onChange('settingsOpen',!preferences.settingsOpen);
         }}>Workspace settings</summary>
       <div className="settings-content">
+        {controls}
         <WorkspaceDisplay {...display} tipsRef={tips} backgroundRef={background} availability={availability} />
         <section className="settings-group" aria-label="Model availability">
           {!controls && primarySection && <div><h2>{primarySection.heading}</h2><p>{primarySection.description}</p></div>}
           <dl className="workspace-summaries">{['Dimensions', 'Parts', 'Plates'].map(label => <div key={label}><dt>{label}</dt><dd>{summaries?.[label] ?? 'Not available'}</dd></div>)}</dl>
         </section>
-        {controls}
         {secondarySections.map(section => <section className="settings-group" key={section.heading}><h2>{section.heading}</h2><p>{section.description}</p></section>)}
       </div>
     </details>

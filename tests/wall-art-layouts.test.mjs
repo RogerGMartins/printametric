@@ -55,7 +55,8 @@ test('exact version pairs and explicit no-cut upgrade preserve old bytes and par
   const bytes = serializeVersionedDesign(v2);
   assert.deepEqual(parseVersionedDesign(bytes), v2);
   assert.throws(() => parseDesign(bytes), /Only wall-art/);
-  for (const pair of [[1, 2], [2, 1], [0, 0], [3, 3], ['2', 2]]) assert.throws(() => validateDesignDefinition({ ...v2, modelSchemaVersion: pair[0], generatorVersion: pair[1] }), /pairs/);
+  for (const pair of [[1, 2], [2, 1], [0, 0], [4, 4], ['2', 2]]) assert.throws(() => validateDesignDefinition({ ...v2, modelSchemaVersion: pair[0], generatorVersion: pair[1] }), /pairs/);
+  assert.throws(() => validateDesignDefinition({ ...v2, modelSchemaVersion: 3, generatorVersion: 3 }), { code: 'FIELDS' });
   for (const data of [new Uint8Array(LIMITS_V2.fileBytes + 1), new Uint8Array([255]), bytes.slice(0, -5)]) assert.throws(() => parseVersionedDesign(data));
   const envelope = JSON.parse(new TextDecoder().decode(bytes));
   for (const patch of [{ consent: true }, { formatVersion: 2 }, { parameters: { ...envelope.parameters, seed: 1 } }]) {

@@ -9,7 +9,7 @@ import type { ContourMoments, ContourSpan } from './surface-contour-moments.ts';
 import { contourPointAt as at, splitContour as split, contourDerivativeBounds as derivatives, type ContourPoint as Point } from './surface-contour-derivatives.ts';
 
 export function domeContourMoments(p: ParametersV3, spans: readonly ContourSpan[], anchor: readonly [number, number],
-  geometry: ContourMoments, orientation: number, target: number, availableCharts: number): ContourMoments {
+  geometry: ContourMoments, orientation: number, target: number, availableCharts: number, charge?: (count: number) => void): ContourMoments {
   const radius = Math.min(p.width, p.height) / 2, area = geometry.area / radius ** 2, factor = radius / geometry.scale;
   const ax = anchor[0] / geometry.scale, ay = anchor[1] / geometry.scale;
   let charts = spans.map(span => {
@@ -71,6 +71,7 @@ export function domeContourMoments(p: ParametersV3, spans: readonly ContourSpan[
     const count = counts[index]!, n = chart.points.length - 1;
     const derivative = chart.points.slice(1).map((point, i) => point.map((v, j) => n * (v - chart.points[i]![j]!)) as unknown as Point);
     error += chart.second / (24 * count ** 2 * area);
+    charge?.(count);
     for (let i = 0; i < count; i++) {
       const t = (i + .5) / count, point = at(chart.points, t), tangent = at(derivative, t);
       const x = point[0] / point[2], y = point[1] / point[2], q = x * x + y * y;

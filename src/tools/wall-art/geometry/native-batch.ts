@@ -11,23 +11,32 @@ import { createGlyphTemplates } from './engraving.ts';
 import { nativeTranslate, requireSolid } from './native-operations.ts';
 import { checkNativeClearance } from './clearance.ts';
 import type { BatchRequest, BatchResult } from './batch-protocol.ts';
+import { validateParametersV3, layoutParametersV3 } from '../model/validation-v3.ts';
+import { surfaceContourIdentity } from '../model/part-identity.ts';
+import { buildPartV3 } from './generate-v3.ts';
+import { countedSurfaceKernel, surfaceWork, SURFACE_WORK_LIMITS } from './surface-work.ts';
 
 export async function runNativeBatch(data: BatchRequest): Promise<BatchResult> {
-  const p=validateParametersV2(data.parameters);
+  if(data.generatorVersion!==undefined && data.generatorVersion!==2 && data.generatorVersion!==3)throw new DesignError('VERSION','Unsupported native generator.');
+  const surface=data.generatorVersion===3?validateParametersV3(data.parameters):null;
+  const p=surface?layoutParametersV3(surface):validateParametersV2(data.parameters);
   if(!Array.isArray(data.items)||!data.items.length||data.items.length>32 ||
     !Number.isSafeInteger(data.reservation)||data.reservation<1||data.reservation>Math.floor(LIMITS_V2.memoryBytes/6))
     throw new DesignError('GENERATION_BUDGET','Native batch exceeds its allocation.');
-  const kernel=await initOpenCascade({print:()=>{},instantiateWasm(imports: WebAssembly.Imports,ready: (instance: WebAssembly.Instance,module: WebAssembly.Module)=>void){
+  const work=surface?surfaceWork(data.operationLimit??SURFACE_WORK_LIMITS.operations,data.evaluationLimit??SURFACE_WORK_LIMITS.evaluations,()=>check()):null;
+  const rawKernel=await initOpenCascade({print:()=>{},instantiateWasm(imports: WebAssembly.Imports,ready: (instance: WebAssembly.Instance,module: WebAssembly.Module)=>void){
     const instance=new WebAssembly.Instance(data.module,imports);ready(instance,data.module);return instance.exports;
   }});
+  const kernel=work?countedSurfaceKernel(rawKernel,()=>work.operation()):rawKernel;
   setOC(kernel);
   const result: BatchResult={bases:[],excluded:[],parts:[],operations:0,triangles:0,retainedBytes:0,wasmBytes:0};
   const check=()=>{
+    if(work){result.operations=work.operations;result.evaluations=work.evaluations;}
     result.wasmBytes=kernel.wasmMemory.buffer.byteLength;
     if(result.wasmBytes+result.retainedBytes>data.reservation || result.operations>LIMITS_V2.cadOperations || result.triangles>LIMITS_V2.triangles)
       throw new DesignError('GENERATION_BUDGET','Native batch exceeds its memory or geometry budget. Increase pitch or reduce dimensions.','pitch');
   };
-  const count=()=>{result.operations++;check();};
+  const count=()=>{if(!work)result.operations++;check();};
   if(data.stage==='step') {
     const solids: Shape3D[]=[];
     try {
@@ -37,16 +46,18 @@ export async function runNativeBatch(data: BatchRequest): Promise<BatchResult> {
       result.retainedBytes=result.step.length;check();return result;
     } finally {solids.forEach(solid=>solid.delete());}
   }
-  const templates=createGlyphTemplates(kernel,count);
+  const templates=surface?undefined:createGlyphTemplates(kernel,count);
   try {
     if(data.stage==='partition')for(const cell of data.items){
-      result.operations+=20;
+      if(!work)result.operations+=20;
       const partition=partitionCell(kernel,p,cell);
+      if(surface){partition.bases=partition.bases.map(surfaceContourIdentity);partition.excluded=partition.excluded.map(surfaceContourIdentity);}
       result.bases.push(...partition.bases);result.excluded.push(...partition.excluded);
       result.retainedBytes+=JSON.stringify(partition).length*2;check();
     }
     else if(data.stage==='parts')for(const base of data.items){
-      const built=buildPartV2(kernel,p,base,count,templates);
+      work?.beginPart();
+      const built=surface?buildPartV3(kernel,surface,base,number=>work!.evaluate(number)):buildPartV2(kernel,p,base,count,templates);
       try {
         const snapshot=await archiveNative(kernel,built.solid,built.part.id);
         const {solid: _solid,...metadata}=built;
@@ -69,6 +80,6 @@ export async function runNativeBatch(data: BatchRequest): Promise<BatchResult> {
       }finally{shapes.forEach(shape=>shape.delete());}
     }
     else throw new DesignError('PROTOCOL','Unknown native batch stage.');
-    return result;
-  }finally{templates.dispose();}
+    check();return result;
+  }finally{templates?.dispose();}
 }

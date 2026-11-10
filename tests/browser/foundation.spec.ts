@@ -90,7 +90,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('link', { name: view, exact: true }).click();
       for (const tips of [true, false]) {
         await page.locator('.settings-drawer > summary').click();
-        await page.getByRole('checkbox').setChecked(tips);
+        await page.getByRole('checkbox',{name:'Show workspace tips',exact:true}).setChecked(tips);
         for (const background of ['Plain', 'Grid']) {
           await page.getByRole('radio', { name: background, exact: true }).check();
           await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
@@ -145,7 +145,7 @@ test('failed write retains memory and bytes; same-value retry recovers', async (
   await expect(page.getByRole('button', { name: 'Retry theme storage' })).toBeVisible();
   expect(await page.evaluate(key => localStorage.getItem(key), themeKey)).toBe('light');
   await page.locator('.settings-drawer > summary').click();
-  await page.getByRole('checkbox').uncheck();
+  await page.getByRole('checkbox',{name:'Show workspace tips',exact:true}).uncheck();
   await expect(page.getByRole('button', { name: 'Retry theme storage' })).toBeVisible();
   await page.evaluate(() => { window.foundationProbe.denyWrite = false; });
   await page.getByRole('button', { name: 'Retry theme storage' }).click();

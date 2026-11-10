@@ -75,7 +75,7 @@ export async function verifySupportDialogs(page, baseURL, expectedLicense, theme
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'detached' });
     assert.equal(await opener.evaluate(element => element === document.activeElement), true);
-    assert.equal(await page.getByRole('checkbox').isChecked(), false);
+    assert.equal(await page.getByRole('checkbox',{name:'Show workspace tips',exact:true}).isChecked(), false);
     assert.equal(page.url(), originalURL);
     assert.equal(await page.evaluate(() => history.length), originalHistory);
   }

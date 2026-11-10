@@ -1,16 +1,26 @@
 # Wall art 03 — technical implementation plan
 
-Status: **R3 has seven-family contour moments, native flat/sloping footprint checks, anchor/floor probes and three exported 100-part starters. R3 remains in progress; the full P2 checkpoint is not complete (2026-11-04).**
+Status: **Phase 03 complete under the accepted bounded-generation contract (2026-11-10). P0–P7 are implemented and verified. The 100-part starter is measured; 512/4,000-part throughput is not qualified.**
 
 Requirements: [phase-03 spec](../specs/wall-art-shape-surface.md), decisions
 D1–D18 and SHAPE-UI-D1/D2, AC-1–11 and ST-1–4. Shared boundaries:
-[architecture proposal](../architecture.md#phase-03-shape-and-surface--proposal).
-The user requested “you can start implementation of this phase-03” after reviewing
-this plan. This authorizes P0–P2 under the checkpoint below, not P3–P7.
-Earlier boundary failures and their construction revisions are recorded below.
-No production phase-03 generator or full visual checkpoint has been qualified.
+[architecture implementation](../architecture.md#phase-03-shape-and-surface--implementation).
+The initial request, “you can start implementation of this phase-03”, authorized
+P0–P2. The later explicit P2 acceptance authorized P3–P7, as recorded below.
+Earlier boundary failures and construction revisions remain as historical evidence;
+the integrated qualification and acceptance table record the completed scope.
 
 ## Approval and sequence
+
+On 2026-11-10 the user approved all three decisions in the complete P2 package.
+After clarification that curvature is dimensionless and controls the side shape,
+the user confirmed: “You can continue. This step is approved. Feel free to do
+whatever is necessary to continue”. This authorizes P3–P7 under this plan.
+The [accepted construction contract](../specs/wall-art-shape-surface.md#p2-acceptance--2026-11-10)
+keeps starter curvature 2.2, the seven reviewed fields with C2 Spiral center, and
+the conditional native-kernel accuracy contract. Existing limits remain in force.
+It does not authorize publication, merge, deployment or delegated work. The earlier
+approval boundaries below are retained as history, not current blocking decisions.
 
 On 2026-11-04, after reviewing this plan's current checkpoint and remaining scope,
 the user said “approved continue”. This authorizes continued R3 implementation,
@@ -228,6 +238,139 @@ at the UI boundary; numeric text is authoritative. No-effect controls stay edita
 and validated. Reuse native disclosures, recovery focus and camera sequence logic.
 App composes slots; shared Workspace renders tool controls before Display without
 knowing their fields. Old versions retain their original controls and upgrade action.
+
+## Integrated production qualification — 2026-11-10
+
+P3–P5 now run in the application. The accepted capability algorithms are typed
+production modules; historical native test helpers re-export those modules. V3
+uses explicit version dispatch, actual native/field work counters, final-solid
+identification and archived STEP ownership. Surface part batches use at most 16
+items; the other stages retain their 32-item upper bound. A 32-item curved starter
+batch exceeded its fixed native-memory reservation. Smaller fresh heaps resolve
+that failure without changing geometry, meshing or the aggregate limits.
+
+Files use exact 3/3 tags and both seeds. Direct v1/v2 upgrades hold the original
+revision and bytes until confirmation, match topology-based identities, and release
+source provenance after confirmation. Controls retain raw numeric text, including
+lossless ratio/percentage conversion and editable inactive settings. The numbered
+plan exposes Map-only ID reasons and receives keyboard focus from its review action.
+
+Production evidence is in
+`artifacts/wall-art-shape-surface/application-2026-11-10T14-44-43.111Z/`.
+`scripts/qualify-shape-surface-app.mjs` used the actual built editor, a persistent
+Chromium profile and explicit leased downloads. Environment: Intel Core Ultra 9
+185H, 22 logical CPUs, 33,752,997,888 bytes RAM, Windows 10.0.26200, Node 26.12.1,
+Chromium 156.0.8078.4, pinned Replicad/OpenCascade 1.1.0. The report records the
+kernel identifier and SHA-256 of the built index, which references hashed bundles.
+
+| Measured action | Time | Sampled aggregate peak |
+| --- | ---: | ---: |
+| Cold 100-part starter | 20.68 s | 1.489 GB |
+| Retained warm starter | 27.60 s | 1.344 GB |
+| Retained minimum-relief edit, 20→21 mm | 28.52 s | 1.346 GB |
+| Accepted STEP download | 16.86 s | 1.246 GB |
+| Accepted STL download | 1.20 s | No sample during this short stage |
+| Accepted 3MF download | 2.07 s | 1.162 GB |
+
+The starter's actual bounds are 497.50 × 497.50 × 58.43 mm; the height edit reaches
+59.43 mm. These are measured cell-mean heights, not forced analytic extrema.
+The complete run peaked at 1,627,226,112 sampled bytes over 230 samples. The Windows
+sampler includes Chromium working sets and controller RSS; shared pages can be
+counted twice and samples do not establish an exact transient peak. The first
+report records zero for the unsampled STL stage; the script now emits `null` for
+that condition. Zero is not a memory-use claim.
+
+Retained-design stress attempts preserve the failed evidence:
+
+- 512 curved-side Wave parts exceeded the unchanged 120-second watchdog.
+- A 2000×2000 triangular, density-12, 16-arm continuous Spiral attempt also timed out.
+- A nonconvex irregular density-12 continuous Random attempt rejected at part 11
+  under its native-batch memory reservation, after 24.36 s.
+
+All three retained the previous accepted definition byte-for-byte and kept it
+exportable after explicit recovery. Cancellation acknowledged in 120.64 ms with
+the same accepted bytes. These results qualify bounded failure and source retention,
+not a 512/4,000-part throughput tier. The approved limits remain unchanged.
+
+Reviewed captures cover 1280 px and 320 px in both themes, forced colors, and genuine
+Chromium 200% page zoom. At zoom 2, CSS width changed from 1280 to 640 and DPR doubled.
+An additional genuine-zoom keyboard journey passed in both themes: numeric/range
+controls, planar/blend changes, collapsed invalid-seed recovery and Map-only part
+lookup. Its `zoom-keyboard.json` records the same width/DPR checks and focused-control
+bounds; `zoom-keyboard-*.png` and `zoom-map-only-*.png` retain the views.
+The existing document/panel scrolling and horizontally scrollable camera actions
+remain intentional. The static design detector reported no regex findings in its
+four input files; it did not run parsed-page contrast rules. Physical touch and
+screen-reader behavior remain unverified.
+
+The first integrated gate and browser failures are retained in
+`artifacts/phase03-integrated-check-1.log`, `phase03-native-recheck.log`, and
+`phase03-browser-check-{1,2}.log`. The isolated Spiral reader now passes using the
+existing 500,000-triangle **independent-reader** ceiling and exact collapsed-triangle
+normalization. Canonical generation remains capped at 100,000 triangles per part.
+An imported spline's unmeshed native control-hull box is checked for containment;
+independent tessellated bounds still must match actual placement. Two early native
+timeouts passed in isolation; no universal cause is claimed. The second browser
+run passed 82/84 tests; its two remaining expectations used the old starter height
+for a fresh v3 design. That old-version reader journey now explicitly loads v1.
+
+The exact 100-part files downloaded by that production run also passed native
+Replicad STEP import, independent occt-import-js STEP import, Three STL/3MF readers,
+and OrcaSlicer 3MF-to-STL re-export. All readers found 100 valid parts in their
+assembly positions. The largest independent mesh-reader volume difference was
+0.03812%; native aggregate volume differed from the canonical mesh by about 0.04055%.
+The isolated reader took 37.11 s and sampled 1,341,161,472 bytes process RSS.
+Evidence: `integrated-readers.json`, `independent-3mf.json`, and the 100
+`obj_*_Part-*.stl` outputs beside the downloaded files. Orca reported an exclude-area
+diagnostic; the check validated the actual output files, not its exit code alone.
+
+The second shared-gate log contains native timeouts and the harness reported its
+command cancelled by the server restart. A third attempt was interrupted and ended
+with a Windows console-pipe error. Both logs remain available; neither is passing
+evidence.
+
+### Completion gate — 2026-11-10
+
+`npm run check:awake` passed in `artifacts/phase03-integrated-check-4.log`:
+scaffold validation, both typechecks, production build, **188 Node tests** (zero
+failures/cancellations, 640.39 s), and **90 browser tests** (both development and
+production, 5.7 minutes). This is the ordinary shared gate with a temporary Windows
+keep-awake request; no fixture deadline or geometry limit was increased.
+After this gate, the remaining old “Blade pattern” availability label was corrected
+to “Wall-art surfaces”. The final `npm run build` passed
+(`artifacts/phase03-final-build.log`), and `git diff --check` passed. This final edit
+changed copy only; the full native/browser suite was not repeated for it.
+
+P3–P7 are complete under the accepted bounded-generation contract. The acceptance
+table below records the evidence for AC-1–11 and ST-1–4. The measured starter,
+independent exports, source retention and bounded failure cases pass. Large-design
+throughput, physical printing, physical touch and screen-reader behavior are not
+qualified by these checks. No publication, merge or deployment is part of this handoff.
+
+### Integrated acceptance evidence
+
+The table maps the owning spec to runnable checks and retained review evidence.
+The final shared-gate result below is separate from individual qualification runs.
+Paths in the test column are relative to `tests/`; native comparison helpers now
+exercise the typed production construction modules.
+
+| Acceptance | Evidence |
+| --- | --- |
+| AC-1 — Seven fields | `wall-art-shape-surface.test.mjs` pins field values, family character, inactive controls, density/seed boundaries and arms 1–16. `wall-art-v3-runtime.test.mjs` independently reads each family's actual final native/mesh exports. The accepted P2 package contains the matched native family views. |
+| AC-2 — Physical scale and rotation | Pure field tests cover square/wide/tall panels, shorter-side transitions, uniform and one-axis resizing, actual counterclockwise rotation, circular radial fields and unchanged fixed-XY values under layout/outline changes. Reviewed P2 fixtures supplement these analytic checks. |
+| AC-3 — Top modes | Moment, contour-plane, surface-mode and continuous-footprint suites check actual area means, sloping planes, continuous caps and intermediate blends. P2 includes native mode comparisons; the browser journey checks 0/50/100% and advanced planar controls. |
+| AC-4 — Starter and side profiles | The production profile measures the actual 100-part starter and its height replacement. P2 reviews curvature 1/2.2/4; domain and planar-native regressions cover fractional curvature, including values between 1 and 2. Bounds and exports retain the measured heights rather than fabricated analytic extrema. |
+| AC-5 — Plinth and identification | Bare/identified-footprint suites check material rejection, residual-floor thresholds, omitted paired cuts, anchor coordinates and native-operation failures. The browser loads real invalid and Map-only candidates and verifies retained source bytes, export availability and focused part lookup. |
+| AC-6 — Shared export geometry | Seven-family final-solid round trips plus the exact production 100-part downloads pass native and independent STEP, STL and 3MF readers. Orca's 100 re-exported STLs preserve valid mesh geometry and assembly placement. P2 also covers planar/curved and Map-only examples. |
+| AC-7 — Controls and recovery | `browser/wall-art-shape-surface.spec.ts` covers keyboard ranges/numeric entries, preserved manual precision, conditional controls, advanced recovery and both themes at 320 px. Reviewed desktop/mobile, forced-color and genuine 200% captures are beside the production report. Assistive-technology and physical-touch testing remain unverified. |
+| AC-8 — Bounded work and retention | `wall-art-v3-runtime.test.mjs` charges work before native requests/evaluations and checks per-part/job bounds. Runtime/race/storage suites cover cancellation, stale results, export ownership and cleanup. The production profile records CPU/RAM/browser/kernel/build, cold/warm/replacement/export memory, three safely rejected complexity attempts and 120.64 ms cancellation. It establishes no 512/4,000-part throughput tier. |
+| AC-9 — Explicit upgrades | V3 file/identity and runtime tests check minimal-change proposals, topology correspondence, unconfirmed source retention and source-provenance release on confirmation. Browser cases cover direct v1/v2 preview, cancel, confirm, saved replay and original-file reload by keyboard at 320 px in both themes. |
+| AC-10 — Versioned reproduction | V3 file/draft suites check exact version pairs, required keys, stable serialization/digests, original-version behavior, numeric precision, malformed/oversized files and inactive invalid values. Real native/runtime and browser round trips verify generated/exported results and failed-candidate retention. |
+| AC-11 — Independent seeds | Field and file suites pin separate random streams, endpoint/type checks, inactive values and fixed-XY independence. Browser journeys keyboard-edit unequal layout/surface seeds, recover an invalid surface seed and preserve both through actual JSON transfers. |
+| ST-1 — Select and tune | AC-1/2/3/11 checks jointly cover every family, arm count, seed and conditional field setting. |
+| ST-2 — Valid shaped CAD | AC-4/5/6/8 checks jointly cover native construction, final-solid identification, independent exports and bounded failure. |
+| ST-3 — Explain and recover | AC-7 browser journeys exercise the real conditional controls and real invalid/Map-only geometry; physical touch and screen readers remain outside the verified evidence. |
+| ST-4 — Deliberate upgrade and replay | AC-9/10/11 checks join exact old-version dispatch, one direct confirmation, source retention, saved replay and independent seed ownership. |
 
 ## Ordered tasks and completion checks
 
@@ -1436,3 +1579,282 @@ General parameter/fragment material coverage, combined error accounting, family/
 retained-design qualification remain before P2. Architecture, product/roadmap and
 README need no change for this isolated adapter; the spec and development diagnostics
 are updated here.
+
+### R3 progress — native assemblies and volume reference
+
+After the user requested publication of the identification checkpoint and continued
+work, PR #22 was updated to `584b646`. This subsequent slice remains local until
+another publication is requested. It does not approve P2 or production dispatch.
+
+The assembly qualifier accepts already material-checked, identified native parts.
+It checks identities and finite placements before native work, copies solids to
+their actual world positions, uses native bounding boxes for broad-phase selection
+and checks full-solid distances for the remaining pairs. No v2 taper hull is reused.
+The diagnostic retains at most 32 parts in one heap; shared aggregate triangle,
+canonical-byte and pair-operation guards remain in place. Canonical byte counts
+are not a measurement of native or GPU peak memory. Results return only after all
+parts and clearances pass, and source ownership remains with the caller.
+
+Two seven-part, 100×100 mm radial/ellipse Wave assemblies cover engraved and valid
+Map-only outcomes. Both require ten native pair checks, with minimum checked
+distance about 2.499986 mm. An overlap and a 0.8 mm gap reject; a 0.82 mm gap passes.
+The earlier native sources and canonical digest remain unchanged through failed
+placement/material attempts and generation of the thin replacement. STEP retains
+seven valid solids; streamed STL/3MF retain the final canonical meshes, identities,
+millimeters and placements. Native STEP bounds are compared with native bounds,
+not with the chord-limited mesh's sampled extrema.
+
+This exposed an inaccurate reference in checkpoint mesh qualification. The thin
+center part's non-adaptive native volume was 1817.062859 mm³, while adaptive native
+integration reports 1812.139284 mm³. Refining the mesh against the former reference
+could never meet 0.1% and eventually exceeded the triangle budget. At the existing
+0.01 mm chord setting, the mesh has 14,966 triangles and relative volume error
+0.000147237 against the adaptive value. Independent area/boundary field integration
+and the exact side-profile integral verify that value without using fitted CAD
+poles or mesh volume as the oracle.
+
+The shared checkpoint validator now requests adaptive native integration at 1e-9,
+rejects nonfinite/nonpositive or unresolved references and includes reported
+integration uncertainty in the unchanged 0.1% comparison. STEP regressions use the
+same measurement precision. Shape construction, 0.05 mm/5° mesh ceilings, refinement
+steps and the 100,000-triangle part limit are unchanged. Existing invalid-linear
+Spiral rejection and C2 narrow/broad readers still pass; canonical counts remain
+79,126 and 98,886 for those retained cases. Failed reference/bounds diagnostics are
+retained under `artifacts/phase03-r3-native-assembly*.log` and
+`artifacts/phase03-r3-thin-center-volume.log`.
+
+Targeted assembly/reference and prior boundary regressions passed six tests in
+64.4 seconds. Log: `artifacts/phase03-r3-adaptive-volume-oracles.log`. The engraved
+assembly has 18,264 triangles / 328,920 canonical bytes; the thin Map-only assembly
+has 139,010 triangles / 2,502,348 canonical bytes.
+
+Both assembled STEP files pass native validation and an independent CAD reader for
+all seven parts. Independent tessellation at 0.005 mm produces 89,808 / 124,108 total
+triangles, with maximum per-part relative volume errors 0.000129225 / 0.000961921.
+The independent reader retains its separate 500,000-triangle diagnostic ceiling;
+canonical parts still obey 100,000. OrcaSlicer imports each streamed 3MF and re-exports
+seven STL files with `--arrange 0`. All fourteen actual files pass closed-mesh,
+winding, positive-volume and millimeter/world-placement checks. Triangle totals
+remain 18,264 / 139,010; maximum per-part volume errors are 0.000855792 / 0.000932577.
+Its existing exclude-triangles log message is not treated as export evidence: the
+output files are checked. No physical print is claimed.
+
+Reports and models are under `artifacts/wall-art-shape-surface/assembly/`, including
+`generation.json`, `step-readers.json` and `slicer-readers.json`. The local evidence
+script is `artifacts/qualify-surface-assembly.mjs`; logs are
+`artifacts/phase03-r3-assembly-{export,readers,slicer}.log`.
+
+Full `npm run check:awake` passed scaffold validation, both typechecks, production
+build, **168 Node tests** (359.6 seconds) and **70 browser tests** (2.0 minutes).
+Log: `artifacts/phase03-r3-assembly-check.log`. `git diff --check` passed. The published
+`584b646` also has all four Ubuntu/Windows PR/push CI checks passing; this subsequent
+assembly/reference slice remains local and uncommitted.
+
+These are small retained-native fixtures, not browser memory or full-tier editing
+qualification. General material/fragment coverage, combined construction-error
+accounting, complete family/mode assembly views and browser retention remain before
+P2. Architecture, product/roadmap and README need no change for this isolated slice.
+
+### PR review — fractional side-profile endpoint
+
+On 2026-11-10 the user requested continued implementation and fixes for PR comments.
+PR #22 has one unresolved review finding:
+[fractional exponents below two](https://github.com/RogerGMartins/printametric/pull/22#discussion_r4472184870).
+The reported `fitPowerProfile(1.5, 100)` failure reproduced before editing. Every
+leftmost refinement interval evaluated the infinite second derivative of `t^p` at
+zero, so even arbitrarily loose requests rejected for `1 < p < 2`.
+
+The shared profile fitter now bounds the polynomial's second derivative separately
+from the power function's convex tangent remainder on that interval. The latter
+reaches its maximum at an endpoint and remains finite. Other intervals and powers
+keep the existing residual calculation. Degree choices, eight refinement levels,
+physical error allowances and native/mesh limits are unchanged. A genuinely tight
+fit can still reject; this does not qualify every curvature/taper combination.
+
+Numerical regressions cover 1.01, 1.1, 1.5, 1.9 and 1.99, both profile strategies,
+uniform and near-zero samples, endpoint identity and tight-allowance rejection.
+Native regressions exercise the rectangle, native-footprint planar and continuous
+builders at `(curvature, top ratio)` values `(1.1, 1)`, `(1.5, 0.99)` and `(1.99, 0.8)`.
+All nine solids pass the independent analytic volume and canonical mesh checks;
+the three 1.5-curvature solids also pass native STEP round trips.
+
+The focused numerical/native suites passed nine tests in 6.8 seconds. Log:
+`artifacts/phase03-r3-fractional-profile.log`. A representative 1.5-curvature export
+passes 3MF slicer import and actual STL re-export validation: 36 triangles, relative
+native-volume error 0.000141008, with millimeter scale and world placement preserved.
+Local evidence: `artifacts/wall-art-shape-surface/fractional-profile/` and
+`artifacts/phase03-r3-fractional-slicer.log`. No physical print is claimed.
+
+Full `npm run check:awake` passed scaffold validation, both typechecks, production
+build, **170 Node tests and 70 browser tests**. Node took 590.6 seconds; browser
+tests took 2.2 minutes. Log: `artifacts/phase03-r3-fractional-check.log`.
+`git diff --check` passed. No runtime or test change followed that gate.
+This fix and the preceding assembly work remain local; the GitHub thread is not
+marked resolved before publication. No architecture, product, roadmap or README
+change is needed for this bounded correction. Full P2 remains incomplete.
+
+### P2 review package — ready for the required decision
+
+The user requested continuing without another partial checkpoint handoff. The
+approved P0–P2 investigation now has the complete fixed comparison package below.
+**P2 acceptance is pending.** This does not authorize P3–P7, production v3 dispatch,
+publication or a claim that every valid parameter combination is supported.
+
+#### Open these files
+
+- Main review sheet: `artifacts/wall-art-shape-surface/review-2026-11-10T08-59-15.362Z/index.html`.
+  It links matched front/side/isometric views, exact parameter/bounds manifests and
+  native STEP/STL/3MF for every successful fixture. The invalid case shows its error.
+- Starter comparison: the same directory's `starters.png`; family overview:
+  `overview.png`. These images render actual exported canonical arrays.
+- Machine evidence: `report.json`, `readers.json`, `browser-readers.json` and
+  `slicer-readers.json` in that directory. The three source starter directories are
+  recorded in `report.json`, alongside their copied review files.
+- Retained-design browser evidence:
+  `artifacts/wall-art-shape-surface/browser-2026-11-10T09-23-30.741Z/report.json`
+  and `retained-preview.png`.
+
+Generated evidence remains ignored. Reproduction commands are in
+[development.md](../development.md#p2-native-review-package); no artifact is needed
+for the portable regressions or application build.
+
+#### Deliverable evidence
+
+| P2 requirement | Result |
+| --- | --- |
+| 500×500 mm, 100-part starter; curvature 1 / 2.2 / 4 | Three complete native assemblies, same remaining parameters; front/side/isometric views and all three exports. |
+| All seven families and top modes | 35 family/mode assemblies: stepped, continuous, blend 0.5, planar and narrow-top. Broad modes use ratio 0.8; narrow uses 0.12. |
+| Scale, rotation, curved/nonconvex and material cases | Wide/tall rotated Wave, a seven-part curved radial assembly, an explicitly asserted sloping plane, no-plinth engraved/Map-only assemblies, and one required invalid-bare rejection. |
+| Shared native/export sources and independent readers | 41 valid small assemblies / 181 parts, plus three starters / 300 parts. Two STEP readers, STL, browser 3MF and actual slicer STL checks pass; all 481 slicer placements are retained. |
+| Work, timing, memory and retention | Fixed-job counters/reservations, native/mesh budgets and conditional error ledgers; real accepted/candidate native heaps, canonical copies and `WallArtPreview` allocations retained during the browser sequence below. |
+
+The 42-case matrix contains 41 successes and one expected rejection. Maximum
+generation/export wall time was 39.0 seconds; sampled Node RSS peaked at
+704,327,680 bytes. Maximum counted native-construction constructors were 301 per
+job; maximum reserved field evaluations were 1,572,864. The reservation covers
+two moment requests plus one top sampler per part. Constructor counts do not
+measure every internal kernel step and do not replace P3 runtime scheduling.
+
+Current 100-part starter runs, including native exports and the error ledger:
+
+| Curvature | Canonical triangles | Generation/export | Sampled process RSS |
+| --- | ---: | ---: | ---: |
+| 1 | 12,528 | 53.7 s | 561,065,984 bytes |
+| 2.2 | 106,288 | 38.9 s | 591,020,032 bytes |
+| 4 | 105,008 | 32.5 s | 577,662,976 bytes |
+
+All remain below the existing 120-second, 2 GB and aggregate triangle limits.
+Each starter reserves/counts 103,332 diagnostic operations. The three source paths
+end in `09-16-20.526Z`, `09-17-14.546Z` and `09-17-53.638Z` respectively. The
+ordinary 2.5 mm square-footprint gap and contained homothetic sections retain the
+clearance margin; curved review assemblies also use actual native-solid distances.
+This is fixed-fixture evidence, not a throughput guarantee for arbitrary designs.
+
+#### Error contract presented for approval
+
+`shape-surface-error-ledger.mjs` separately reports analytic field/integration or
+plane-height error, side-profile position error, contour approximation, and boundary
+reduction amplified by the inverse top ratio. It then reports the maximum native
+face/edge/vertex tolerance and exact-method BRep consistency. The largest combined
+conditional value in the 181-part matrix is **0.000330909 mm**, below the proposed
+0.001 mm allowance. Starter maxima are approximately 0.000000162 / 0.000195638 /
+0.000000162 mm for profiles 1 / 2.2 / 4.
+
+**This sum is conditional on the native kernel's numerical contract.** Stored
+topology tolerances and exact-method consistency are not an independent global
+distance proof for Boolean intersection/trim/sewing. Reports explicitly retain
+`formalKernelErrorProof: false`; no sampled image or volume agreement is presented
+as such a proof. Analytic approximation certificates, independent readers, material
+checks and volume/placement tests supply separate evidence. The user must accept
+this engineering contract or request a stronger native-error investigation before
+the final construction contract is frozen. No tolerance or triangle budget was
+increased to obtain these results.
+
+The fixed fixtures also retain the existing finite-number/range/work validation,
+native/mesh validity, minimum-material and clearance checks. They do not establish
+complete parameter/fragment coverage. P3/P6 must retain bounded rejection and add
+the production runtime's complete-version, archive, material and capacity checks.
+
+#### Browser retention and exports
+
+The local profile uses Windows x64 build 10.0.26200, Intel Core Ultra 9 185H
+(22 logical processors), 33,752,997,888 bytes installed RAM and Node 26.12.1.
+The unchanged Playwright 1.64.1 installation selects Chromium 156.0.8078.4
+(revision 1248); native dependencies are Replicad 1.2.0 and
+replicad-opencascadejs 1.1.0. `environment.json` in the review directory records
+these values after qualification on the same machine, not a separate performance run.
+
+The minified fixture initially exposed reliance on a native wrapper's constructor
+display name. All four affected isolated native builders now use `instanceof Shell`.
+A portable renamed-class regression reproduces the issue without changing the
+native closed-shell checks. The failed browser report remains available.
+
+The final headed Chromium sequence retained the accepted native worker, canonical
+buffers and actual preview while rejecting invalid bare material, cancelling another
+candidate, building a replacement and exporting it:
+
+| Measurement | Result |
+| --- | ---: |
+| Initial curved Wave assembly | 7 parts, 18,214 triangles, 11.42 s including render |
+| Replacement continuous Spiral | 4 parts, 324,754 triangles, 32.77 s including render |
+| Cancellation acknowledgment | 4.46 ms |
+| Invalid/cancelled candidate preserves accepted digest | Passed |
+| Sampled Chromium processes + controller peak | 1,569,140,736 bytes / 2,000,000,000 limit |
+| Revision-pinned STEP / STL / 3MF downloads | 1,769,564 / 16,237,784 / 6,359,560 bytes |
+
+The 46 roughly one-second memory samples can double-count shared process pages and
+cannot establish an exact transient peak. Accepted and candidate native heaps,
+canonical/renderer copies and export allocations are real; the full application
+shell and 512/4,000-part qualification remain P3/P6 work. Independent browser 3MF
+checks confirm the downloaded replacement's four placements. Browser/server/worker
+cleanup runs on both success and failure; no hardware print was started.
+
+#### Verification and decision
+
+This package supplies checkpoint evidence, not full application acceptance:
+
+| Acceptance IDs | P2 evidence and remaining scope |
+| --- | --- |
+| WA-SHAPE-AC-1/2/3 | Seven-family fields, physical-scale examples and five top-mode views; final visual/numerical approval remains required. |
+| WA-SHAPE-AC-4 | Three complete 100-part native starters and reimports; approve curvature 2.2 and the displayed scale. |
+| WA-SHAPE-AC-5/6 | Engraved, Map-only and rejected bare fixtures; final-solid STEP/STL/3MF and all 481 reader/slicer placements. General material coverage and production revision handling remain later work. |
+| WA-SHAPE-AC-8 | Bounded fixed jobs and actual retained native/renderer/export measurements; full application and capacity attempts remain P3/P6 work. |
+| WA-SHAPE-AC-11 | Pure independent-seed validation/reproducibility checks; editor and saved-file acceptance remain later work. |
+| WA-SHAPE-AC-7/9/10 | Production controls, confirmed upgrades and v3 save/load are deferred to P3–P7; this checkpoint does not mark them passed. |
+
+Fixed-matrix native/mesh readers, all 481 browser 3MF placements, all 481 actual
+slicer outputs, the three starter reader runs, and the retained-design browser
+sequence pass. Logs: `artifacts/phase03-p2-review-final-matrix.log`,
+`phase03-p2-review-final-readers.log`, `phase03-p2-review-complete-views.log`,
+`phase03-p2-complete-slicer.log`, `phase03-p2-starters-ledger-readers.log` and
+`phase03-p2-browser-final.log`.
+
+The final full `npm run check:awake` passes scaffold validation, both typechecks,
+the production build, **172 Node tests and 70 browser tests**. Node tests took
+647.2 seconds; browser tests took 2.6 minutes. Output:
+`artifacts/phase03-p2-complete-recheck.log`. `git diff --check` passes.
+
+The preceding full run had 169 Node passes, one failed outline fixture and two
+cancelled Spiral fixtures at their existing 30-second deadlines; it did not reach
+the browser stage. All three cases passed unchanged in a focused reproduction,
+then the complete rerun passed without code, timeout or budget changes. Preserve
+`artifacts/phase03-p2-complete-check.log` and
+`artifacts/phase03-p2-timeout-reproduction.log`; the intermittent slowdown's cause
+was not established by this run. The earlier standby diagnosis does not establish
+the cause of these failures.
+
+Required user decisions before P3:
+
+1. Keep provisional starter curvature **2.2**, with the displayed 1–4 scale, or
+   choose a different result from the actual native starter views.
+2. Accept the seven displayed fields/top modes and **C2 Spiral center** as the final
+   direction, or identify visual changes. The saved/default field remains unchanged
+   until the approved production version is implemented.
+3. Accept the conditional native-kernel error contract and demonstrated bounded
+   construction, or request stronger qualification. Confirm continuation to P3–P7
+   only after these decisions are recorded in the spec and plan.
+
+The sole actionable PR review finding (fractional curvature below two) is fixed
+and regression-tested locally. Its GitHub thread stays open until publication.
+All work since PR head `584b646` remains local; this review package is not a merge,
+deployment, physical-print claim or implicit phase-03 production release.

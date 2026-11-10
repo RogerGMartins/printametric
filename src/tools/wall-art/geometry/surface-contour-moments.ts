@@ -58,7 +58,7 @@ function divide(h: readonly HPoint[]): [HPoint[], HPoint[]] {
  * Native contour approximation/closure errors remain a separate explicit budget.
  * This function validates numeric/work bounds; it does not infer native topology.
  * Spiral center modes are explicit diagnostic arguments, not saved parameters. */
-export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpan[], anchor: readonly [number, number], tolerance?: number, spiralCenter: SpiralCenter = 'linear'): ContourMoments {
+export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpan[], anchor: readonly [number, number], tolerance?: number, spiralCenter: SpiralCenter = 'linear', charge?: (count: number) => void): ContourMoments {
   const p = validateParametersV3(input);
   validateSpiralCenter(spiralCenter);
   if (anchor.length !== 2 || !anchor.every(x => Number.isFinite(x) && Math.abs(x) <= 4000) || !spans.length || spans.length > 2048) throw new DesignError('SURFACE_DOMAIN', 'Invalid bounded contour.');
@@ -110,6 +110,7 @@ export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpa
       boundaryError = Math.min(boundaryError, gauss * boundaryM / rho ** 16);
     }
     const values = Array<number>(9).fill(0); let absolute = 0;
+    charge?.(64);
     for (let i = 0; i < 8; i++) {
       const t = (nodes[i]! + 1) / 2, point = at(h, t), d = at(derivative, t);
       const x = point[0] / point[2], y = point[1] / point[2], j = direction * (point[0] * d[1] - point[1] * d[0]) / point[2] ** 2;
@@ -135,9 +136,9 @@ export function contourSurfaceMoments(input: unknown, spans: readonly ContourSpa
       if (area < 1 || normalized[6]! < -resultError || normalized[6]! > 1 + resultError || !normalized.every(Number.isFinite)) throw new DesignError('SURFACE_DOMAIN', 'Native-contour moments have invalid area or field bounds.');
       const result = Object.freeze({ area, scale, u: normalized[1]!, v: normalized[2]!, uu: normalized[3]!, uv: normalized[4]!, vv: normalized[5]!,
         mean: normalized[6]!, uMean: normalized[7]!, vMean: normalized[8]!, error: resultError, evaluations });
-      if (p.family === 'ridges') return ridgeContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created);
-      if (p.family === 'dome') return domeContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created);
-      if (p.family === 'spiral') return spiralContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created, spiralCenter);
+      if (p.family === 'ridges') return ridgeContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created, charge);
+      if (p.family === 'dome') return domeContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created, charge);
+      if (p.family === 'spiral') return spiralContourMoments(p, spans, anchor, result, Math.sign(signedArea), target, 4096 - created, spiralCenter, charge);
       return result;
     }
     // At most 1,024 evaluated charts fit the field-work cap. A direct scan keeps

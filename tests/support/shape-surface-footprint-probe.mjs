@@ -1,6 +1,6 @@
 /** One native heap per outline: bounded native flat-top layout coverage. */
 import { parentPort, workerData } from 'node:worker_threads';
-import { deserializeShape, importSTEP, measureShapeSurfaceProperties, measureShapeVolumeProperties } from 'replicad';
+import { deserializeShape, importSTEP, measureShapeSurfaceProperties } from 'replicad';
 import assert from 'node:assert/strict';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { validateSolid } from '../../src/shared/geometry/kernel.ts';
@@ -9,7 +9,7 @@ import { serializeSTEP } from '../../src/shared/export/step.ts';
 import { serializeSTL } from '../../src/shared/export/stl.ts';
 import { loadKernel } from './wall-art-kernel.mjs';
 import { buildFlatFootprint, buildPlanarFootprint, nativeFootprintMoments } from './shape-surface-footprint-native.mjs';
-import { meshBoundarySurface } from './shape-surface-boundary-mesh.mjs';
+import { measureBoundaryVolume, meshBoundarySurface } from './shape-surface-boundary-mesh.mjs';
 import { partitionLayout } from '../../src/tools/wall-art/geometry/layouts/partition.ts';
 import { DEFAULT_PARAMETERS_V2, LAYOUTS } from '../../src/tools/wall-art/model/parameters-v2.ts';
 import { DEFAULT_PARAMETERS_V3 } from '../../src/tools/wall-art/model/parameters-v3.ts';
@@ -61,8 +61,7 @@ for (const layout of LAYOUTS) {
       const bytes = await serializeSTEP([part], [candidate.solid]), restored = await importSTEP(new Blob([bytes]));
       try {
         validateSolid(kernel, restored);
-        const properties = measureShapeVolumeProperties(restored);
-        try { assert.ok(Math.abs(properties.volume / mesh.nativeVolume - 1) < .00001); } finally { properties.delete(); }
+        assert.ok(Math.abs(measureBoundaryVolume(restored).nativeVolume / mesh.nativeVolume - 1) < .00001);
       } finally { restored.delete(); }
       const geometry = new STLLoader().parse(serializeSTL([part]).buffer);
       try {

@@ -1,5 +1,4 @@
-/** P0 checkpoint parameters, not a registered saved-file/generator version.
- * Lengths are millimeters. Curvature numbers remain provisional through P2. */
+/** Approved generator-3 parameters. Lengths are millimeters; side curvature is dimensionless. */
 import { DEFAULT_PARAMETERS_V2, NUMERIC_RULES_V2, type ParametersV2 } from './parameters-v2.ts';
 
 export const SURFACE_FAMILIES = ['wave', 'dunes', 'ring', 'dome', 'spiral', 'ridges', 'random'] as const;
@@ -20,7 +19,7 @@ export const NUMERIC_RULES_V3 = {
   engravingDepth: NUMERIC_RULES_V2.engravingDepth, numeralRatio: NUMERIC_RULES_V2.numeralRatio,
   minimumRelief: { label: 'Minimum relief', min: 0, max: 120, step: 1, unit: 'mm' },
   stepBlend: { label: 'Top blend', min: 0, max: 1, step: 0.01, unit: 'ratio' },
-  concavity: { label: 'Side curvature (provisional)', min: 1, max: 4, step: 0.1, unit: '' },
+  concavity: { label: 'Side curvature', min: 1, max: 4, step: 0.1, unit: '' },
   depth: { label: 'Surface amplitude', min: 0, max: 200, step: 1, unit: 'mm' },
   density: { label: 'Pattern density', min: 0.2, max: 12, step: 0.1, unit: '' },
   rotation: { label: 'Surface rotation', min: 0, max: 360, step: 1, unit: 'degrees' },

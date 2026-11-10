@@ -1,7 +1,7 @@
 /** R3 rectangular flat/sloping top construction. Exact planar caps and shared
  * polynomial flanks; a separately extruded per-part plinth is fused if requested.
  * This is isolated capability evidence, not the arbitrary-footprint generator. */
-import { cast, makePolygon } from 'replicad';
+import { cast, makePolygon, Shell } from 'replicad';
 import { validateSolid } from '../../src/shared/geometry/kernel.ts';
 import { nativeBoolean, nativeExtrude, requireSolid } from '../../src/tools/wall-art/geometry/native-operations.ts';
 import { fitPowerProfile } from '../../src/tools/wall-art/geometry/surface-fit.ts';
@@ -76,7 +76,7 @@ export function buildPlanarRectangle(kernel, { width, height = width, ratio, con
     sewing.Perform();
     if (sewing.NbFreeEdges() || sewing.NbMultipleEdges()) throw Error('Planar relief has unclosed boundaries.');
     const shell = own(cast(own(sewing.SewedShape())));
-    if (shell.constructor.name !== 'Shell') throw Error('Expected a single planar relief shell.');
+    if (!(shell instanceof Shell)) throw Error('Expected a single planar relief shell.');
     const maker = own(new kernel.BRepBuilderAPI_MakeSolid(shell.wrapped)), raw = own(maker.Solid());
     if (!kernel.BRepLib.OrientClosedSolid(raw)) throw Error('Cannot orient planar relief.');
     solid = cast(raw); validateSolid(kernel, solid);

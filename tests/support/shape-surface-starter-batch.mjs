@@ -10,6 +10,7 @@ import { rectangleSurfaceMoments } from '../../src/tools/wall-art/geometry/surfa
 import { partitionLayout } from '../../src/tools/wall-art/geometry/layouts/partition.ts';
 import { createGlyphTemplates, engravePart } from '../../src/tools/wall-art/geometry/engraving.ts';
 import { serializeSTEP } from '../../src/shared/export/step.ts';
+import { surfaceErrorLedger } from './shape-surface-error-ledger.mjs';
 
 const kernel = await loadKernel(), parameters = { ...DEFAULT_PARAMETERS_V3, concavity: workerData.concavity };
 const legacy = layoutParametersV3(parameters), { bases, excluded } = partitionLayout(kernel, legacy);
@@ -32,12 +33,13 @@ try {
     try {
       engraved = engravePart(kernel, legacy, base, candidate.solid, count, templates);
       const result = meshBoundarySurface({ ...candidate, solid: engraved.solid, physicalHeightErrorMm: parameters.depth * moments.error });
+      const errorLedger = surfaceErrorLedger(kernel, { ...candidate, solid: engraved.solid, physicalHeightErrorMm: parameters.depth * moments.error }, parameters.topRatio);
       if (engraved.identification.status !== 'engraved') throw Error('Starter identification unexpectedly failed.');
       const part = { id: `checkpoint-g3-${base.id}`, mapNumber: base.mapNumber, translation: [x, y, 0],
         mesh: result.mesh, bounds: result.bounds, volume: result.nativeVolume };
       parts.push(part); solids.push(engraved.solid); engraved = undefined;
       summaries.push({ number: base.mapNumber, mean: moments.mean, height, poles: candidate.poles, volumeError: result.volumeError,
-        profileErrorMm: candidate.profilePositionErrorMm, triangles: result.mesh.indices.length / 3 });
+        profileErrorMm: candidate.profilePositionErrorMm, triangles: result.mesh.indices.length / 3, errorLedger });
       parentPort.postMessage({ progress: base.mapNumber });
     } finally { engraved?.solid.delete(); candidate.solid.delete(); }
   }

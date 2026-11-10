@@ -60,9 +60,9 @@ function Scene({ result, action }: { result: ModelResult; action: { name: Camera
 export function WallArtPreview({ result }: { result: ModelResult | null }) {
   const [action, setAction] = useState({ name: 'Fit view' as CameraAction, sequence: 0 });
   const [contextLost, setContextLost] = useState(false);
-  if (!result) return <div className="empty-preview"><h2>Preparing your blade pattern</h2><p>Loading the CAD engine and checking each part.</p></div>;
+  if (!result) return <div className="empty-preview"><h2>Preparing your wall art</h2><p>Loading the CAD engine and checking each part.</p></div>;
   return <div className="model-preview">
-    <div className="model-canvas" role="img" aria-label={`Wall art assembly, ${result.parts.length} separate blades. Millimeters.`}>
+    <div className="model-canvas" role="img" aria-label={`Wall art assembly, ${result.parts.length} separate parts. Millimeters.`}>
       {/* Keep the last on-demand frame when Chromium composites the overlapping drawer. */}
       {contextLost ? fallback : <PreviewBoundary><Canvas orthographic frameloop="demand" dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }} fallback={fallback}
         onCreated={({ gl }) => { gl.domElement.addEventListener('webglcontextlost', () => setContextLost(true), { once: true }); }}>

@@ -56,6 +56,18 @@ test('side profiles preserve straight/integer powers and bound the provisional 2
   assert.throws(() => fitPowerProfile(2.2, .0001, 'compact'), /strategy/);
 });
 
+test('fractional side profiles have a finite endpoint certificate below exponent two', () => {
+  for (const compact of [false, true]) for (const exponent of [1.01, 1.1, 1.5, 1.9, 1.99]) {
+    assert.ok(Number.isFinite(fitPowerProfile(exponent, 100, compact).error));
+    const curve = fitPowerProfile(exponent, .001, compact);
+    assert.ok(curve.error > 0 && curve.error <= .001);
+    assert.equal(evaluateCurve(curve, 0), 0); assert.equal(evaluateCurve(curve, 1), 1);
+    const samples = [...Array.from({ length: 10001 }, (_, i) => i / 10000), ...Array.from({ length: 48 }, (_, i) => 2 ** -i)];
+    for (const t of samples) assert.ok(Math.abs(evaluateCurve(curve, t) - t ** exponent) <= curve.error + 4e-15);
+    assert.throws(() => fitPowerProfile(exponent, 1e-14, compact), /bounded/);
+  }
+});
+
 test('compact Spiral radial charts preserve the physical field and bounded coverage', () => {
   const p = { ...DEFAULT_PARAMETERS_V3, width: 160, height: 150, family: 'spiral', stepBlend: 0, rotation: 37, phase: .29 };
   for (const box of [{ minX: -55, maxX: -12, minY: -40, maxY: -3 }, { minX: -20, maxX: 20, minY: -20, maxY: 20 }]) {
