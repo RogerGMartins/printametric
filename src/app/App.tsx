@@ -38,7 +38,7 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
       const input=document.getElementById(modelFocus.current);
       const advanced=input?.closest('details.layout-advanced');
       if(advanced instanceof HTMLDetailsElement)advanced.open=true;
-      input?.focus(); modelFocus.current = null;
+      input?.scrollIntoView({block:'nearest'});input?.focus(); modelFocus.current = null;
     }
   });
 
@@ -105,8 +105,8 @@ export function App({ initialState, initialSystemScheme, navigation }: AppProps)
             {...(designView ? { preview: <WallArtWorkspacePreview editor={wallArt} />, previewStatus: model ? `Preview · ${model.parts.length} parts · mm` : 'Preview · Preparing model',
               controls: <WallArtControls editor={wallArt} />, summaries: model ? { Dimensions: model.bounds.max.map((value, index) => Number((value - model.bounds.min[index]!).toFixed(3))).join(' × ') + ' mm', Parts: String(model.parts.length), Plates: 'Not available' } : {} } : {})}
             title={WORKSPACE_VIEWS.find(view => view.id === preferences.view)?.label ?? 'Design'} headingRef={heading}
-            availability={designView ? 'Blade pattern, CAD generation, JSON designs, and assembled STEP/STL/3MF exports are available. Packing and assembly guidance are not available.' : FOUNDATION_AVAILABILITY} notices={<>
-            {designView && <WallArtNotice editor={wallArt} review={field => { modelFocus.current = `wall-art-${field ?? 'width'}`; changePreference('settingsOpen', true); }} />}
+            availability={designView ? 'Wall-art surfaces, CAD generation, JSON designs, and assembled STEP/STL/3MF exports are available. Packing and assembly guidance are not available.' : FOUNDATION_AVAILABILITY} notices={<>
+            {designView && <WallArtNotice editor={wallArt} review={field => { modelFocus.current = field?`wall-art-${field}`:'wall-art-controls-title'; changePreference('settingsOpen', true); }} />}
             {navigationNotice && <section className="notice"><h2>View notice</h2><p>{navigationNotice}</p></section>}
             {storageNotice && <section className="notice"><h2>Theme notice</h2><p id="theme-notice">{THEME_NOTICES[storageNotice]}</p>
               <button type="button" onClick={() => changePreference('themePreference', preferences.themePreference)}>Retry theme storage</button>

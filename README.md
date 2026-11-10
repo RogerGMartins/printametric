@@ -1,7 +1,8 @@
 # Printametric
 
 A self-hostable website with browser-based parametric 3D model tools.
-The wall-art tool creates modular panels with four outlines and five cell layouts.
+The wall-art tool creates modular panels with seven surface families, four outlines
+and five cell layouts.
 
 **Status:** One Gridline application: cobalt header, full-window preview, and a
 single collapsed Workspace settings panel. Design, Print layout, and Assembly
@@ -10,30 +11,51 @@ restores OS following; only the theme preference persists across reloads.
 Design now has validated CAD generation, an interactive preview, local JSON
 save/load, and selected STEP/STL/3MF exports. Print layout and Assembly remain
 unavailable. Help/About include keyboard support, the exact license and CAD notices.
-See the [layout implementation checkpoint](docs/plans/wall-art-layouts.md) for verification.
+See the [shape/surface implementation plan](docs/plans/wall-art-shape-surface.md) for verification.
 
-Open **Workspace settings** to edit the blade dimensions. Enter or leave a field
+Open **Workspace settings** to edit Surface, Shape, Layout and identification. Enter or leave a field
 to apply valid values. Revert discards drafts; invalid inputs retain the last valid
 model. Save design JSON before reloading: designs are not saved automatically.
 Exports contain separate parts in assembly positions, in millimeters, rather than
-packed build plates. Seed controls the irregular layout; other layouts ignore it.
+packed build plates.
 
-New designs use generator 2. Choose an outline and cell layout, then open
+New designs use generator 3: a 500 × 500 mm stepped Wave with 100 parts,
+20 mm minimum relief, 30 mm amplitude, density 2, 12% top size, side curvature 2.2
+and a 10 mm per-part plinth. Curvature is dimensionless: 1 gives straight sides;
+4 gives stronger inward curvature. The summary reports actual generated bounds.
+
+Top blend runs from continuous (0%) to fully stepped (100%). **Advanced shape**
+contains Planar tops: flat tops that can slope, with no effect at 100% blend.
+Surface spacing follows the shorter nominal panel side. Ring and Dome remain
+circular before cropping; active rotation turns the field counterclockwise from
+the front. Layout seed controls irregular cell placement. Surface seed controls
+Dunes, Ridges and Random without moving cells. Inactive values remain editable
+and saved; nearby help explains when they have no effect.
+
+Choose an outline and cell layout, then open
 **Advanced layout and identification** for pitch, gap, underside numbers and the
 orientation mark. **Numbered plan** shows actual contours, excluded fragments and
 an enlarged part lookup. Small parts that cannot fit the cuts keep a map-only ID.
 Whole-cell boundaries can exceed nominal dimensions; the summary shows actual
 assembly dimensions. Acknowledge a changed exclusion set before exporting.
 
-Existing generator-1 JSON reproduces its original geometry and bytes. Upgrade is
-explicit: preview the generated candidate, then confirm or cancel. Failed loads,
+Valid bare parts with insufficient engraving floor also keep a **Map-only ID**;
+both physical marks are omitted. Review map-only parts opens their contour lookup.
+Invalid bare material rejects the candidate and keeps the previous model.
+
+Existing generator-1 and generator-2 JSON reproduce their original geometry and
+bytes. Upgrade directly to generator 3: preview, then confirm or cancel. It keeps
+the layout, top ratio, layout seed and heights, starts with zero surface amplitude
+and straight sides, and changes taper to both axes. Generator-1 upgrades add no
+underside marks. Failed loads,
 cancelled generation and timeouts retain the accepted design.
 
 Generation and each selected export have a 120-second limit and a 2 GB estimated
 memory budget. The hard ceiling is 4,000 parts, not a guaranteed capacity. A real
-512-part case completed generation, replacement, preview and all exports; larger
-designs can time out. See the checkpoint for measured times and hardware limits.
-Generator-2 exports use temporary browser storage and require a secure context
+512-part generator-2 case completed generation, replacement, preview and all exports;
+this does not qualify generator-3 throughput. Complex designs can exceed native
+work or mesh limits as well as time and memory. See the phase-03 plan for measurements.
+Generator-2/3 exports use temporary browser storage and require a secure context
 (HTTPS or localhost), sufficient quota and supported file APIs. After a download
 finishes, select **Release downloaded file** before exporting again. Temporary
 files are not saved projects; a later explicit export cleans abandoned files.

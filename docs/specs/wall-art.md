@@ -1,10 +1,11 @@
 # Wall art — specification suite
 
-Status: **Suite draft; phase 01 implemented and locally verified on 2026-11-02.**
+Status: **Phases 01/02 implemented; phase 03 approved and integrated, qualification in progress.**
 Later phases remain unapproved. The [core plan](../plans/wall-art-core.md) freezes
 schema/generator 1/1, its ranges, first-slice C4 limits, minima and qualification
 profile. Its [checkpoint](../plans/wall-art-core.md#implementation-checkpoint--2026-11-02)
-records measured evidence and remaining limits; later-phase approval is still required.
+records its historical evidence. Current phase-02/03 evidence and limits belong to
+their [layout](../plans/wall-art-layouts.md) and [surface](../plans/wall-art-shape-surface.md) plans.
 Collaboration mode: freedom to draft. Date: 2026-11-02.
 
 ## Purpose and authority
@@ -22,11 +23,11 @@ See [product](../product.md), [architecture](../architecture.md), and
 
 **Verified baseline:** Gridline G1–G4 is implemented and tested. Its final visual
 signoff, screen-reader checks, and physical-touch checks remain open. Existing
-wall-art core now supplies the fixed blade generator, editable JSON, minimal controls,
-and three assembled-model exports. Phase-01 evidence is linked above; later phases
-remain specification proposals.
+wall-art core supplies versioned generators, editable JSON and three assembled-model
+exports. Phase-03 P2 acceptance fixes the seven fields, C2 Spiral and curvature 2.2;
+its plan records integrated verification. Phases 04 onward remain proposals.
 
-**Printametric proposals:** except for the approved phase-01 contracts, new ranges, algorithms, defaults, budgets, UI
+**Printametric proposals:** except for the approved phase-01/02/03 contracts, new ranges, algorithms, defaults, budgets, UI
 integration, mounting details, and expansion features in this suite. They are
 original proposed contracts, not claims of existing application behavior or
 physical printability. Approval of this suite does not approve a technical plan.
@@ -48,8 +49,8 @@ choices are conditional on separate owner decisions.
 | Phase / specification | Included coverage | Feature exit / dependency | Scope status |
 | --- | --- | --- | --- |
 | 01 [Canonical generator](wall-art-core.md) | Rectangular blade array; validation; worker; IDs; minimal keyboard editor; JSON file; native STEP/STL/3MF; round trips | First useful accepted design and three verified downloads | Implemented; local evidence and limits in core checkpoint |
-| 02 [Outlines and layouts](wall-art-layouts.md) | Full dimension range, convenience sizes, rectangle/ellipse/hexagon/arch, five layouts, pitch/gap, boundary fragments, numbering | Same three exports with deterministic clipped parts | Proposed expansion beyond first pattern |
-| 03 [Shape and surface](wall-art-shape-surface.md) | Taper, tiers/blend, planar tops, concavity, plinth, seven relief families, density/phase/rotation/seed | Valid curved CAD and shared mesh for all families | Proposed expansion |
+| 02 [Outlines and layouts](wall-art-layouts.md) | Full dimension range, convenience sizes, rectangle/ellipse/hexagon/arch, five layouts, pitch/gap, boundary fragments, numbering | Same three exports with deterministic clipped parts | Implemented; measured limitations accepted |
+| 03 [Shape and surface](wall-art-shape-surface.md) | Taper, tiers/blend, planar tops, curvature, plinth, seven relief families, density/phase/rotation and independent seeds | Valid curved CAD and shared mesh for all families | P2 accepted; integrated qualification in its plan |
 | 04 [Movement](wall-art-movement.md) | Eight influence points, three fields, composition, jitter, calm ring, tip shaping/shortening, editable plan | Collision-checked movement with numeric and pointer parity | Proposed expansion |
 | 05 [Editor, colour and presets](wall-art-editor.md) | Gridline controls, palette/bands, original starters/catalogue, cameras, components, room scale, statistics, errors/accessibility | Complete interactive design journey | Core editor plus proposed rich controls |
 | 06 [Projects and recovery](wall-art-projects.md) | Title, library, explicit save, existing-project autosave/Saved Undo, draft recovery, undo/redo/reset, import/export, backup/merge, complete sharing, separate curated gallery | Durable local work with atomic failure recovery | Local core plus fully retained later project features |
@@ -125,7 +126,7 @@ identified as an existing shared architectural decision.
 | --- | --- | --- | --- |
 | OPT-16 | Wave,dunes,ring/crater,dome,spiral,ridges,random relief | O; P original seven field formulas | WA-SHAPE-ST-1 → WA-SHAPE-AC-1/2 |
 | OPT-17 | Depth0–200; density0.2–12; density inactive for dome | O; P flattening/no-effect rules | WA-SHAPE-ST-1/2/3 → WA-SHAPE-AC-1/2/5/7 |
-| OPT-18 | Rotation0–360; phase0–1; seed1–9999 | O; P periodicity/substreams/inactive cases | WA-SHAPE-ST-1/3 → WA-SHAPE-AC-1/2/7 |
+| OPT-18 | Rotation0–360; phase0–1; independent layout/surface seeds1–9999 | D18/P2 accepted periodicity, streams and inactive cases | WA-SHAPE-ST-1/3/4 → WA-SHAPE-AC-1/2/7/10/11 |
 | OPT-19 | Spiral arms1–16,visible/applicable only for spiral | O; P native smooth-center contract | WA-SHAPE-ST-1 → WA-SHAPE-AC-1/2 |
 | OPT-20 | SVG outline choose/import/accept/cancel/replace/remove; concavity/holes | D gated; P complete inert-parser contract | WA-ASSET-ST-1/3 → WA-ASSET-AC-1/2/3/7/8 |
 | OPT-21 | Image relief enum and image colour enum/payload | D dormant/inaccessible; P complete later behavior | WA-ASSET-ST-2/3 → WA-ASSET-AC-4/5/6/7 |
@@ -252,6 +253,14 @@ reinterpretation. Keep old generation behavior available when claiming old-file
 reproducibility. Planning must freeze the actual supported-version table before
 implementation; this sequence is a proposal, not shipped compatibility.
 
+Implemented pairs are now 1/1, 2/2 and 3/3. Direct v1→v3 and v2→v3 upgrades have
+one preview/confirmation; there is no intermediate accepted v2 revision. Original
+bytes and export sources survive cancellation/failure. Generator 3 uses format 1,
+an envelope layout `seed` and a required independent `surfaceSeed` parameter.
+Both seeds use 1–9999 and remain validated/saved when inactive. The phase-03
+[accepted contract](wall-art-shape-surface.md#p2-acceptance--2026-11-10) owns their
+frozen random streams and the new construction; old generator behavior is unchanged.
+
 Use an explicit integer seed, default 1, range 1–9999. Independent named substreams
 serve layout, relief, movement and colour so an extra colour draw cannot move cells.
 Before the first random generator, planning freezes the PRNG, stream derivation,
@@ -317,7 +326,8 @@ Phase-02 decisions approved on 2026-11-02 are recorded in
 accepts the recorded timing limitation: 4000 is a hard ceiling, not a guaranteed
 capacity; report completed measurements and preserve the prior design on timeout. The v2
 parameter-only file limit remains 1 MiB; 16 MiB is reserved for later embedded assets.
-Generator 1 remains supported exactly, with explicit no-cut upgrade to pair 2/2.
+Generator 1 remains supported exactly. The current direct upgrade target is 3/3;
+generator-1 upgrades add no physical cuts.
 The plan fixes keyed FNV-1a/Mulberry32 layout vectors for seeds 1/5000/9999; future
 random domains stay separate. Physical numbering includes the optional recessed
 orientation arrow. Qualification results must precede any capacity claim.
@@ -355,6 +365,13 @@ targets bound waiting and fit a typical local device; they are release gates to
 measure, not promises. Input feedback and cancel acknowledgment target ≤200 ms
 on this environment; worker termination may complete later. Do not claim mobile
 performance from desktop results. Revise the advertised tier if qualification fails.
+
+The 512/4,000 throughput targets above are historical and were waived by the
+accepted capacity continuation. Phase 03 does not advertise such a tier. Its
+AC-8 retains 120 seconds, literal 2 GB, 4,000 parts and the mesh/operation ceilings,
+with safe rejection and prior-design retention. Cold/warm and worst-complexity
+attempts are measured evidence, not a p95 claim from a small sample. Any future
+throughput claim needs its own repeatability qualification.
 
 Proposed manufacturing minima: load-bearing printable material 1.2 mm, top/tip
 width 1.2 mm, residual material below engraving 1.2 mm, assembled free clearance

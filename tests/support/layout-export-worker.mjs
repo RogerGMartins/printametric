@@ -9,6 +9,10 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { loadKernel } from './wall-art-kernel.mjs';
 import { partitionLayout } from '../../src/tools/wall-art/geometry/layouts/partition.ts';
 import { buildPartV2 } from '../../src/tools/wall-art/geometry/generate-v2.ts';
+import { buildPartV3 } from '../../src/tools/wall-art/geometry/generate-v3.ts';
+import { layoutParametersV3 } from '../../src/tools/wall-art/model/validation-v3.ts';
+import { surfaceContourIdentity } from '../../src/tools/wall-art/model/part-identity.ts';
+import { measureBoundaryVolume, removeCollapsedTriangles } from '../../src/tools/wall-art/geometry/surface-mesh.ts';
 import { createGlyphTemplates } from '../../src/tools/wall-art/geometry/engraving.ts';
 import { validateSolid } from '../../src/shared/geometry/kernel.ts';
 import { validateMesh, weldMesh } from '../../src/shared/geometry/validate-mesh.ts';
@@ -31,12 +35,14 @@ const boundsOf=parts=>{
   return result;
 };
 try {
-  const kernel=await loadKernel(),p=workerData,partition=partitionLayout(kernel,p);
+  const kernel=await loadKernel(),surface=workerData.generatorVersion===3,p=surface?workerData.parameters:workerData;
+  const partition=partitionLayout(kernel,surface?layoutParametersV3(p):p);
+  if(surface)partition.bases=partition.bases.map(surfaceContourIdentity);
   const parts=[],snapshots=[],templates=createGlyphTemplates(kernel,()=>{});
   let engraved=0,curved=false;
   try {
     for(const base of partition.bases){
-      const result=buildPartV2(kernel,p,base,()=>{},templates);
+      const result=surface?buildPartV3(kernel,p,base,()=>{}):buildPartV2(kernel,p,base,()=>{},templates);
       try{
         parts.push(result.part);snapshots.push(await archiveNative(kernel,result.solid,result.part.id));
         engraved+=Number(result.identification.status==='engraved');
@@ -60,17 +66,29 @@ try {
     const solids=imported.solids,faces=imported.faces,properties=measureShapeVolumeProperties(imported);
     try{
       assert.equal(solids.length,parts.length);solids.forEach(solid=>validateSolid(kernel,solid));
-      assert.ok(Math.abs(properties.volume-volume)/volume<=.001);
+       const nativeVolume=surface?measureBoundaryVolume(imported).nativeVolume:properties.volume;
+       assert.ok(Math.abs(nativeVolume-volume)/volume<=.001);
       if(curved)assert.ok(faces.some(face=>face.geomType!=='PLANE'),'STEP must retain native curved surfaces');
     }finally{properties.delete();solids.forEach(solid=>solid.delete());faces.forEach(face=>face.delete());}
     const box=imported.boundingBox;
-    try{closeBounds({min:box.bounds[0],max:box.bounds[1]},expected,.05);}finally{box.delete();}
+    try{
+      // STEP has no cached triangulation. Spline control hulls can enlarge its native box;
+      // the independent reader below checks actual surface bounds at the same tolerance.
+      if(surface)for(let axis=0;axis<3;axis++){
+        assert.ok(box.bounds[0][axis]<=expected.min[axis]+.05);
+        assert.ok(box.bounds[1][axis]>=expected.max[axis]-.05);
+      }
+      else closeBounds({min:box.bounds[0],max:box.bounds[1]},expected,.05);
+    }finally{box.delete();}
   }finally{imported.delete();}
   const reader=await initReader(),independent=reader.ReadStepFile(step,{linearUnit:'millimeter',linearDeflectionType:'absolute_value',linearDeflection:.01,angularDeflection:Math.PI/36});
   assert.equal(independent.success,true);assert.equal(independent.meshes.length,parts.length);
   const readerParts=independent.meshes.map(mesh=>{
-    const positions=new Float32Array(mesh.attributes.position.array),indices=new Uint32Array(mesh.index.array);
-    const checked=validateMesh(weldMesh(positions,indices));
+    // Independent STEP tessellation has its own bounded diagnostic allowance;
+    // canonical/exported meshes still passed the unchanged 100k part limit.
+    const imported=surface?removeCollapsedTriangles({vertices:mesh.attributes.position.array,triangles:mesh.index.array}).mesh
+      :weldMesh(mesh.attributes.position.array,mesh.index.array);
+    const checked=validateMesh(imported,surface?500_000:100_000);
     return {bounds:checked.bounds,translation:[0,0,0]};
   });
   closeBounds(boundsOf(readerParts),expected,.05);

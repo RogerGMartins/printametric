@@ -1,20 +1,21 @@
 /** React owns drafts and download controls; DesignClient owns accepted revisions. */
 import { useEffect,useRef,useState } from 'react';
 import { downloadBytes } from '../../../shared/export/download.ts';
-import { DEFAULT_PARAMETERS_V2 } from '../model/parameters-v2.ts';
+import { DEFAULT_PARAMETERS_V3 } from '../model/parameters-v3.ts';
 import { definitionDigest,type DesignDefinition } from '../model/definition.ts';
 import { parseVersionedDesign,serializeVersionedDesign } from '../model/design-file.ts';
-import { proposeUpgrade } from '../model/migrate-v1.ts';
+import { proposeUpgradeV3 } from '../model/migrate-v3.ts';
 import { DesignError,LIMITS } from '../model/budget.ts';
 import { DesignClient,type DesignSnapshot,type LayoutDownload } from './design-client.ts';
 import { createLayoutHost } from './layout-host.ts';
 import { exportLayout } from './layout-export.ts';
 import { definitionDrafts,parseDefinitionDrafts } from './definition-drafts.ts';
 
-const initial:DesignDefinition={modelSchemaVersion:2,generatorVersion:2,parameters:{...DEFAULT_PARAMETERS_V2}};
+const initial:Extract<DesignDefinition,{generatorVersion:3}>={modelSchemaVersion:3,generatorVersion:3,parameters:{...DEFAULT_PARAMETERS_V3}};
 export function useWallArt(){
   const [snapshot,setSnapshot]=useState<DesignSnapshot>({accepted:null,status:'starting',error:null,exporting:null,progress:null,upgrade:null,acknowledgedKey:''});
-  const [drafts,setDrafts]=useState(()=>definitionDrafts(initial)),[version,setVersion]=useState<1|2>(2);
+  const [drafts,setDrafts]=useState(()=>definitionDrafts(initial)),[version,setVersion]=useState<1|2|3>(3);
+  const [plan,setPlan]=useState(false),[selectedPart,setSelectedPart]=useState(1);
   const [inputError,setInputError]=useState<{message:string;field?:string}|null>(null),[loadingFile,setLoadingFile]=useState(false);
   const [downloadHeld,setDownloadHeld]=useState(false);
   const downloadRef=useRef<{download:LayoutDownload;url:string}|null>(null);
@@ -65,9 +66,10 @@ export function useWallArt(){
   async function releaseDownload(){const held=downloadRef.current;if(!held)return;
     try{await held.download.release();URL.revokeObjectURL(held.url);downloadRef.current=null;setDownloadHeld(false);}
     catch(error){report(error);}}
-  function upgrade(){const accepted=snapshot.accepted;if(accepted?.definition.generatorVersion===1)client.current?.submit(proposeUpgrade(accepted.definition.parameters),null,true);}
-  function confirmUpgrade(){const candidate=snapshot.upgrade;if(!candidate)return;client.current?.confirmUpgrade();apply({modelSchemaVersion:2,generatorVersion:2,parameters:candidate.parameters});}
+  function upgrade(){const accepted=snapshot.accepted;if(accepted&&accepted.definition.generatorVersion!==3){try{client.current?.submit(proposeUpgradeV3(accepted.definition),null,true);}catch(error){report(error);}}}
+  function confirmUpgrade(){const match=snapshot.upgrade?.correspondence.find(part=>part.sourceNumber===selectedPart);client.current?.confirmUpgrade();const accepted=client.current?.snapshot.accepted;if(accepted){apply(accepted.definition);if(match)setSelectedPart(match.targetNumber);}}
   return {snapshot,drafts,version,inputError,loadingFile,dirty,ready,exportReady,validDraft,downloadHeld,change,commit,load,revert,save,releaseDownload,upgrade,confirmUpgrade,
+    plan,setPlan,selectedPart,setSelectedPart,reviewMapOnly:()=>{const part=snapshot.accepted?.layout?.parts.find(item=>item.identification.status==='map-only');if(part){setSelectedPart(part.part.mapNumber);setPlan(true);requestAnimationFrame(()=>document.getElementById('lookup-number')?.focus());}},
     shortcut:(width:number,height:number)=>{change('width',String(width));change('height',String(height));commit();},
     acknowledge:()=>client.current?.acknowledge(),exportModel:(format:'step'|'stl'|'3mf')=>{if(exportReady)client.current?.export(format);},
     retry:()=>client.current?.retry(),cancelExport:()=>client.current?.cancelExport()};

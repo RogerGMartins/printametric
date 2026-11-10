@@ -1,8 +1,73 @@
 # Wall art 03 — shape and surface relief
 
-Status: **Product decisions D1–D18 and UI decisions SHAPE-UI-D1/D2 recorded. Technical contracts and actual-CAD visual review remain pending. No technical-plan or implementation approval.**
+Status: **Implemented and verified through P7 under the accepted bounded-generation contract (2026-11-10). See the [integrated evidence](../plans/wall-art-shape-surface.md#integrated-production-qualification--2026-11-10) for checks and measured limits.**
 Depends on [02](wall-art-layouts.md). Authority: [C1–C4](wall-art.md).
-Acceptance prefix: `WA-SHAPE`. Proposed schema/generator: `3/3`.
+Acceptance prefix: `WA-SHAPE`. Saved schema/generator: `3/3`.
+
+The approved center comparison has [measured results and native views](../plans/wall-art-shape-surface.md#center-comparison-results--formula-not-selected).
+The historical comparison retains its linear default. Generator 3 uses the accepted C2 center;
+the [bounded construction checkpoint](../plans/wall-art-shape-surface.md#c2-construction-checkpoint--triangle-blocker-resolved)
+resolves its remaining triangle failure. Final acceptance is recorded below.
+
+The [R3 progress checkpoint](../plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter)
+records the implemented subsets, rejected containment case, starter views and
+independent exports. The [contour and identification checkpoint](../plans/wall-art-shape-surface.md#r3-progress--contours-planes-anchors-and-bare-identification)
+adds bounded capability evidence for native sloping caps, anchor fallback and
+no-plinth cuts. The [Ridges and Dome contour checkpoint](../plans/wall-art-shape-surface.md#r3-progress--ridges-and-dome-contour-moments)
+adds bounded crease/disk-edge integration and native planar-top evidence.
+The [shared-gate timing investigation](../plans/wall-art-shape-surface.md#shared-gate-resolution--windows-idle-standby)
+identified Windows idle standby; the complete gate passes with a scoped keep-awake request.
+The [Spiral contour checkpoint](../plans/wall-art-shape-surface.md#r3-progress--spiral-contour-moments)
+adds bounded center/join integration and explicit provisional-C2 planar fixtures.
+The [continuous footprint checkpoint](../plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
+adds native Wave caps on clipped contours. The [compact-boundary checkpoint](../plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
+resolves the two retained Spiral control-net failures within the existing limits.
+The [expanded continuous-family checkpoint](../plans/wall-art-shape-surface.md#r3-progress--expanded-continuous-families)
+adds five family matrices and compact Spiral charts. The [phase-aligned center checkpoint](../plans/wall-art-shape-surface.md#spiral-center-tessellation--phase-aligned-charts)
+resolves the retained hexagonal center's mesh-budget failure. The [continuous identification checkpoint](../plans/wall-art-shape-surface.md#r3-progress--continuous-identification-and-final-solid-handoff)
+adds seven-family no-plinth engraving/Map-only cases and shape-anchor/export checks.
+The [native assembly checkpoint](../plans/wall-art-shape-surface.md#r3-progress--native-assemblies-and-volume-reference)
+adds seven-part clearance, retained-source and final-export checks, and corrects
+an inaccurate non-adaptive CAD volume reference for thin curved parts.
+The [fractional-profile review fix](../plans/wall-art-shape-surface.md#pr-review--fractional-side-profile-endpoint)
+adds finite endpoint bounds and native regression coverage below curvature two.
+The [complete P2 review package](../plans/wall-art-shape-surface.md#p2-review-package--ready-for-the-required-decision)
+contains the three starters, every family/top mode, physical-scale and bare-material
+cases, independent readers/slicer checks and a retained-design browser probe.
+Its error ledger is conditional on native-kernel numerical tolerances, not an
+independent global proof of Boolean/trim error. General parameter/fragment and
+full-tier capacity qualification remain later implementation work. Images and
+passing checks do not approve curvature, formulas or production integration.
+
+## P2 acceptance — 2026-11-10
+
+The user reviewed the complete P2 package and approved its three decisions, then
+explicitly approved continued implementation after the starter-curvature explanation.
+This supersedes the provisional labels and review gates in the historical sections.
+
+- **Starter:** dimensionless side curvature 2.2, adjustable from 1 (straight) to
+  4 (strong inward curve). Keep the agreed stepped Wave, minimum relief 20 mm,
+  amplitude 30 mm, density 2, top ratio 0.12 and enabled 10 mm plinth.
+- **Fields and construction:** the seven reviewed fields and top modes are accepted.
+  Generator 3 fixes the Spiral center to C2: for normalized radius `r=2*|XY|/L`,
+  use `t=min(1,r/0.02)` and weight `t³*(10-15*t+6*t²)`. The center choice is not a
+  saved parameter. Historical linear/C1 probes remain explicitly diagnostic.
+  Freeze the versioned random stream, draw order and numeric vectors implemented
+  in `surface-random.ts` and its regression tests. Curvature uses the reviewed
+  power profile; future changes require a new version or an explicit compatible contract.
+- **Accuracy:** retain the reviewed analytic bounds plus exact-method native
+  consistency and native-kernel tolerances, with the combined 0.001 mm ceiling.
+  This is conditional engineering validation, not an independent global proof of
+  native Boolean/trim error. Exhausted or uncertain certificates reject.
+- **Anchors/work:** retain the reviewed native distance allowance 1e-7 mm, radius
+  search tolerance 0.0005 mm, deterministic candidate tie tolerance 1e-6 mm,
+  4,096 anchor samples/depth 24, and existing generation/export/work limits.
+
+The six-key format-1 envelope uses exact schema/generator pair 3/3. Layout seed is
+stored in the envelope and surface seed in the required parameter record. All
+inactive values remain required and validated. The existing 1/1 and 2/2 semantics
+and original-byte retention remain unchanged. This decision authorizes P3–P7;
+full integrated capacity and acceptance evidence still belong to P6.
 
 ## Guided decision review — 2026-11-03
 
@@ -11,7 +76,8 @@ Collaboration mode for this review: **Guided questions**. Follow the suite's
 resolve only their stated scope. The product-decision round is complete. The later
 [UI review](#ui-review-decisions--2026-11-03) resolves hierarchy and specified
 control ranges/increments. Technical contracts, curvature numbers and actual-CAD
-visual results still require review; no technical plan or implementation is approved.
+visual results still require review. The later implementation approval below
+authorizes the bounded native checkpoint only.
 
 ### Confirmed product decisions
 
@@ -75,10 +141,25 @@ Phase 03 still needs its own measured correctness, retention and export evidence
   qualify phase 03. Keep large-count throughput unpromised.
 
 The [technical implementation plan](../plans/wall-art-shape-surface.md) is now
-prepared and awaiting user review. It proposes bounded P0–P2 native-CAD work,
-followed by an explicit visual/contract approval stop before production integration.
-The technical proposals and curvature remain provisional. Publishing these documents
-does not approve the plan or authorize implementation.
+approved for P0–P2 by the user's 2026-11-03 implementation request. Bounded native-CAD
+investigation precedes the technical freeze; it ends at an explicit visual/contract
+approval stop before P3–P7 production integration. The technical proposals and
+curvature remain provisional. Production startup and public saved-file dispatch
+remain on the existing versions during this investigation.
+
+The [native construction checkpoint](../plans/wall-art-shape-surface.md#implementation-checkpoint--native-construction-blocker)
+records 18 rejected Spiral/Ridges/Dome boundary fixtures out of 126. The current
+smooth-patch route does not meet the proposed deviation limit at those regions.
+P1 remains incomplete; the user approved its boundary-aware construction revision
+on 2026-11-03 under the plan's failed-gate rule. Neither diagnostic passes nor the new
+regressions approve curvature, formulas, global error bounds or the P2 visuals.
+
+The approved revision's [later checkpoint](../plans/wall-art-shape-surface.md#revised-construction-checkpoint--spiral-tessellation-blocker)
+records bounded numerical patches and valid native solids in 36 cases, with 33
+valid meshes and three narrow Spiral-center mesh failures. R2 remains incomplete;
+R3/P2 have not passed. The subsequent smoother-center comparison was approved;
+its results are linked above. Selecting a replacement formula still requires review. Existing appearance decisions
+and geometry/export limits remain in force.
 
 ## Problem, flow and scope
 
@@ -95,17 +176,17 @@ scope. The approved inventory is not a claim that their CAD construction or exac
 appearance has been qualified. Imported relief images, movement, colour tools and
 print-bed packing remain with their existing later phases.
 
-All formulas here are original **Printametric proposals**, not an existing algorithm
-contract. Implementation planning must freeze sample fixtures and native-CAD
-construction tolerances before approval. Do not accept a mesh-only implementation.
+The original Printametric formulas and native construction were accepted at
+[P2](#p2-acceptance--2026-11-10). Historical investigation notes above preserve the
+earlier review sequence. Native STEP remains required; a mesh-only path is insufficient.
 
 ## Parameters
 
 Confirmed product values below follow D1–D18; the specified UI ranges/increments
 follow [SHAPE-UI-D2](#ui-review-decisions--2026-11-03). Inherited layout/base/identification
 fields retain the phase-02 contract, including their existing increments. Increments
-are not manual-entry quantization rules (C3). Curvature range/default/increment,
-field formulas and rotation/phase endpoint equivalence remain proposed. A valid
+are not manual-entry quantization rules (C3). P2 fixes curvature, field formulas
+and rotation/phase endpoint equivalence. A valid
 individual value can still fail joint geometry or generation limits; never clamp
 or reduce a design silently.
 
@@ -119,18 +200,18 @@ homothetic top contract below, so this is a generator version change, not a rena
 | --- | --- | --- | --- | --- |
 | topRatio | number | 0.12 | 0.1–1 confirmed / 0.01 UI-D2 / ratio | Uniform top footprint scale; UI shows 10–100% with 1 percentage-point increments; upgrades preserve the source numeric ratio |
 | stepBlend | number | 1 | 0–1 / 0.01 UI-D2 / ratio | Stepped-to-continuous control: 1 horizontal cell-flat tiers; 0 follows the surface across each top; intermediate blend; UI shows 0–100% with 1 percentage-point increments |
-| planarTops | boolean | false (confirmed) | true/false | Advanced flat, potentially sloping top; inactive at fully stepped. Fit algorithm remains proposed |
+| planarTops | boolean | false (confirmed) | true/false | Advanced flat, potentially sloping top; inactive at fully stepped. Uses the accepted bounded area fit |
 | minimumRelief | number | 20 | 0–120 confirmed / 1 UI-D2 / mm | Relief above plinth before surface contribution; migration retains source relief height |
-| concavity | number | 2.2 (proposed) | 1–4 proposed / 0.1 proposed / exponent (proposed encoding) | Adjustable straight-to-strongly-inward-curved sides confirmed. Numeric scale, exponent formula and exact starter curve still require review |
+| concavity | number | 2.2 (P2 accepted) | 1–4 / 0.1 / dimensionless exponent | Straight at 1, moderately inward-curved at 2.2, strongly inward-curved at 4 |
 | plinthEnabled | boolean | true | true/false | Confirmed enabled for fresh designs; optional baseThickness plinth under each separate piece, not a shared backing; removal must preserve valid thickness |
-| family | enum | wave | wave, dunes, ring, dome, spiral, ridges, random | Seven-family inventory/observable character confirmed by SHAPE-D17; fresh wave confirmed by SHAPE-D2; formulas remain proposals |
+| family | enum | wave | wave, dunes, ring, dome, spiral, ridges, random | Seven-family inventory and formulas accepted; fresh Wave with C2 center for Spiral |
 | depth | number | 30 | 0–200 confirmed / 1 UI-D2 / mm | Surface amplitude; upgrades use0, not this fresh default |
-| density | number | 2 (confirmed) | 0.2–12 confirmed / 0.1 UI-D2 / family-specific frequency | Higher means tighter features; wave cycles per L, not equal literal band counts across families. Dome inactive; exact formulas remain proposed |
-| rotation | number | 0 (confirmed) | 0–360 UI-D2 / 1 UI-D2 / degrees | Actual counterclockwise rotation viewed from front; Ring/Dome inactive. 360≡0 remains proposed endpoint equivalence, not approved by UI-D2 |
-| phase | number | 0 (confirmed) | 0–1 UI-D2 / 0.01 UI-D2 / cycle | Field progression; Ring/Dome inactive. Periodic-family 1≡0 remains proposed with the numerical contract, not approved by UI-D2 |
+| density | number | 2 (confirmed) | 0.2–12 confirmed / 0.1 UI-D2 / family-specific frequency | Higher means tighter features; wave cycles per L, not equal literal band counts across families. Dome inactive |
+| rotation | number | 0 (confirmed) | 0–360 UI-D2 / 1 UI-D2 / degrees | Actual counterclockwise rotation viewed from front; Ring/Dome inactive. 360≡0 under the accepted numerical contract |
+| phase | number | 0 (confirmed) | 0–1 UI-D2 / 0.01 UI-D2 / cycle | Field progression; Ring/Dome inactive. Periodic-family 1≡0 under the accepted numerical contract |
 | spiralArms | integer | 5 (confirmed) | 1–16 confirmed / 1 UI-D2 / count | Active only for Spiral |
-| seed (Layout seed) | integer | 1 (inherited) | 1–9999 / 1 / none (inherited) | Existing irregular-layout seed; other layouts ignore it. Exact old-version meaning retained; v3 serialization location remains to freeze |
-| surfaceSeed (proposed key; Surface seed) | integer | 1 (confirmed, including upgrades) | 1–9999 confirmed / 1 UI-D2 / none | Independent saved seed for Dunes/Ridges/Random; exact saved key and stream derivation remain technical work |
+| seed (Layout seed) | integer | 1 (inherited) | 1–9999 / 1 / none (inherited) | Existing irregular-layout seed; other layouts ignore it. Stored in the file envelope; old-version meaning retained |
+| surfaceSeed (Surface seed) | integer | 1 (confirmed, including upgrades) | 1–9999 confirmed / 1 UI-D2 / none | Required parameter key; independent frozen stream for Dunes/Ridges/Random |
 
 Inactive values are validated and retained, not applied. The layout seed affects
 only irregular cell placement, independent of the selected surface family. In the
@@ -217,15 +298,13 @@ SHAPE-D15 confirms the fresh wave's density2 as two cycles per L. Its default
 direction. This is an underlying-field target; averaging onto stepped pieces can
 soften the visible highs/lows. D18 confirms range0.2–12 and tighter features at
 higher density across applicable families, without a shared literal band count.
-UI-D2 confirms the 0.1 density increment. Exact frequency mappings and formulas
-remain proposals.
+UI-D2 confirms the 0.1 density increment. P2 accepts the exact frequency mappings
+and formulas.
 
-The right column states the confirmed SHAPE-D17 character, supplemented by the
-already-approved wave starter spacing. The formula column is still proposed;
-inventory approval does not approve its exact profile, coefficients or numerical
-evaluation. Review original visual fixtures for each family before final signoff.
+The right column states the SHAPE-D17 character. P2 accepts the formula column,
+the fixed random stream and the C2 Spiral-center treatment.
 
-| Family | Proposed normalized field F | Confirmed observable character |
+| Family | Accepted normalized field F | Confirmed observable character |
 | --- | --- | --- |
 | wave | `(1+s(d*a+p))/2` | Regular smooth parallel rises and falls; the confirmed starter has two cycles per L |
 | dunes | `(1 + (s(d*a+p+q1)+0.5*s(0.7*d*b-p+q2)+0.25*s(0.6*d*(a+b)+q3))/1.75)/2` | Unequal smooth undulations |
@@ -235,16 +314,15 @@ evaluation. Review original visual fixtures for each family before final signoff
 | ridges | `1-abs(2*fract(d*a+0.2*s(d*b+q1)+p)-1)` | Bent bands with sharper peaks than Wave |
 | random | `0.5 + sum(k=1..6, Ak*sin(2π*(fxk*a+fyk*b+p+qk)))/(2*sum Ak)` | Reproducible smooth scattered hills, not unrelated random heights assigned per piece |
 
-Proposed formula details: q values are seeded phases in [0,1). Random uses
-`Ak=1/k` and seeded frequency directions of magnitude `d*(0.5+k/6)`. These details,
-the spiral center treatment and the precise ridge profile are not approved by
-SHAPE-D17. Random must still be one smooth spatial field: any cell-height variation
+Accepted formula details: q values are seeded phases in [0,1). Random uses
+`Ak=1/k` and seeded frequency directions of magnitude `d*(0.5+k/6)`. The center
+weight is fixed by P2. Random remains one smooth spatial field: any cell-height variation
 comes from sampling that field under the reviewed top contract, not independent
 random draws per piece.
 
 `fract` is value minus floor, including negative inputs. q values and directions
 come from the versioned relief substream keyed by the surface seed, never the layout
-seed. Its derivation/test vectors are not yet frozen. Ring phase is confirmed inactive; do not
+seed. Its derivation and test vectors are frozen in `surface-random.ts` and its tests. Ring phase is confirmed inactive; do not
 shift it silently and lose the depressed center. Random phase repeats at 1 while
 its spatial edges need not tile. Dunes phase repeats because its phase coefficients
 are integers (±1/0). No family promises seamless tiling at the panel outline.
@@ -303,12 +381,11 @@ upgrade mapping, completed by D18's source-ratio preservation, is distinct from 
 
 **Confirmed starter side appearance (SHAPE-D10):** the fresh stepped-wave design
 starts with inward-curved sides, narrowing faster near the base and rising more
-steeply near the top. Review the actual silhouette before freezing its curvature.
-D18 confirms the adjustable straight-to-strongly-inward-curved control, but neither
-decision approves the proposed numeric scale/default/exponent or exact silhouette.
+steeply near the top. P2 accepts the actual silhouette, dimensionless exponent
+scale 1–4 and starter value 2.2.
 
 The top footprint is a uniform homothety by topRatio about the anchor. For flank
-parameter t from 0 at relief base to 1 at top, proposed footprint scale is
+parameter t from 0 at relief base to 1 at top, the accepted footprint scale is
 `topRatio+(1-topRatio)*(1-t)^concavity`; interpolate Z to the local top. With
 concavity=1 and flat tops this gives ruled straight sides. Larger exponents give
 a narrowing lower flank then a steeper rise. Use native trimmed/spline CAD faces
@@ -435,7 +512,7 @@ Design                                     Preview · accepted parts · mm
   Display — existing tips/background controls and accepted summaries
 ```
 
-`*` Curvature is a provisional design value, not an approved numeric default.
+`*` This historical wireframe preceded P2; curvature 2.2 is now the accepted default.
 The wireframe shows fresh defaults only; upgrades do not receive fresh amplitude
 or curved sides. On wide screens, Surface and Shape can share one row of auto-fit
 columns; later groups follow in DOM order without empty reserved tracks. At narrow
@@ -462,7 +539,7 @@ disclosure. It does not approve phase-05 catalogue or section-navigation proposa
 | Advanced surface / **Surface seed** | Integer numeric entry; 1–9999, increment 1; no physical unit | “Repeats Dunes, Ridges and Random. Does not rearrange cells.” Other families: no effect. |
 | Shape / **Minimum relief (mm)** | Numeric entry; 0–120, increment 1 mm | “Height above each plinth before surface variation.” When plinth is off, measure from the wall-facing base plane. |
 | Shape / **Top size (%)** | Numeric entry and paired range; 10–100%, increment 1 percentage point | “Width and height of the top relative to its base.” Display 12% for stored ratio 0.12; do not call this top area or X-only width. |
-| Shape / **Side curvature** | Numeric entry and paired range; proposed 1–4, increment 0.1 | Endpoint captions “Straight” and “Strongly inward-curved”. Numeric scale/default remain provisional; do not label a dimensionless value in mm. |
+| Shape / **Side curvature** | Numeric entry and paired range; 1–4, increment 0.1 | Endpoint captions “Straight” and “Strongly inward-curved”. P2 accepts the numeric scale/default; do not label a dimensionless value in mm. |
 | Shape / **Top blend (%)** | Numeric entry and paired range; 0–100%, increment 1 percentage point | Endpoints “Continuous 0” and “Stepped 100”. Stored blend is 0–1. “Stepped gives one horizontal top per piece. Continuous follows the surface across each top.” |
 | Shape / **Include per-part plinth** | Native checkbox | “A separate base under each piece, not a shared backing.” Turning it off requests a validated candidate; do not secretly add a base or raise heights. |
 | Shape / **Plinth thickness (mm)** | Existing base-thickness control/range/increment | Show retained value when plinth is off, with “No effect while the plinth is off.” Do not change inherited base-thickness validation. |
@@ -616,22 +693,22 @@ face to a plane or replacing curved contours with polygons.
 
 | Existing v2 behavior | Required upgrade candidate behavior |
 | --- | --- |
-| Per-piece plinth of `baseThickness`, relief of `reliefHeight` | Preserve both numeric height settings and the enabled plinth. With the draft field names, `minimumRelief=reliefHeight`, `plinthEnabled=true`, and unchanged `baseThickness`. |
+| Per-piece plinth of `baseThickness`, relief of `reliefHeight` | Preserve both numeric height settings and the enabled plinth: `minimumRelief=reliefHeight`, `plinthEnabled=true`, and unchanged `baseThickness`. |
 | Equal-height flat tops with no surface amplitude | No added height variation: `depth=0`. Top Z remains `baseThickness+reliefHeight`; zero old relief remains plinth-only. Do not apply the fresh wave amplitude. |
-| Straight side profiles | Straight side profiles, not the inward-curved fresh starter. Under the proposed curve formula this would encode `concavity=1`; that encoding is a proposal until the formula is frozen. |
+| Straight side profiles | Straight side profiles, encoded as `concavity=1` under the accepted power profile. |
 | Layout, dimensions, pitch, gap, boundary policy, seed and identification | Copy existing settings and layout arrangement; preserve the old seed as layout seed. Do not apply fresh identification defaults or reseed cells. Initialize the separate surface seed to1 under D18. |
-| X-only top taper | Preserve numeric `topRatio` under D18, but use the approved two-axis taper. Anchor/construction behavior still needs technical review. Explain changed top geometry rather than promise identical old geometry. |
+| X-only top taper | Preserve numeric `topRatio` under D18, but use the approved two-axis taper and bounded anchor. Explain changed top geometry rather than promise identical old geometry. |
 
 D18 confirms initialization of new controls from agreed defaults:
 `family=wave`, `stepBlend=1`, `planarTops=false`, `density=2`, `rotation=0`,
 `phase=0`, `spiralArms=5`, and `surfaceSeed=1`. These values remain validated and
 saved even when inactive. Preserve the source layout seed, top ratio and height
 settings; use `depth=0`, an enabled plinth and straight side profiles instead of
-the fresh starter's amplitude and curvature. The numeric encoding of straight
-curvature remains technical work (proposed `concavity=1`). New surface seed1 is
+the fresh starter's amplitude and curvature. Straight curvature is encoded as
+`concavity=1`. New surface seed1 is
 independent of the source seed, not a copy of it; it takes effect when a seeded
 surface is selected with nonzero amplitude. No inactive-field product default
-remains undecided; exact saved keys/version encoding still require review.
+remains undecided; P2 accepts the exact saved keys and version encoding.
 
 Generate and validate the complete candidate before offering confirmation. Some
 valid old designs can fail the new top-width or containment checks after two-axis
@@ -684,35 +761,32 @@ its accepted parameters, geometry and identity within C2 tolerances. All fields,
 including inactive ones, pass C3 validation before expensive work. Failed imports
 retain the prior accepted design, original source bytes and native export source.
 
-**Proposed encoding:** retain the existing format-1 six-key envelope, use exact
+**Accepted encoding:** retain the existing format-1 six-key envelope, use exact
 model/generator pair 3/3, keep the parameter-only 1 MiB UTF-8 file limit and depth-16
 limit, and exclude private native snapshots and meshes. These reuse the v2 envelope
-without adding assets, but the complete v3 key set and version table still require
-technical review. Reject unknown/mixed versions, unknown keys, wrong types,
+without adding assets. P2 accepts the v3 key set and exact version table.
+Reject unknown/mixed versions, unknown keys, wrong types,
 nonfinite/out-of-range values and exceeded budgets. Do not accept future versions
 or silently fill missing fields. The explicit direct v1→v3 route is confirmed by
 SHAPE-D12; it is not automatic reinterpretation when opening an old file.
 
 Both independent seed values are required in the v3 saved definition, even when
-inactive. A proposed encoding keeps envelope `seed` for the layout seed and adds
-`surfaceSeed` to parameters; final key names/placement remain technical work.
-The six-key-envelope proposal must not omit, merge or infer away the surface seed.
+inactive. The envelope stores `seed` for the layout seed and the parameters store
+`surfaceSeed`. Do not omit, merge or infer away the surface seed.
 V1/v2 files retain their original schemas and meaning; only explicit migration
 supplies the new field. Missing v3 seed data is invalid, not a silent default.
 
 ## Acceptance and verification
 
 UI-D2 fixes the rotation/phase range boundaries and specified UI increments used
-below. Tests of equality at rotation 0/360 or phase 0/1 remain proposed until the
-numerical contract is reviewed; accepting both input endpoints does not approve
-their equivalence. Curvature fixtures remain provisional under the UI checkpoint.
+below. P2 accepts rotation/phase endpoint equivalence and the curvature fixtures.
 
 | ID | Observable outcome | Verification |
 | --- | --- | --- |
-| WA-SHAPE-AC-1 | All seven families generate finite [0,1] fields with the D17 character and D18 control applicability. Higher density gives tighter features where active, not equal literal band counts. Random is a smooth reproducible spatial field. | Review separate field/actual-CAD fixtures for every family. Check low-center rings, cropped central dome, winding arms, sharper bent ridges and smooth Random. Dense analytic tests use reviewed formulas at confirmed density0.2/12, surface seed1/9999 and every arm count1–16; add just-outside/invalid cases. Phase0/1 are approved UI-D2 range boundaries; their field equivalence remains proposed pending numerical-contract review. Compare low/high density on fixed dimensions; Dome is unchanged. Every family also needs AC-6/10 exports and saved-design checks; coarse cell sampling is not proof of field correctness. |
+| WA-SHAPE-AC-1 | All seven families generate finite [0,1] fields with the D17 character and D18 control applicability. Higher density gives tighter features where active, not equal literal band counts. Random is a smooth reproducible spatial field. | Review separate field/actual-CAD fixtures for every family. Check low-center rings, cropped central dome, winding arms, sharper bent ridges and smooth Random. Dense analytic tests use reviewed formulas at density0.2/12, surface seed1/9999 and every arm count1–16; add just-outside/invalid cases. Check accepted phase0/1 equivalence. Compare low/high density on fixed dimensions; Dome is unchanged. Every family also needs AC-6/10 exports and saved-design checks; coarse cell sampling is not proof of field correctness. |
 | WA-SHAPE-AC-2 | Fields use equal physical scale in X/Y with L=min(nominal width,nominal height); ring and dome contours are circular before panel cropping. Positive rotation turns the field by the actual entered angle counterclockwise from the front on every aspect ratio. Uniform panel resizing scales field wavelength proportionally; longer-side-only growth keeps spacing unchanged. Actual material bounds do not rescale the field. Rotation/phase equivalence and inactive controls follow the contract. | Analytic field tests on square, wide and tall panels, including 80×2000 and 2000×80 mm: compare equal-radius samples and the uncut dome boundary; compare asymmetric field samples before/after rigid 30°/90° rotation within both crops. Layout/outline coordinates do not rotate. Uniform resize fixtures: 500×500→1000×1000,400×200→800×400,80×80→2000×2000 preserve corresponding field values. One-axis fixtures: 400×400→800×400 keeps L=400; 800×400→800×600 scales L by 1.5; 800×799→800×800→800×801 gives L=799,800,800. Repeat with axes exchanged. At fixed nominal dimensions, outline changes and hexagonal/triangular whole-cell overflow keep L and field values at shared physical positions unchanged. Keep field controls, height parameters and pitch unchanged; identical cell means/counts are not required. Include 0/360,0/1 and dome/ring/seed no-effect tests. Reviewed visual fixtures supplement field tests because coarse cells can obscure circles. |
-| WA-SHAPE-AC-3 | Fully stepped gives one horizontal top per piece; fully continuous follows the selected surface; intermediate settings blend them. Optional planar tops each have one flat face that may slope, and toggling the option at fully stepped leaves geometry unchanged. Area means and constrained fits remain proposed numerical requirements pending technical review. | Unequal clipped-cell and nonconstant-surface fixtures at blend 0/0.5/1, each with planar tops on/off; assert horizontal stepped faces, continuous surface agreement, planar-face residuals and fully stepped no-effect equality. Include a sloping planar fixture, not only horizontal tops. Analytic wave-mean and fit checks must use the eventual reviewed numerical contract. |
-| WA-SHAPE-AC-4 | Taper/curvature preserve minima and native surfaces. The fresh stepped wave uses the confirmed defaults: inward-curved sides, minimum relief20 mm, amplitude30 mm, density2, topRatio0.12, planar off, rotation/phase0, arms5 and surface seed1. Actual top heights lie within the 30–60 mm envelope with the inherited10 mm plinth. | Check defaults including inactive ones, two cycles over500 mm/250 mm repeat distance, 47.5×47.5 mm bases and 5.7×5.7 mm tops. Compare actual CAD bounds and AC-6 reimports; never force sampled extrema or fabricate a60 mm summary. Review complete starter silhouette and store reviewed parameters. Test confirmed boundaries ratio0.1/1,minimum0/120,depth0/200 plus just-outside/type/nonfinite inputs. Curvature1/4/default2.2 remain proposed numerical fixtures; they are not product approvals. |
+| WA-SHAPE-AC-3 | Fully stepped gives one horizontal top per piece; fully continuous follows the selected surface; intermediate settings blend them. Optional planar tops each have one flat face that may slope, and toggling the option at fully stepped leaves geometry unchanged. Use the accepted area means and constrained fits. | Unequal clipped-cell and nonconstant-surface fixtures at blend 0/0.5/1, each with planar tops on/off; assert horizontal stepped faces, continuous surface agreement, planar-face residuals and fully stepped no-effect equality. Include a sloping planar fixture, not only horizontal tops. Analytic wave-mean and fit checks use the accepted numerical contract. |
+| WA-SHAPE-AC-4 | Taper/curvature preserve minima and native surfaces. The fresh stepped wave uses the confirmed defaults: inward-curved sides, minimum relief20 mm, amplitude30 mm, density2, topRatio0.12, planar off, rotation/phase0, arms5 and surface seed1. Actual top heights lie within the 30–60 mm envelope with the inherited10 mm plinth. | Check defaults including inactive ones, two cycles over500 mm/250 mm repeat distance, 47.5×47.5 mm bases and 5.7×5.7 mm tops. Compare actual CAD bounds and AC-6 reimports; never force sampled extrema or fabricate a60 mm summary. Review complete starter silhouette and store reviewed parameters. Test confirmed boundaries ratio0.1/1,minimum0/120,depth0/200 and curvature1/4/default2.2 plus just-outside/type/nonfinite inputs. |
 | WA-SHAPE-AC-5 | Fresh designs enable the per-part plinth; valid no-plinth candidates can be accepted. Depth zero preserves layout. Engraving-only residual-floor failure on a valid no-plinth piece produces Map-only ID with no physical marks and preserved identity/plan lookup. Bare-piece invalidity rejects and retains the previous accepted revision/export source. Neither path adds hidden floors, changes heights or drops parts. | Fresh-default and valid plinth on/off assertions; zero-amplitude and bare-material thresholds; engraving fixtures just below/at/above the approved 1.2 mm residual-floor threshold under existing tolerances. Check omitted number/arrow cuts, unchanged requested engraving depth and bare geometry, retained IDs/counts and visible lookup. Compare fallback preview and all three exports to the same accepted unengraved solid. Invalid bare-piece imports/removal and injected CAD failures retain accepted parameters, digest and export source rather than trigger fallback. |
 | WA-SHAPE-AC-6 | All formats share accepted shape, actual depth, IDs and units | Curved/cell-flat/planar fixtures independently imported in CAD reader and slicer |
 | WA-SHAPE-AC-7 | Both top controls are reachable by keyboard at 320 px; Planar tops is advanced and explains its fully stepped no-effect state. Narrow-top help distinguishes subtle effects from inactive controls. Numeric controls share accepted values. Map-only warnings distinguish omitted physical marks from invalid bare geometry and preserve accessible lookup. | Browser blend-endpoint/intermediate journeys and keyboard access to advanced Planar tops; fully stepped no-effect notice, family switching, narrow-top help, no-plinth Map-only ID number/orientation lookup and blocking thin-part recovery in both themes at 320 px and actual 200% zoom. Verify against AC-3/5 geometry rather than only control labels. |
@@ -734,13 +808,10 @@ QA owns `tests/wall-art-shape-surface.test.mjs` and
 N/B/I/E tests in `npm run check`, plus the stated manual evidence.
 
 All numeric fields need default/min/max, just-outside, wrong-type and nonfinite
-cases. UI-D2 approves rotation/phase range boundaries and the specified increments;
-test them without quantizing valid manual decimals. Endpoint-equivalence assertions
-still require the reviewed numerical contract. Curvature range/default/increment
-remain provisional until actual-CAD review; do not treat those draft test values as
-approved. Test every confirmed enum and conditional branch. No phase-03 tests were
-implemented or executed. Existing application checks and visual/keyboard baseline
-evidence are recorded in the UI handoff above, not as phase-03 acceptance passes.
+cases. Test the accepted boundaries and increments without quantizing valid manual
+decimals. Test every confirmed enum and conditional branch. Current phase-03
+implementation evidence is recorded in the technical plan; the historical UI
+handoff is not a substitute for integrated acceptance checks.
 
 | Story | Completion / acceptance IDs | Required automated assertions and manual limits |
 | --- | --- | --- |
@@ -751,33 +822,29 @@ evidence are recorded in the UI handoff above, not as phase-03 acceptance passes
 
 ### Required documentation changes at implementation
 
-Only this owning spec changed during this review. Build assigns and applies the
-following shared-document updates through the separately reviewed technical plan.
+The documentation-only review initially changed this owning spec. Implementation
+applies the following shared-document updates through the approved technical plan.
 Link here for product decisions rather than duplicating the decision ledger.
 
 | Path | Required change / no-change decision |
 | --- | --- |
 | `docs/specs/wall-art.md` | Reconcile phase-02 status and waived throughput gates; link D1–D18, extend C2/option coverage for two independent saved seeds, and map AC-1–11/ST-1–4. Preserve original version behavior and historical evidence. |
 | `docs/product.md`, `docs/mvp-roadmap.md` | Record approved seven-family/shape scope and starter; do not mark implemented until verified. Retain later-phase exclusions and measured-capacity wording. |
-| `docs/architecture.md` | Record reviewed v3 keys/version table, both seeds, native-surface result metadata and retained-original/candidate ownership. Keep existing stack, module direction, units, explicit exports and atomic failure policy. Exact encoding/IDs and bounded construction remain planning work. |
+| `docs/architecture.md` | Record accepted v3 keys/version table, both seeds, native-surface result metadata, bounded construction and retained-original/candidate ownership. Keep existing stack, module direction, units, explicit exports and atomic failure policy. |
 | `README.md`, usage/help | Explain shorter-side scaling/cropping, actual rotation, independent seeds, confirmed inactive controls, blend/planar/curvature controls and optional plinth/map-only recovery. Show starter values and actual bounds rather than assumed extrema. Distinguish fresh defaults from both minimal-change upgrades; direct v1 uses one preview/confirmation and adds no physical cuts. |
 | `docs/development.md` | Add field/CAD visual fixtures for all families, default/range checks, seed independence, zero-height/floor boundaries, native exports, v3 round trips, migration races and capacity reproduction with actual results/environment. Label older v1-only/capacity investigations as historical, not current behavior. |
 | Setup, dependencies, `LICENSE` | No change required by this spec. No new assets, runtime dependency, service or deployment target is selected. Any later proposal needs its own review. |
 
-Unresolved before implementation: proposed curvature range/default/increment and
-exact starter silhouette; actual-CAD fixtures for all seven families; exact
-field/sampling/native surface methods and tolerances; rotation/phase endpoint
-equivalence; relief random vectors; saved-key/version/ID encoding and the technical
-verification matrix. UI hierarchy and specified control ranges/increments are
-resolved by UI-D1/D2; the detailed UI still needs implementation verification.
-These are bounded review/engineering tasks, not permission to reopen or silently
-alter D1–D18 or UI-D1/D2.
-Physical-print, assistive-technology and performance claims require their own
-evidence. No such evidence was produced by this documentation-only review.
+P2 resolved the construction, curvature, field, random-stream and saved-contract
+decisions. UI-D1/D2 resolved hierarchy and control behavior. The technical plan owns
+integrated verification and measured limitations; these decisions do not authorize
+silent changes to D1–D18 or UI-D1/D2. Physical-print and assistive-technology claims
+still require separate evidence.
 
 ## Implementation steps and handoff
 
-This is a handoff sequence, not an approved technical plan:
+This historical handoff sequence is executed through the subsequently approved
+[technical plan](../plans/wall-art-shape-surface.md):
 
 1. Use UI-D1/D2 and the UI handoff; freeze the labelled technical contracts and
    schedule actual-CAD visual review in a separate implementation plan. Keep the

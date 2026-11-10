@@ -20,7 +20,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    # Includes cold browser installation and both native/browser suites on Windows.
+    # Per-test deadlines and application generation limits remain separate.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:

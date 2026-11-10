@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { DesignClient } from '../src/tools/wall-art/editor/design-client.ts';
 import { DEFAULT_PARAMETERS, parameterDigest } from '../src/tools/wall-art/model/parameters.ts';
 import { DEFAULT_PARAMETERS_V2 } from '../src/tools/wall-art/model/parameters-v2.ts';
+import { DEFAULT_PARAMETERS_V3 } from '../src/tools/wall-art/model/parameters-v3.ts';
 
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function harness(){
@@ -25,6 +26,16 @@ function harness(){
   client.submit(definition,bytes);ready(ports[0]);generated(ports[0]);
   return {client,ports,downloads,definition,bytes,ready,generated,rejectModule};
 }
+
+test('invalid v3 input cannot alter the accepted legacy source or start native work', () => {
+  const h = harness();
+  try {
+    const accepted = h.client.snapshot.accepted, messages = h.ports[0].messages.length;
+    assert.throws(() => h.client.submit({ modelSchemaVersion: 3, generatorVersion: 3, parameters: {...DEFAULT_PARAMETERS_V3,surfaceSeed:NaN} }), { code: 'PARAMETER' });
+    assert.equal(h.client.snapshot.accepted, accepted); assert.equal(h.ports[0].messages.length, messages);
+    assert.equal(h.ports[0].terminated, false); assert.equal(accepted.originalBytes, h.bytes);
+  } finally { h.client.dispose(); }
+});
 
 test('failed version switch cannot export an unaccepted legacy edit',async()=>{
   const h=harness(),{client,ports,definition,bytes}=h;

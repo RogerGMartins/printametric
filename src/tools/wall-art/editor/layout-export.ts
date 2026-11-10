@@ -27,15 +27,18 @@ export async function exportLayout(snapshot:LayoutSnapshot,format:ExportFormat,a
     worker=new Worker(new URL('../geometry/export-worker-v2.ts',import.meta.url),{type:'module'});
     const port=worker,revision=snapshot.result.revision;
     const file=await abortable(new Promise<File>((resolve,reject)=>{
-      let pending=false,next=0;
+      let pending=false,next=0,operations=0;
       port.onerror=event=>reject(new DesignError('EXPORT',event.message||'Export worker stopped.'));
       port.onmessage=({data})=>{
         if(data.error){reject(new DesignError('EXPORT',data.error));return;}
         if(typeof data.request==='number'){
           if(!module||pending||data.request!==next||next>=snapshot.parts.length){reject(new DesignError('PROTOCOL','Unexpected STEP fragment request.'));return;}
           pending=true;const start=next;next+=32;
-          void requestBatch(host.createPort,{stage:'step',items:snapshot.parts.slice(start,start+32),parameters:snapshot.parameters,module,reservation:NATIVE_BATCH_RESERVATION},job.signal)
-            .then(result=>{job.signal.throwIfAborted();if(!result.step)throw Error('Missing native STEP fragment.');pending=false;port.postMessage({fragment:result.step},[result.step.buffer]);})
+          void requestBatch(host.createPort,{stage:'step',items:snapshot.parts.slice(start,start+32),parameters:snapshot.parameters,generatorVersion:snapshot.generatorVersion??2,
+            operationLimit:LIMITS_V2.cadOperations-operations,evaluationLimit:0,module,reservation:NATIVE_BATCH_RESERVATION},job.signal)
+            .then(result=>{job.signal.throwIfAborted();if(!result.step)throw Error('Missing native STEP fragment.');
+              operations+=result.operations;if(!Number.isSafeInteger(operations)||operations>LIMITS_V2.cadOperations)throw Error('STEP native work budget exceeded.');
+              pending=false;port.postMessage({fragment:result.step},[result.step.buffer]);})
             .catch(reject);
         }else if(data.file instanceof File&&data.revision===revision&&data.format===format)resolve(data.file);
         else reject(new DesignError('PROTOCOL','Unexpected export completion.'));

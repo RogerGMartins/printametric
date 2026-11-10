@@ -5,11 +5,11 @@ import { serializeDesign } from '../../src/tools/wall-art/model/design-file.ts';
 import { DEFAULT_PARAMETERS } from '../../src/tools/wall-art/model/parameters.ts';
 
 // The core regressions intentionally exercise generator 1, including its camera
-// and original file/export contracts. New sessions now start with generator 2.
+// and original file/export contracts. New sessions now start with generator 3.
 async function openLegacyDesign(page:Page){
   await page.goto('/');await page.locator('.settings-drawer > summary').click();
   await page.getByLabel('Load design JSON').setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(serializeDesign({...DEFAULT_PARAMETERS}))});
-  await expect(page.getByRole('button',{name:'Preview upgrade to generator 2'})).toBeEnabled({timeout:30000});
+  await expect(page.getByRole('button',{name:'Preview upgrade to generator 3'})).toBeEnabled({timeout:30000});
   await page.locator('.settings-drawer > summary').click();
 }
 
@@ -150,7 +150,7 @@ test('CAD and exports remain usable without WebGL', async ({ page }) => {
 });
 
 test('independent 3MF reader preserves all 100 assembly placements at millimeter scale', async ({ page, context }) => {
-  await page.goto('/'); await expect(page.getByText('Model ready.', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await openLegacyDesign(page);
   await page.locator('.settings-drawer > summary').click();
   const pending = page.waitForEvent('download'); await page.getByRole('button', { name: 'Export 3MF', exact: true }).click();
   const path = await (await pending).path(); if (!path) throw new Error('Missing 3MF download');

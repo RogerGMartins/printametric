@@ -4,6 +4,7 @@ import { DesignError, LIMITS } from './budget.ts';
 import { exactObject, validateParameters } from './validation.ts';
 import { validateDesignDefinition, type DesignDefinition } from './definition.ts';
 import { PARAMETER_NAMES_V2 } from './parameters-v2.ts';
+import { PARAMETER_NAMES_V3 } from './parameters-v3.ts';
 
 const envelopeKeys = ['format', 'formatVersion', 'modelSchemaVersion', 'generatorVersion', 'seed', 'parameters'];
 const geometryKeys = PARAMETER_NAMES.filter(name => name !== 'seed');
@@ -41,7 +42,9 @@ export function parseDesign(bytes: Uint8Array): Parameters { return validateDefi
 export function parseVersionedDesign(bytes: Uint8Array): DesignDefinition {
   const object = exactObject(decodeDesign(bytes), envelopeKeys);
   if (object.format !== 'printametric-wall-art' || object.formatVersion !== 1) throw new DesignError('VERSION', 'Only wall-art format 1 is supported.');
-  const keys = object.modelSchemaVersion === 2 && object.generatorVersion === 2 ? PARAMETER_NAMES_V2 : PARAMETER_NAMES;
+  if (object.modelSchemaVersion !== object.generatorVersion || ![1, 2, 3].includes(object.generatorVersion as number))
+    throw new DesignError('VERSION', 'Choose an exact supported wall-art model/generator pair: 1/1, 2/2 or 3/3.');
+  const keys = object.generatorVersion === 3 ? PARAMETER_NAMES_V3 : object.generatorVersion === 2 ? PARAMETER_NAMES_V2 : PARAMETER_NAMES;
   const parameters = exactObject(object.parameters, keys.filter(name => name !== 'seed'));
   return validateDesignDefinition({ modelSchemaVersion: object.modelSchemaVersion, generatorVersion: object.generatorVersion,
     parameters: { ...parameters, seed: object.seed } });
@@ -50,6 +53,11 @@ export function parseVersionedDesign(bytes: Uint8Array): DesignDefinition {
 export function serializeVersionedDesign(value: DesignDefinition): Uint8Array<ArrayBuffer> {
   const definition = validateDesignDefinition(value);
   if (definition.generatorVersion === 1) return serializeDesign(definition.parameters);
+  if (definition.generatorVersion === 3) {
+    const parameters = Object.fromEntries(PARAMETER_NAMES_V3.filter(name => name !== 'seed').map(name => [name, definition.parameters[name]]));
+    return new TextEncoder().encode(JSON.stringify({ format: 'printametric-wall-art', formatVersion: 1,
+      modelSchemaVersion: 3, generatorVersion: 3, seed: definition.parameters.seed, parameters }, null, 2) + '\n');
+  }
   const { seed, ...parameters } = definition.parameters;
   return new TextEncoder().encode(JSON.stringify({ format: 'printametric-wall-art', formatVersion: 1,
     modelSchemaVersion: 2, generatorVersion: 2, seed, parameters }, null, 2) + '\n');

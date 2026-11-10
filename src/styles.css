@@ -95,6 +95,9 @@ legend { font-size: 12px; color: var(--secondary); margin-bottom: 8px; }
 .workspace-summaries dd { text-align: right; font-variant-numeric: tabular-nums; }
 /* Tool controls use the same drawer and tokens, with one full-width parameter row. */
 .wall-art-controls { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 20px; }
+.surface-shape-controls { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,320px),1fr)); gap: 28px; }
+.surface-shape-controls > section { min-width: 0; }
+.surface-shape-controls input[type="range"] { width: 100%; min-height: 44px; padding: 0; accent-color: var(--accent); }
 .wall-art-controls h3 { font-size: 13px; margin-top: 24px; }
 .parameter-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,160px),1fr)); gap: 16px; margin-top: 16px; }
 .parameter-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }

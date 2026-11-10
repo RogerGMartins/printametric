@@ -39,6 +39,10 @@ installation, reopen terminals/OpenCode and confirm `node --version`, then run
 ### Application checks and debugging
 
 - `npm run dev` starts Vite with source maps and React StrictMode checks.
+  Generated `artifacts/` and `playwright-report/` files are excluded from its file
+  watcher to avoid scanning large evidence trees. They remain locally servable;
+  manually refresh artifact pages after regenerating them. Application source
+  and test fixtures retain normal hot reload.
 - `npm run typecheck:app` checks browser code using `tsconfig.app.json`.
   `npm run typecheck` checks Node-only tools, Vite/Playwright configuration, and
   TypeScript browser tests using `tsconfig.json`. JavaScript journey helpers are
@@ -51,6 +55,18 @@ installation, reopen terminals/OpenCode and confirm `node --version`, then run
   `npm run test:browser:install` to install Chromium and required OS libraries.
   Repeat browser installation after a Playwright upgrade. No MCP service or model
   credentials are needed for these tests.
+  CI allows 20 minutes for the complete job, including cold browser installation;
+  individual test deadlines and application generation limits remain separate.
+- On Windows laptops, `npm run check:awake` runs the same gate while holding a
+  temporary system/display keep-awake request. It restores the thread's previous
+  execution state on exit; it does not change the power plan or deadlines. Use it
+  for unattended local verification: Modern Standby can suspend native work and
+  cause unrelated Node/browser timeouts. Explicit Sleep or lid closure still wins.
+  The wrapper uses built-in Windows PowerShell and
+  [SetThreadExecutionState](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate).
+  To diagnose a suspected suspension, inspect System events from
+  `Microsoft-Windows-Kernel-Power` (Modern Standby entry 506 / exit 507) and compare
+  their timestamps with the failed run. CI continues to use `npm run check`.
 - To debug startup, open the dev URL and the browser's Sources panel, find
   `src/main.tsx` or `src/app/App.tsx`, set a breakpoint, and reload. Check the
   browser console and Vite terminal for failures. StrictMode can render twice
@@ -148,7 +164,11 @@ npm run test:browser -- --project=development --grep "collapsed rejected input"
 ```
 
 `npm test` explicitly selects `tests/*.test.mjs`, so Node does not discover
-Playwright specs. `npm run test:browser` expects an up-to-date `dist/`; the full
+Playwright specs. It and the shared gate run one Node test file at a time. Native
+CAD fixtures already create bounded worker heaps; CPU-count-based file concurrency
+multiplies those heaps and competes with fixture deadlines. Worker isolation and
+individual timeouts remain unchanged. `npm run test:browser` expects an up-to-date
+`dist/`; the full
 `npm run check` always rebuilds it. To step through a browser test, append `--debug`
 to a targeted command. Inspect the failed assertion and retained DOM snapshot in
 `test-results/`; open `npx playwright show-report` or use
@@ -177,15 +197,15 @@ verification and user-review status are in the [migration checkpoint](plans/grid
 
 ## Wall-art usage and debugging
 
-New sessions use generator 2. Outline and layout controls are in Workspace settings;
+New sessions use generator 3. Surface and Shape controls precede Layout and identification in Workspace settings;
 pitch, gap, seed and identification are in **Advanced layout and identification**.
 The **Numbered plan** shows native contours and excluded fragments, with a keyboard
 part-number lookup and enlarged selected contour. Exclusions require acknowledgment
 before export. Whole-cell overflow reports actual assembly dimensions.
 
-Generator-1 files retain original bytes and geometry until **Preview upgrade** and
+Generator-1/2 files retain original bytes and geometry until **Preview upgrade to generator 3** and
 **Confirm upgrade** complete. Cancelled or failed candidates retain the accepted
-design. Generator-2 exports use a leased temporary browser File: finish the download,
+design. Generator-2/3 exports use a leased temporary browser File: finish the download,
 then select **Release downloaded file**. Quota/API failures are visible. Browser
 storage is used only for explicit exports, not project persistence.
 
@@ -483,6 +503,368 @@ termination-related file locks. A later explicit export can reclaim an abandoned
 directory after its owning tab's lock disappears. The app still uses its v1 export
 path. Portable regressions live in `tests/stream-three-mf.test.mjs` and the
 development-only `tests/browser/export-storage.spec.ts`.
+
+## Phase-03 native investigation
+
+The investigation sections below preserve historical evidence. The application now
+dispatches generator 3 through typed production modules. Current integrated checks:
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-v3-*.test.mjs tests/wall-art-runtime.test.mjs tests/wall-art-version-races.test.mjs
+npm run test:browser -- --project=development tests/browser/wall-art-shape-surface.spec.ts
+npm run check:awake
+npm run build
+node scripts/qualify-shape-surface-app.mjs
+```
+
+The final command serves the existing production build on strict port 6973. It
+uses a disposable persistent Chromium profile for real application generation,
+retained replacement, disk-backed exports, cancellation, complex failed candidates
+and sampled aggregate memory. It records CPU/RAM/browser/Node, cold/warm times,
+actual accepted bounds and both-theme screenshots. The retained T6 extension enables
+genuine 200% zoom; its absence is recorded as unverified. It is a local Windows
+qualification command, not a portable CI prerequisite. Reports and downloads use
+timestamped `artifacts/wall-art-shape-surface/application-*` directories. Keep failed
+reports; successful starters do not qualify arbitrary 512/4,000-part designs.
+
+The [integrated qualification](plans/wall-art-shape-surface.md#integrated-production-qualification--2026-11-10)
+records the production starter, retained edits, failed complexity attempts and
+independent checks of its 100-part STEP/STL/3MF downloads and slicer outputs.
+Generator-3 part batches contain at most 16 parts to fit the existing native-memory
+reservation; partition and clearance batches retain their 32-item upper bound.
+
+Break in `generate-v3.ts` at top-mode dispatch, identification and final meshing.
+`surface-work.ts` charges native requests and field evaluations before work;
+`layout-coordinator.ts` reserves allowances across batches and retains accepted
+buffers. `design-client.ts` binds direct upgrades to their source revision and
+removes source provenance after confirmation. Percentage text conversion lives in
+`definition-drafts.ts`; it preserves accepted floating-point values without an
+extra multiply/divide rounding step. Inspect parameter names, revision IDs and
+bounded counters instead of logging complete user designs.
+
+P0 provides checkpoint-only v3 parameter validation and seven pure surface fields.
+The application still uses the supported v1/v2 paths. The current P1 native route
+is an isolated rectangular capability experiment, not the phase-03 generator.
+Its failed gate and proposed construction revision are recorded in the
+[phase-03 plan](plans/wall-art-shape-surface.md#implementation-checkpoint--native-construction-blocker).
+
+```sh
+node --test tests/wall-art-shape-surface.test.mjs tests/wall-art-shape-native.test.mjs
+node scripts/qualify-wall-art-shape-surface.mjs
+node scripts/qualify-wall-art-shape-surface.mjs --boundaries --family=spiral
+npm run check
+```
+
+The qualification command defaults to 126 fixed fixtures, including nonsmooth
+boundary regions. It currently exits **1** with 18 deviation rejections; this is
+the recorded construction failure, not an installation error. `--boundaries`
+restricts the matrix to the center and Dome-edge locations; `--family` selects one
+of the seven family names. A passing subset is not full qualification. Every
+report sets `checkpointComplete: false` until a separate complete P2 exists.
+
+Reports use timestamped names under ignored
+`artifacts/wall-art-shape-surface/checkpoint/`. They include fixed diagnostic
+parameters, stable fixture IDs, native stage, sampled residuals, triangle counts,
+volume agreement and elapsed time. The supervisor terminates the worker after
+120 seconds or a sampled whole-process RSS above 2,000,000,000 bytes. Node RSS
+includes controller and worker; it is not exact peak or browser memory. Keep
+failed reports when changing the construction; do not average failures away.
+
+For diagnosis, break in `tests/support/shape-surface-native.mjs` at top interpolation,
+shared flank control-net construction, sewing, solid validation and
+`meshRectangleSurface`. The last function rejects bad sampled fits **before**
+meshing. An earlier bad Spiral interpolant exhausted memory in the mesher; its
+stage trace is retained in the plan evidence. Off-grid sampled residuals can reject
+a fit but cannot prove a global error bound. Kernel validity is a separate check.
+
+The numeric tests pin provisional random words for surface seeds 1/5000/9999,
+physical-scale and rotation examples, inactive validation and old-version dispatch.
+Native regressions compare profile volume with an independent integral, reimport
+a curved Wave STEP through two CAD readers, check STL placement, and reproduce
+all three failed regions without entering the mesher. These regressions run in
+the ordinary gate. No production debug controls, user-design logging or external
+service is needed. Full starter visuals, 3MF/slicer evidence and general clipped
+part construction remain pending; the capability tests do not replace them.
+
+The approved piecewise revision has a separate diagnostic matrix:
+
+```sh
+node --test tests/wall-art-surface-domains.test.mjs tests/wall-art-surface-certificates.test.mjs tests/wall-art-boundary-native.test.mjs
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise --family=spiral
+```
+
+`--piecewise` selects 36 Spiral/Ridges/Dome cases across two locations, two top
+ratios and three side profiles. It currently exits 1: 33 meshes pass and three
+narrow Spiral-center meshes fail, despite valid native solids. Refinement remains
+bounded by 100,000 triangles per part. Reports use `native-piecewise-*.json` names;
+the original 126-case route remains available without this flag. Neither matrix
+constitutes the full starter/assembly/export visual checkpoint.
+
+Break in `surface-sampling.ts` for domain/error/work bounds, and in the isolated
+`shape-surface-boundary-native.mjs` and `shape-surface-boundary-mesh.mjs` helpers
+for native trimming, boundary reduction and mesh rejection. The residual helper
+bounds entire polynomial intervals; point sampling is supplementary evidence.
+The native regression retains a real CAD-valid/mesh-invalid Spiral case so that
+future changes cannot bypass mesh validation. Failed seam experiments are kept in
+ignored artifacts, not imported by tests or the app. See the
+[revised checkpoint](plans/wall-art-shape-surface.md#revised-construction-checkpoint--spiral-tessellation-blocker)
+for measured results, limitations and the next review decision.
+
+The approved Spiral-center comparison is also isolated:
+
+```sh
+node --test tests/wall-art-spiral-center.test.mjs tests/wall-art-boundary-native.test.mjs
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise --family=spiral --spiral-center=smooth-c2
+node scripts/qualify-wall-art-shape-surface.mjs --piecewise --family=spiral --spiral-center=smooth-c1
+```
+
+The default remains `linear`. C2 now passes all 12 cases after bounded angular-chart
+changes and exits 0; the formerly failing broad/straight canonical mesh has 98,886
+triangles. C1 still passes 9 of 12, with native validity failures at narrow centers,
+and correctly exits 1. The modes are not
+saved parameters or production UI options. Tests preserve the linear baseline,
+exterior field, whole-domain bounds and exact input values.
+
+Add `--comparison-artifacts` to a Spiral piecewise run to write matched native
+tessellations and selected STEP/STL/3MF files under ignored
+`artifacts/shape-surface-comparison/`. Invalid tessellations may be labelled for
+diagnostic viewing, but printable exports require the normal mesh checks first.
+The local `viewer.html` and screenshot are review evidence, not CI prerequisites.
+Narrow curved and broad straight C2 regressions check two STEP readers and STL;
+local browser evidence checks four 3MF files and a broad straight slicer import.
+The independent STEP reader retessellates CAD and uses a separate 500,000-triangle
+diagnostic ceiling; canonical generation remains capped at 100,000 per part.
+See the
+[current construction checkpoint](plans/wall-art-shape-surface.md#c2-construction-checkpoint--triangle-blocker-resolved)
+for actual measurements, exact collapsed-triangle normalization and the slicer's
+bed-placement behavior. These individual files do not qualify whole assemblies.
+
+### R3 area, footprint and starter probes
+
+The rectangular moment routines cover all seven fields with explicit error/work
+bounds. `surface-moments.ts` owns dispatch and constrained planar fitting;
+family-specific modules own boundary integrals. Linear Spiral center cases can
+still exhaust their bounded work. The selected C2 investigation is explicit and
+does not change the saved design format. Nonrectangular area integration remains
+pending. Native capability helpers remain under `tests/support/`.
+
+```sh
+node --test tests/wall-art-surface-moments.test.mjs tests/wall-art-planar-native.test.mjs tests/wall-art-footprint-native.test.mjs tests/wall-art-surface-modes.test.mjs
+node scripts/qualify-shape-surface-starter.mjs 2.2
+node scripts/qualify-shape-surface-starter.mjs 1
+node scripts/qualify-shape-surface-starter.mjs 4
+node scripts/check-shape-surface-starter.mjs <generated-starter-directory>
+```
+
+The starter command creates timestamped directories under ignored
+`artifacts/wall-art-shape-surface/`. It uses five isolated 20-part workers for the
+100-piece Wave fixture, then writes `starter.step`, `starter.stl`, `starter.3mf`,
+the preview manifest and a report. Each full generation/export run has a 120-second
+watchdog, a sampled 2 GB process cap and aggregate mesh/output limits. The reader
+command separately checks 100 native STEP solids, 100 independent STEP meshes and
+100 STL placements. Its input files are capped at 256 MiB. A passing fixture is
+not a general capacity tier; every report retains `checkpointComplete: false`.
+
+The footprint test uses real clipped phase-02 bases. It proves radial containment
+before constructing a flat top; an invalid intermediate taper is rejected even
+when its final top fits. CAD vertex endpoint mapping is bounded and topology-based,
+not a proximity weld. Diagnose those paths in `shape-surface-footprint-native.mjs`
+and `shape-surface-vertex-mesh.mjs`. The tests do not certify general curved tops
+or the local engraving floor without a plinth.
+
+Retained starter views and independent 3MF/slicer evidence are linked in the
+[R3 progress checkpoint](plans/wall-art-shape-surface.md#r3-progress--area-native-footprints-and-assembled-starter).
+These local HTML/scripts are evidence, not application routes or CI dependencies.
+The full P2 visual/export review and production integration remain pending.
+
+### R3 contour, anchor and bare-identification probes
+
+```sh
+node --test tests/wall-art-contour-moments.test.mjs tests/wall-art-spiral-contour.test.mjs tests/wall-art-footprint-native.test.mjs tests/wall-art-bare-identification.test.mjs tests/wall-art-native-anchor.test.mjs
+```
+
+`surface-contour-moments.ts` integrates all seven surface families on native
+rational contours, including concave footprints. Harmonic fields use signed fans;
+Ridges and Dome use Green boundary integrals with bounded weak second derivatives
+across creases and the disk edge. Their family-specific contour modules share
+real rational-curve derivative helpers. Whole-chart bounds and 65,536 combined
+geometry/field evaluations limit work. Spiral uses analytic radial primitives,
+whole-chart Gauss bounds and explicit origin/envelope-join remainders. Its center
+mode remains an argument: `linear` by default, or explicit `smooth-c1`/`smooth-c2`
+for the investigation. Tight native plane fixtures select provisional C2.
+`surface-contour-plane.ts` fits area-weighted planes and certifies their complete
+boundary constraints. Native footprint probes use four outline families and five
+layouts, with Wave/Ridges/Dome/Spiral planes; curved sloping caps also pass native STEP
+and independent STL readers. The Ridges periodic primitive removes cancellation
+without changing the field. Dome uses control-hull bounds to distinguish interior,
+exterior and disk-crossing curves. Work exhaustion remains a visible rejection.
+
+`nativeFootprintMoments` accepts an explicit anchor and top-domain ratio. Its fitted
+coefficients use that anchor. `buildAnchoredPlanarFootprint` instead accepts physical
+slopes relative to the source centroid and returns the local solid with its required
+world translation. Do not substitute the original centroid for that translation.
+`shape-surface-anchor.mjs` bounds native-distance search at 4,096 samples; exhaustion
+rejects. These numerical constants remain checkpoint proposals for P2 review.
+
+`shape-surface-bare-identification.mjs` checks cutter prisms against actual material.
+A proven missing floor omits both marks. If no prism proves failure but a residue
+is ambiguous, generation rejects; native-operation failures also propagate. The
+tests cover below/at/above-floor slabs, sloping material and retained source solids.
+Callers must separately establish bare-material validity before identification.
+These helpers remain isolated tests, not production generator-3 dispatch. Current
+evidence and remaining scope are in the [contour checkpoint](plans/wall-art-shape-surface.md#r3-progress--contours-planes-anchors-and-bare-identification).
+The [Ridges/Dome extension](plans/wall-art-shape-surface.md#r3-progress--ridges-and-dome-contour-moments)
+records independent area oracles, native matrices and export evidence.
+The [Spiral extension](plans/wall-art-shape-surface.md#r3-progress--spiral-contour-moments)
+adds curved center/join and high-arm checks. Break in
+`surface-spiral-contour-moments.ts` at radius bounds, radial primitive evaluation
+and chart rejection to distinguish arithmetic, depth and work exhaustion. The
+radius-ratio certificate handles a contour exactly on the center-envelope join;
+the tighter radial-decay bound supports plane fitting without changing tolerances.
+
+### R3 continuous native footprints
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-curved-boundary.test.mjs tests/wall-art-continuous-footprint.test.mjs
+npm run check:awake
+```
+
+`buildBoundarySurface` in `tests/support/shape-surface-boundary-native.mjs` accepts
+an optional native `footprint`. That route selects the bounded anchor, checks
+homothetic containment and top span, trims native spline caps to the scaled native
+face, and builds flanks from their shared boundaries. Its result is local to the
+selected anchor; use the returned `translation` for preview/export placement.
+The existing rectangular comparison keeps its world-coordinate contract.
+
+Wave, Dunes, Ring, Dome, Ridges and Random each cover twenty selected outline/layout
+cases. These select the largest eligible part, not every clipped fragment. A mixed stepped/
+continuous fixture uses the actual area mean. An independent volume oracle combines
+area moments, native boundary integration and the analytic side profile. It uses
+adaptive native volume integration; the default native volume estimate was not
+accurate enough for the oracle's tighter comparison. The curved Wave fixture also
+passes native STEP and independent STL readers in the portable suite.
+
+The two retained Spiral fixtures now fit the unchanged 4,096-pole limit. Compact
+boundary candidates use a monotone XY coordinate and certify both remaining
+coordinates over every native Bézier span. The allowed boundary error includes
+amplification at the wider flank base. Rational or uncertified candidates retain
+the original curve; an excessive final control net still rejects before export.
+The unreduced Spiral fixture exercises that rejection. Diagnose top trimming,
+free-edge reduction and flank pole accounting through the builder's stage callback.
+`shape-surface-boundary-reparameterize.mjs` owns candidate selection and complete-
+curve residual checks; `shape-surface-curve-residual.mjs` bounds the polynomial
+composition, rather than accepting a sampled match. General family qualification
+remains incomplete. The optional compact chart/profile strategies keep complete-
+domain error certificates while reducing repeated control points. The footprint
+builder can also prove vertical bounds from the analytic field range plus its
+certified approximation error; high-degree control hulls alone can be too broad.
+The rectangular comparison retains its original strategies. Center-covering compact
+C2 Spiral charts now follow constant phase: `theta = u + angularTwist * v`, where
+`v` is normalized radius. `BoundaryPatch.angularTwist` documents that coordinate
+mapping. The physical field, meshing tolerances and triangle/node limits are unchanged.
+The retained hexagonal center now passes at 86,672 canonical triangles. Diagnose
+chart coordinates and their full-domain XY/height bounds in `surface-sampling.ts`.
+See the [phase-aligned center checkpoint](plans/wall-art-shape-surface.md#spiral-center-tessellation--phase-aligned-charts) and the
+[expanded family checkpoint](plans/wall-art-shape-surface.md#r3-progress--expanded-continuous-families).
+See the [Spiral resolution](plans/wall-art-shape-surface.md#spiral-control-net-blocker--resolved-for-the-retained-fixtures)
+for the measured control nets and exports.
+See the [continuous checkpoint](plans/wall-art-shape-surface.md#r3-progress--continuous-native-footprints)
+for measured export evidence, the Node file-concurrency investigation and remaining
+material/error/retention qualification. These helpers are isolated capability code.
+
+### R3 continuous identification
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-identified-footprint.test.mjs
+```
+
+`shape-surface-identified-footprint.mjs` accepts an already material-checked native
+candidate. It preserves the existing area-centroid-first identification search,
+then returns cuts and identification coordinates in the selected shape-anchor
+frame. Its mesh callback reads the **identified** solid; reusing the source callback
+would export the uncut part. Retain the returned translation for all formats.
+
+Seven continuous-family fixtures check successful no-plinth engraving and valid
+Map-only retention after a proven floor failure. Too-thin fixtures reject before
+identification. The fallback-anchor fixture checks four-digit glyph/arrow placement
+with and without a plinth, source retention and propagated native failures.
+These are bounded fixtures, not general material qualification. See the
+[identification handoff checkpoint](plans/wall-art-shape-surface.md#r3-progress--continuous-identification-and-final-solid-handoff)
+for reader/slicer evidence and remaining P2 work.
+
+### R3 native assembly checks
+
+```sh
+node --test --test-concurrency=1 tests/wall-art-surface-assembly.test.mjs tests/wall-art-boundary-native.test.mjs
+```
+
+`shape-surface-assembly.mjs` qualifies at most 32 already material-checked final
+parts in one diagnostic heap. It validates identity/placement before native work,
+uses native world bounds and full-solid distances, then checks shared aggregate
+canonical budgets. It does not reuse the v2 taper hull. Seven-part engraved and
+Map-only assemblies retain the previous sources while checking STEP and streamed
+STL/3MF. Overlap, insufficient clearance and invalid input reject before return.
+
+`measureBoundaryVolume` uses adaptive native integration before mesh comparison.
+The non-adaptive convenience API can exceed the 0.1% mesh-volume allowance on thin
+curved solids. Numerical integration uncertainty contributes to the comparison;
+the existing mesh tolerances and triangle limits remain unchanged. Diagnose the
+reference value before assuming that more mesh triangles will resolve a mismatch.
+See the [assembly checkpoint](plans/wall-art-shape-surface.md#r3-progress--native-assemblies-and-volume-reference)
+for independent field-volume evidence and remaining full-tier memory qualification.
+
+### R3 fractional side profiles
+
+Fractional side-profile diagnosis: run
+`node --test --test-concurrency=1 tests/wall-art-surface-domains.test.mjs tests/wall-art-planar-native.test.mjs`.
+For curvature between 1 and 2, `surface-fit.ts` uses a finite convex-tangent remainder
+on the interval touching zero. Other intervals retain their second-derivative bound.
+The tests exercise both profile strategies and all three native builders, including
+untapered parts and STEP round trips. Tight fits can still exhaust the existing
+degree/refinement budget; a finite endpoint bound is not a blanket range guarantee.
+
+### P2 native review package
+
+```sh
+node scripts/qualify-shape-surface-review.mjs
+node scripts/check-shape-surface-review.mjs <review-directory>
+node scripts/render-shape-surface-review.mjs <review-directory> <starter-1-directory> <starter-2.2-directory> <starter-4-directory>
+node scripts/check-shape-surface-review.mjs <review-directory> --slicer
+node scripts/profile-shape-surface-browser.mjs
+node --test --test-concurrency=1 tests/wall-art-surface-review.test.mjs
+npm run check:awake
+```
+
+The first command generates 42 fixed cases: 41 valid assemblies and one expected
+bare-material rejection. Optional positional fixture IDs select a diagnostic subset;
+a subset is not the complete review. Generate the three starters with
+`qualify-shape-surface-starter.mjs` as documented above. The renderer writes an HTML
+review sheet, matched front/side/isometric PNGs and independent browser 3MF checks.
+Before `--slicer`, import each valid assembly's 3MF into OrcaSlicer and export separate
+STLs to that same directory with `--arrange 0 --export-stls <directory>`. The checker
+validates the actual `obj_*_Part-*.stl` outputs, not the slicer's exit code alone.
+
+Fresh native workers keep each generated/read fixture under 120 seconds and a
+sampled 2 GB process cap. Reports include actual native-construction constructor
+counts and a conservative aggregate field-evaluation reservation; they are not
+production scheduler counters. The browser profiler builds in a separate process,
+serves strict port 6873, retains accepted native/canonical/renderer allocations during
+replacement, and checks invalid input, cancellation and final-solid downloads.
+It closes its browser and server on success or failure. Its Windows process sampler
+includes Chromium working sets and controller RSS; samples are not an exact peak.
+
+`shape-surface-error-ledger.mjs` separates analytic height, side-profile, contour,
+amplified boundary and stored native tolerances. Exact-method native consistency is
+checked, but a stored tolerance is not an independent global distance proof for
+Boolean/trim operations. The report explicitly keeps `formalKernelErrorProof: false`.
+The reviewed numerical contract must retain that distinction. The minified browser
+fixture also reproduces class renaming: native shell checks use `instanceof Shell`,
+not the constructor's display name.
+
+Current files, measurements and the required decision are in the
+[P2 package](plans/wall-art-shape-surface.md#p2-review-package--ready-for-the-required-decision).
+Generated files remain under ignored `artifacts/`; they are not CI prerequisites.
 
 ## Impeccable design tooling
 

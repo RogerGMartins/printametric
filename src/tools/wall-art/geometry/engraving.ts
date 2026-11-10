@@ -9,7 +9,7 @@ import { digitPolygons, ORIENTATION_ARROW, MINIMUM_GLYPH_HEIGHT } from './glyphs
 import { nativeBoolean, nativeExtrude, nativeScale, nativeTranslate, requireSolid } from './native-operations.ts';
 import { classifySpan } from './layouts/span.ts';
 
-export type Identification = { status: 'unengraved' | 'map-only' } | {
+export type Identification = { status: 'unengraved' } | { status: 'map-only'; reason?: 'glyph-fit' | 'residual-floor' } | {
   status: 'engraved'; height: number; anchor: [number, number]; orientationMark: boolean;
 };
 

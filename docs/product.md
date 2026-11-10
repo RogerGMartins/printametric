@@ -41,6 +41,18 @@ slicer. Standard 3MF model export is required; slicer-specific project settings
 and filament/plate presets are a separate future scope. A visual preview is not
 evidence that geometry or an exported file is valid.
 
+## Shape and surface
+
+Phase 03's [shape and surface scope](specs/wall-art-shape-surface.md) implements
+seven field families, uniform two-axis taper, straight/curved
+sides, stepped/continuous/planar tops, optional per-part plinths and independent
+layout/surface seeds. Fresh designs use the approved stepped Wave with curvature 2.2;
+old files retain their original generator and require an
+explicit minimal-change upgrade. The [technical plan](plans/wall-art-shape-surface.md)
+records the accepted native-CAD checkpoint and integrated qualification status.
+Generator 3 is connected to the editor. Existing generator-2 capacity measurements
+do not qualify generator-3 throughput; failed complex candidates retain the prior design.
+
 ## Print preparation and launch (within MVP)
 
 - Multi-piece kits, stable numbering, assembly map, colour grouping, and packing
