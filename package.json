@@ -22,7 +22,7 @@
   "devDependencies": {
     "@opencode-ai/plugin": "1.19.5",
     "@playwright/test": "1.64.1",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/three": "0.187.0",
